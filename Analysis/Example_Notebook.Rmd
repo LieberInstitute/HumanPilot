@@ -1,0 +1,514 @@
+---
+title: "Visium Lieber Example Analysis Notebook"
+author: '[Stephen Williams, PhD.](mailto:stephen.williams@10xgenomics.com) 10x Genomics
+  Senior Scientist - Computational Biology'
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_notebook:
+    code_folding: none
+    theme: journal
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: '3'
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 15px;
+}
+code.r{
+  font-size: 15px;
+}
+pre {
+  font-size: 15px
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  cache = FALSE,
+  cache.lazy = FALSE,
+  tidy = TRUE
+)
+```
+
+# Introduction
+
+The motivation for this notebook is to allow early access sites to 
+
+  + Read in their Space Ranger outputs
+    + Genes, UMIs, Clusters
+    + Down-sampled images, scale factors, and spot tissue positions
+  + Plot this information to make figures of the following combinations
+    + Tissue - Total UMI
+    + Tissue - Total Gene
+    + Tissue - Cluster
+    + Tissue - Gene of interest
+    
+The following R code is designed to provide a baseline for how to do these exploratory analyses.
+
+# Libraries and Functions
+
+## Libraries
+```{r Libraries, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(Matrix)
+library(Rmisc)
+library(ggforce)
+library(rjson)
+library(cowplot)
+library(RColorBrewer)
+library(grid)
+library(readbitmap)
+library(Seurat)
+```
+
+## Functions
+
+The `geom_spatial` function is defined to make plotting your tissue image in ggplot a simple task.
+```{r}
+geom_spatial <-  function(mapping = NULL,
+                         data = NULL,
+                         stat = "identity",
+                         position = "identity",
+                         na.rm = FALSE,
+                         show.legend = NA,
+                         inherit.aes = FALSE,
+                         ...) {
+  
+  GeomCustom <- ggproto(
+    "GeomCustom",
+    Geom,
+    setup_data = function(self, data, params) {
+      data <- ggproto_parent(Geom, self)$setup_data(data, params)
+      data
+    },
+    
+    draw_group = function(data, panel_scales, coord) {
+      vp <- grid::viewport(x=data$x, y=data$y)
+      g <- grid::editGrob(data$grob[[1]], vp=vp)
+      ggplot2:::ggname("geom_spatial", g)
+    },
+    
+    required_aes = c("grob","x","y")
+    
+  )
+  
+  layer(
+    geom = GeomCustom,
+    mapping = mapping,
+    data = data,
+    stat = stat,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+
+```
+
+
+# Reading in your data
+
+## Define your samples
+```{r eval=FALSE, include=TRUE}
+sample_names <- c("Sample1", "Sample2")
+sample_names
+```
+
+## Define your paths
+
+Paths should be in the same order as the corresponding sample names
+
+```{r eval=FALSE, include=TRUE}
+image_paths <- c("/path/to/Sample1-spatial/tissue_lowres_image.png",
+                 "/path/to/Sample2-spatial/tissue_lowres_image.png")
+
+scalefactor_paths <- c("/path/to/Sample1-spatial/scalefactors_json.json",
+                       "/path/to/Sample2-spatial/scalefactors_json.json")
+
+tissue_paths <- c("/path/to/Sample1-spatial/tissue_positions_list.txt",
+                  "/path/to/Sample2-spatial/tissue_positions_list.txt")
+
+cluster_paths <- c("/path/to/Sample1/outs/analysis_csv/clustering/graphclust/clusters.csv",
+                   "/path/to/Sample2/outs/analysis_csv/clustering/graphclust/clusters.csv")
+
+matrix_paths <- c("/path/to/Sample1/outs/filtered_feature_bc_matrix.h5",
+                  "/path/to/Sample2/outs/filtered_feature_bc_matrix.h5")
+
+```
+
+
+## Read in down sampled images
+
+We also need to determine the image height and width for proper plotting in the end
+
+```{r}
+images_cl <- list()
+
+for (i in 1:length(sample_names)) {
+  images_cl[[i]] <- read.bitmap(image_paths[i])
+}
+
+height <- list()
+
+for (i in 1:length(sample_names)) {
+ height[[i]] <-  data.frame(height = nrow(images_cl[[i]]))
+}
+
+height <- bind_rows(height)
+
+width <- list()
+
+for (i in 1:length(sample_names)) {
+ width[[i]] <- data.frame(width = ncol(images_cl[[i]]))
+}
+
+width <- bind_rows(width)
+```
+
+
+### Convert the images to grobs
+
+This step provides compatibility with ggplot2
+```{r}
+grobs <- list()
+for (i in 1:length(sample_names)) {
+  grobs[[i]] <- rasterGrob(images_cl[[i]], width=unit(1,"npc"), height=unit(1,"npc"))
+}
+
+images_tibble <- tibble(sample=factor(sample_names), grob=grobs)
+images_tibble$height <- height$height
+images_tibble$width <- width$width
+images_tibble
+```
+
+```{r}
+scales <- list()
+
+for (i in 1:length(sample_names)) {
+  scales[[i]] <- rjson::fromJSON(file = scalefactor_paths[i])
+}
+
+scales[[1]]
+```
+
+## Read in Clusters
+
+```{r}
+clusters <- list()
+for (i in 1:length(sample_names)) {
+  clusters[[i]] <- read.csv(cluster_paths[i])
+}
+
+head(clusters[[1]])
+```
+
+
+## Combine clusters and tissue info for easy plotting
+
+At this point we also need to adjust the spot positions by the scale factor for the image that we are using. In this case we are using the lowres image which has been resized by Space Ranger to be 600 pixels (largest dimension) but also keeps the proper proportions. 
+
+For example, if your image is 12000x11000 the image will be resized to be 600x550. If your image is 11000x12000 the image will be resized to be 550x600.
+```{r}
+bcs <- list()
+
+for (i in 1:length(sample_names)) {
+   bcs[[i]] <- read.csv(tissue_paths[i],col.names=c("barcode","tissue","row","col","imagerow","imagecol"), header = FALSE)
+   bcs[[i]]$imagerow <- bcs[[i]]$imagerow * scales[[i]]$tissue_lowres_scalef    # scale tissue coordinates for lowres image
+   bcs[[i]]$imagecol <- bcs[[i]]$imagecol * scales[[i]]$tissue_lowres_scalef
+   bcs[[i]]$tissue <- as.factor(bcs[[i]]$tissue)
+   bcs[[i]] <- merge(bcs[[i]], clusters[[i]], by.x = "barcode", by.y = "Barcode", all = TRUE)
+   bcs[[i]]$height <- height$height[i]
+   bcs[[i]]$width <- width$width[i]
+}
+
+names(bcs) <- sample_names
+
+head(bcs[[1]])
+```
+
+## Read in the matrix, barcodes, and genes
+
+For the most simplistic approach we are going to read in our `filtered_feature_bc_matrix.h5` using the Seurat package. However, if you don't have access to this package you can read in the files from the `filtered_feature_bc_matrix` directory and reconstruct the data.frame with the barcodes as the row names and the genes as the column names. You can see a code example below 
+
+```{r}
+matrix <- list()
+
+for (i in 1:length(sample_names)) {
+ matrix[[i]] <- as.data.frame(t(Read10X_h5(matrix_paths[i])))
+}
+
+head(matrix[[1]])
+```
+
+
+Read from `filtered_feature_bc_matrix` directory. You can modify as above to write a loop to read these in. 
+```{r}
+matrix_dir = "/path/to/Sample1/outs/filtered_feature_bc_matrix/"
+barcode.path <- paste0(matrix_dir, "barcodes.tsv.gz")
+features.path <- paste0(matrix_dir, "features.tsv.gz")
+matrix.path <- paste0(matrix_dir, "matrix.mtx.gz")
+matrix <- t(readMM(file = matrix.path))
+feature.names = read.delim(features.path, 
+                           header = FALSE,
+                           stringsAsFactors = FALSE)
+barcode.names = read.delim(barcode.path, 
+                           header = FALSE,
+                           stringsAsFactors = FALSE)
+rownames(matrix) = barcode.names$V1
+colnames(matrix) = feature.names$V2
+```
+
+
+You can also parallelize this step using the doSNOW library if you are analyzing lots of samples 
+```
+library(doSNOW)
+
+cl <- makeCluster(4)
+registerDoSNOW(cl)
+
+i = 1
+matrix<- foreach(i=1:length(sample_names), .packages = c("Matrix", "Seurat")) %dopar% {
+ as.data.frame(t(Read10X_h5(matrix_paths[i])))
+}
+
+stopCluster(cl)
+
+matrix[[1]]
+```
+
+
+## Make summary data.frames
+
+
+**Total UMI per spot**
+```{r message=FALSE, warning=FALSE}
+umi_sum <- list() 
+
+for (i in 1:length(sample_names)) {
+  umi_sum[[i]] <- data.frame(barcode =  row.names(matrix[[i]]),
+                             sum_umi = Matrix::rowSums(matrix[[i]]))
+  
+}
+names(umi_sum) <- sample_names
+
+umi_sum <- bind_rows(umi_sum, .id = "sample")
+head(umi_sum)
+```
+
+
+**Total Genes per spot**
+```{r message=FALSE, warning=FALSE}
+gene_sum <- list() 
+
+for (i in 1:length(sample_names)) {
+  gene_sum[[i]] <- data.frame(barcode =  row.names(matrix[[i]]),
+                             sum_gene = Matrix::rowSums(matrix[[i]] != 0))
+  
+}
+names(gene_sum) <- sample_names
+
+gene_sum <- bind_rows(gene_sum, .id = "sample")
+head(gene_sum)
+```
+
+## Merge all the necessary data
+
+In this final data.frame we will have information about your spot barcodes, spot tissue category (in/out), scaled spot row and column position, image size, and summary data.
+
+```{r}
+bcs_merge <- bind_rows(bcs, .id = "sample")
+bcs_merge <- merge(bcs_merge,umi_sum, by = c("barcode", "sample"))
+bcs_merge <- merge(bcs_merge,gene_sum, by = c("barcode", "sample"))
+head(bcs_merge)
+```
+
+
+# Plotting
+
+I find that the most convenient way to plot lots of figures together is to make a list of them and utilize the `cowplot` package to do the arrangement. 
+
+Here, we'll take `bcs_merge` and filter for each individual sample in `sample_names`
+
+We'll also use the image dimensions specific to each sample to make sure our plots have the correct x and y limits. As seen below. 
+
+```
+xlim(0,max(bcs_merge %>% 
+          filter(sample ==sample_names[i]) %>% 
+          select(width)))+
+```
+
+**_Note: Spots are not to scale_**
+
+Define our color palette for plotting
+```{r}
+myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")))
+```
+
+## Total UMI per Tissue Covered Spot
+```{r, fig.width = 16, fig.height = 8}
+plots <- list()
+
+for (i in 1:length(sample_names)) {
+
+plots[[i]] <- bcs_merge %>% 
+  filter(sample ==sample_names[i]) %>% 
+      ggplot(aes(x=imagecol,y=imagerow,fill=sum_umi)) +
+                geom_spatial(data=images_tibble[i,], aes(grob=grob), x=0.5, y=0.5)+
+                geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
+                coord_cartesian(expand=FALSE)+
+                scale_fill_gradientn(colours = myPalette(100))+
+                xlim(0,max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(width)))+
+                ylim(max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(height)),0)+
+                xlab("") +
+                ylab("") +
+                ggtitle(sample_names[i])+
+                labs(fill = "Total UMI")+
+                theme_set(theme_bw(base_size = 10))+
+                theme(panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(), 
+                        axis.line = element_line(colour = "black"),
+                        axis.text = element_blank(),
+                        axis.ticks = element_blank())
+}
+
+plot_grid(plotlist = plots)
+```
+
+```{r, out.width = "200px", echo=FALSE}
+knitr::include_graphics("~/public_html/Odin/Beta/example_notebook/sum_umi.jpg")
+```
+
+## Total Genes per Tissue Covered Spot
+```{r, fig.width = 16, fig.height = 8}
+plots <- list()
+
+for (i in 1:length(sample_names)) {
+
+plots[[i]] <- bcs_merge %>% 
+  filter(sample ==sample_names[i]) %>% 
+      ggplot(aes(x=imagecol,y=imagerow,fill=sum_gene)) +
+                geom_spatial(data=images_tibble[i,], aes(grob=grob), x=0.5, y=0.5)+
+                geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
+                coord_cartesian(expand=FALSE)+
+                scale_fill_gradientn(colours = myPalette(100))+
+                xlim(0,max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(width)))+
+                ylim(max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(height)),0)+
+                xlab("") +
+                ylab("") +
+                ggtitle(sample_names[i])+
+                labs(fill = "Total Genes")+
+                theme_set(theme_bw(base_size = 10))+
+                theme(panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(), 
+                        axis.line = element_line(colour = "black"),
+                        axis.text = element_blank(),
+                        axis.ticks = element_blank())
+}
+
+plot_grid(plotlist = plots)
+```
+
+```{r, out.width = "200px", echo=FALSE}
+knitr::include_graphics("~/public_html/Odin/Beta/example_notebook/sum_gene.jpg")
+```
+
+## Cluster Assignments per Tissue Covered Spot
+```{r, fig.width = 16, fig.height = 8}
+plots <- list()
+
+for (i in 1:length(sample_names)) {
+
+plots[[i]] <- bcs_merge %>% 
+  filter(sample ==sample_names[i]) %>%
+  filter(tissue == "1") %>% 
+      ggplot(aes(x=imagecol,y=imagerow,fill=factor(Cluster))) +
+                geom_spatial(data=images_tibble[i,], aes(grob=grob), x=0.5, y=0.5)+
+                geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
+                coord_cartesian(expand=FALSE)+
+                scale_fill_manual(values = c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold", "#a65628", "#999999", "black", "grey", "white", "purple"))+
+                xlim(0,max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(width)))+
+                ylim(max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(height)),0)+
+                xlab("") +
+                ylab("") +
+                ggtitle(sample_names[i])+
+                labs(fill = "Cluster")+
+                guides(fill = guide_legend(override.aes = list(size=3)))+
+                theme_set(theme_bw(base_size = 10))+
+                theme(panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(), 
+                        axis.line = element_line(colour = "black"),
+                        axis.text = element_blank(),
+                        axis.ticks = element_blank())
+}
+
+plot_grid(plotlist = plots)
+```
+
+```{r, out.width = "200px", echo=FALSE}
+knitr::include_graphics("~/public_html/Odin/Beta/example_notebook/cluster.jpg")
+```
+
+## Gene of Interest
+
+Here we want to plot a gene of interest so we'll bind the `bcs_merge` data.frame with a subset of our `matrix` that contains our gene of interest. In this case it will be the hippocampus specific gene _Hpca_. Keep in mind this is an example for mouse, for humans the gene symbol would be _HPCA_.
+```{r, fig.width = 16, fig.height = 8}
+plots <- list()
+
+for (i in 1:length(sample_names)) {
+
+plots[[i]] <- bcs_merge %>% 
+                  filter(sample ==sample_names[i]) %>% 
+                  bind_cols(select(matrix[[i]], "Hpca")) %>% 
+  ggplot(aes(x=imagecol,y=imagerow,fill=Hpca)) +
+                geom_spatial(data=images_tibble[i,], aes(grob=grob), x=0.5, y=0.5)+
+                geom_point(shape = 21, colour = "black", size = 1.75, stroke = 0.5)+
+                coord_cartesian(expand=FALSE)+
+                scale_fill_gradientn(colours = myPalette(100))+
+                xlim(0,max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(width)))+
+                ylim(max(bcs_merge %>% 
+                            filter(sample ==sample_names[i]) %>% 
+                            select(height)),0)+
+                xlab("") +
+                ylab("") +
+                ggtitle(sample_names[i])+
+                theme_set(theme_bw(base_size = 10))+
+                theme(panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(), 
+                        axis.line = element_line(colour = "black"),
+                        axis.text = element_blank(),
+                        axis.ticks = element_blank())
+}
+
+plot_grid(plotlist = plots)
+```
+
+```{r, out.width = "200px", echo=FALSE}
+knitr::include_graphics("~/public_html/Odin/Beta/example_notebook/hpca.jpg")
+```

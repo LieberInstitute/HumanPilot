@@ -1,0 +1,30 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/3.6
+**** Job starts ****
+Tue Dec  3 16:23:17 EST 2019
+**** JHPCE info ****
+User: lcollado
+Job id: 296436
+Job name: bamtofastq_151673
+Hostname: compute-094.cm.cluster
+Task id: undefined
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.23.0                     14) conda_R/3.6
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+bamtofastq v1.2.0
+Args { arg_bam: "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/151673/151673_mRNA.bam", arg_output_path: "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/151673/fastq", flag_nthreads: 4, flag_locus: None, flag_bx_list: None, flag_reads_per_fastq: 50000000, flag_gemcode: false, flag_lr20: false, flag_cr11: false }
+Writing finished.  Observed 300684902 read pairs. Wrote 300684902 read pairs
+**** Job ends ****
+Tue Dec  3 17:00:22 EST 2019

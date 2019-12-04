@@ -1,0 +1,6 @@
+CellSegmentations
+.*.sh
+*/*csv
+*/*bam*
+*/*h5
+20190925_JHU_Lieber_HumanBrain_LP
