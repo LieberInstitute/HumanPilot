@@ -17,23 +17,33 @@ dir.create('rda_image', showWarnings = FALSE)
 load('geom_spatial.Rdata', verbose = TRUE)
 
 ## From sce_scran.R
-load('Human_DLPFC_Visium_processedData_sce_scran.Rdata', verbose = TRUE)
+load('Human_DLPFC_Visium_processedData_sce_scran.Rdata',
+    verbose = TRUE)
 
 ## Using the top genes
-info_full <- assays(sce)$logcounts[top.hvgs, ]
+info_full <- assays(sce)$logcounts[top.hvgs,]
 sce_df <- as.data.frame(t(as.matrix(info_full)))
 
 ## Add the row and col data, as well as the subject/position factor
 sce_df$row <- unlist(lapply(split(sce$row, sce$sample_name), scale))
 sce_df$col <- unlist(lapply(split(sce$col, sce$sample_name), scale))
-sce_df$subject_position <- scale(as.integer(factor(sce$subject_position)))
+sce_df$subject_position <-
+    scale(as.integer(factor(sce$subject_position)))
 
 ## For making it easier later
 extra_cols <- seq_len(3) + length(top.hvgs)
 
 Sys.time()
-km_init_k6_full <- KMeans_rcpp(sce_df, clusters = 6, num_init = 5, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_full <-
+    KMeans_rcpp(
+        sce_df,
+        clusters = 6,
+        num_init = 5,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 Sys.time()
 
 options(width = 200)
@@ -48,7 +58,10 @@ addmargins(table(sort_clusters(km_init_k6_full$clusters), sce$sample_name))
 # 6        1      0      0      0      0      0      0      0      0      0      0      0     1
 # Sum   4226   4384   4789   4634   3661   3498   4110   4015   3639   3673   3592   3460 47681
 
-addmargins(table(sort_clusters(km_init_k6_full$clusters), sce$subject_position))
+addmargins(table(
+    sort_clusters(km_init_k6_full$clusters),
+    sce$subject_position
+))
 
 #     Br5292_pos0 Br5292_pos300 Br5595_pos0 Br5595_pos300 Br8100_pos0 Br8100_pos300   Sum
 # 1          4306          5239        5992          6396        4592          4747 31272
@@ -78,10 +91,20 @@ save(km_init_k6_full, file = 'rda_image/km_init_k6_full.Rdata')
 
 
 Sys.time()
-km_init_k6_full_noXY <- KMeans_rcpp(sce_df[, - extra_cols], clusters = 6, num_init = 5, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_full_noXY <-
+    KMeans_rcpp(
+        sce_df[, -extra_cols],
+        clusters = 6,
+        num_init = 5,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 Sys.time()
-sce_image_grid(sce, km_init_k6_full_noXY$clusters, 'pdf_image/grid_k6_full_noXY.pdf')
+sce_image_grid(sce,
+    km_init_k6_full_noXY$clusters,
+    'pdf_image/grid_k6_full_noXY.pdf')
 save(km_init_k6_full_noXY, file = 'rda_image/km_init_k6_full_noXY.Rdata')
 
 table(
@@ -108,10 +131,22 @@ addmargins(table(sort_clusters(km_init_k6_full_noXY$clusters), sce$subject))
 
 
 Sys.time()
-km_init_k6_full_noXY_center <- KMeans_rcpp(scale(sce_df[, - extra_cols], scale = FALSE), clusters = 6, num_init = 5, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_full_noXY_center <-
+    KMeans_rcpp(
+        scale(sce_df[, -extra_cols], scale = FALSE),
+        clusters = 6,
+        num_init = 5,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 Sys.time()
-sce_image_grid(sce, km_init_k6_full_noXY_center$clusters, 'pdf_image/grid_k6_full_noXY_center.pdf')
+sce_image_grid(
+    sce,
+    km_init_k6_full_noXY_center$clusters,
+    'pdf_image/grid_k6_full_noXY_center.pdf'
+)
 save(km_init_k6_full_noXY_center, file = 'rda_image/km_init_k6_full_noXY_center.Rdata')
 
 table(
@@ -139,10 +174,20 @@ table(
 
 
 Sys.time()
-km_init_k6_full_noSubjPos <- KMeans_rcpp(sce_df[, - ncol(sce_df)], clusters = 6, num_init = 5, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_full_noSubjPos <-
+    KMeans_rcpp(
+        sce_df[, -ncol(sce_df)],
+        clusters = 6,
+        num_init = 5,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 Sys.time()
-sce_image_grid(sce, km_init_k6_full_noSubjPos$clusters, 'pdf_image/grid_k6_full_noSubjPos.pdf')
+sce_image_grid(sce,
+    km_init_k6_full_noSubjPos$clusters,
+    'pdf_image/grid_k6_full_noSubjPos.pdf')
 save(km_init_k6_full_noSubjPos, file = 'rda_image/km_init_k6_full_noSubjPos.Rdata')
 
 table(
@@ -169,7 +214,10 @@ table(
 # 5     5     0    26     0  2883     3
 # 6     0     3    11    36     0  2204
 
-addmargins(table(sort_clusters(km_init_k6_full_noSubjPos$clusters), sce$subject))
+addmargins(table(
+    sort_clusters(km_init_k6_full_noSubjPos$clusters),
+    sce$subject
+))
 #     Br5292 Br5595 Br8100   Sum
 # 1     3743   3669   5835 13247
 # 2     4100   6579   2092 12771
@@ -188,13 +236,23 @@ dim(pcs)
 
 Sys.time()
 ## Since it's a lot faster, I can run it with num_init = 20 instead of 5
-km_init_k6_pcs_only <- KMeans_rcpp(pcs, clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_pcs_only <-
+    KMeans_rcpp(
+        pcs,
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 Sys.time()
 ## Takes about 2 minutes
 # [1] "2019-11-13 15:59:58 EST"
 # [1] "2019-11-13 16:01:22 EST"
-sce_image_grid(sce, km_init_k6_pcs_only$clusters, 'pdf_image/grid_k6_pcs_only.pdf')
+sce_image_grid(sce,
+    km_init_k6_pcs_only$clusters,
+    'pdf_image/grid_k6_pcs_only.pdf')
 save(km_init_k6_pcs_only, file = 'rda_image/km_init_k6_pcs_only.Rdata')
 
 
@@ -222,9 +280,19 @@ table(
 # 6     0     0    11     5     2  2236
 
 
-km_init_k6_pcs_noSubj <- KMeans_rcpp(cbind(pcs, sce_df[, extra_cols[-3]]), clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
-sce_image_grid(sce, km_init_k6_pcs_noSubj$clusters, 'pdf_image/grid_k6_pcs_noSubj.pdf')
+km_init_k6_pcs_noSubj <-
+    KMeans_rcpp(
+        cbind(pcs, sce_df[, extra_cols[-3]]),
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
+sce_image_grid(sce,
+    km_init_k6_pcs_noSubj$clusters,
+    'pdf_image/grid_k6_pcs_noSubj.pdf')
 save(km_init_k6_pcs_noSubj, file = 'rda_image/km_init_k6_pcs_noSubj.Rdata')
 addmargins(table(sort_clusters(km_init_k6_pcs_noSubj$clusters), sce$subject))
 #     Br5292 Br5595 Br8100   Sum
@@ -261,9 +329,19 @@ table(
 # 5     0     1     5     0  2881     0
 # 6     0     0     2     1     2  2284
 
-km_init_k6_pcs_wXYS <- KMeans_rcpp(cbind(pcs, sce_df[, extra_cols]), clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
-sce_image_grid(sce, km_init_k6_pcs_wXYS$clusters, 'pdf_image/grid_k6_pcs_wXYS.pdf')
+km_init_k6_pcs_wXYS <-
+    KMeans_rcpp(
+        cbind(pcs, sce_df[, extra_cols]),
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
+sce_image_grid(sce,
+    km_init_k6_pcs_wXYS$clusters,
+    'pdf_image/grid_k6_pcs_wXYS.pdf')
 save(km_init_k6_pcs_wXYS, file = 'rda_image/km_init_k6_pcs_wXYS.Rdata')
 addmargins(table(sort_clusters(km_init_k6_pcs_wXYS$clusters), sce$subject))
 #     Br5292 Br5595 Br8100   Sum
@@ -321,49 +399,63 @@ ks <- 4:24
 ## (same colors as sce_scran.R for SNN with K = 50)
 ## Needs 28 colors!
 ## From https://medialab.github.io/iwanthue/ with the default preset
-cols <- c("#de84b0",
-"#78bb40",
-"#9c45bd",
-"#46c06f",
-"#cb3e97",
-"#488733",
-"#b978e9",
-"#beae36",
-"#5c6ade",
-"#db9443",
-"#5985dc",
-"#cf4e32",
-"#43c4c4",
-"#d84068",
-"#5fb88e",
-"#e471d1",
-"#327e58",
-"#7454b1",
-"#a4b266",
-"#964f95",
-"#72722a",
-"#c18cd3",
-"#a06332",
-"#54a4d6",
-"#dc8074",
-"#5465a4",
-"#9f4765",
-"#a09cdf")
+cols <- c(
+    "#de84b0",
+    "#78bb40",
+    "#9c45bd",
+    "#46c06f",
+    "#cb3e97",
+    "#488733",
+    "#b978e9",
+    "#beae36",
+    "#5c6ade",
+    "#db9443",
+    "#5985dc",
+    "#cf4e32",
+    "#43c4c4",
+    "#d84068",
+    "#5fb88e",
+    "#e471d1",
+    "#327e58",
+    "#7454b1",
+    "#a4b266",
+    "#964f95",
+    "#72722a",
+    "#c18cd3",
+    "#a06332",
+    "#54a4d6",
+    "#dc8074",
+    "#5465a4",
+    "#9f4765",
+    "#a09cdf"
+)
 names(cols) <- seq_len(length(cols))
 
 ## Expression only
 pcs_klist_exprOnly <- lapply(ks, function(k) {
-    clus_res <- KMeans_rcpp(pcs, clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
+    clus_res <- KMeans_rcpp(
+        pcs,
+        clusters = k,
+        num_init = 10,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = FALSE,
+        seed = 20191112
+    )
     sort_clusters(clus_res$clusters)
 })
 
-pdf('pdf_image/grid_kmeans_pcs_exprOnly.pdf', height = 24, width = 36)
+pdf('pdf_image/grid_kmeans_pcs_exprOnly.pdf',
+    height = 24,
+    width = 36)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, 'expr PCs only'),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
 }, ks, pcs_klist_exprOnly)
@@ -373,17 +465,30 @@ save(pcs_klist_exprOnly, file = 'rda_image/pcs_klist_exprOnly.Rdata')
 
 ## with X and Y
 pcs_klist_withXY <- lapply(ks, function(k) {
-    clus_res <- KMeans_rcpp(cbind(pcs, sce_df[, extra_cols[-3]]), clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
+    clus_res <-
+        KMeans_rcpp(
+            cbind(pcs, sce_df[, extra_cols[-3]]),
+            clusters = k,
+            num_init = 10,
+            max_iters = 100,
+            initializer = 'kmeans++',
+            verbose = FALSE,
+            seed = 20191112
+        )
     sort_clusters(clus_res$clusters)
 })
 
-pdf('pdf_image/grid_kmeans_pcs_withXY.pdf', height = 24, width = 36)
+pdf('pdf_image/grid_kmeans_pcs_withXY.pdf',
+    height = 24,
+    width = 36)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, 'expr PCs with XY'),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
 }, ks, pcs_klist_withXY)
@@ -393,17 +498,32 @@ save(pcs_klist_withXY, file = 'rda_image/pcs_klist_withXY.Rdata')
 
 ## with X and Y & subj/position
 pcs_klist_withXY_andSubj <- lapply(ks, function(k) {
-    clus_res <- KMeans_rcpp(cbind(pcs, sce_df[, extra_cols]), clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
+    clus_res <-
+        KMeans_rcpp(
+            cbind(pcs, sce_df[, extra_cols]),
+            clusters = k,
+            num_init = 10,
+            max_iters = 100,
+            initializer = 'kmeans++',
+            verbose = FALSE,
+            seed = 20191112
+        )
     sort_clusters(clus_res$clusters)
 })
 
-pdf('pdf_image/grid_kmeans_pcs_withXY_andSubj.pdf', height = 24, width = 36)
+pdf(
+    'pdf_image/grid_kmeans_pcs_withXY_andSubj.pdf',
+    height = 24,
+    width = 36
+)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, 'expr PCs with XY & subj/pos'),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
 }, ks, pcs_klist_withXY_andSubj)
@@ -414,37 +534,68 @@ save(pcs_klist_withXY_andSubj, file = 'rda_image/pcs_klist_withXY_andSubj.Rdata'
 ## Try a wild idea
 pcs_klist_exprOnly_mat <- scale(do.call(cbind, pcs_klist_exprOnly))
 
-pcs_klist_exprOnly_on_ks <- lapply(3:(length(pcs_klist_exprOnly)-1), function(k) {
-    clus_res <- KMeans_rcpp(pcs_klist_exprOnly_mat, clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
-    sort_clusters(clus_res$clusters)
-})
+pcs_klist_exprOnly_on_ks <-
+    lapply(3:(length(pcs_klist_exprOnly) - 1), function(k) {
+        clus_res <- KMeans_rcpp(
+            pcs_klist_exprOnly_mat,
+            clusters = k,
+            num_init = 10,
+            max_iters = 100,
+            initializer = 'kmeans++',
+            verbose = FALSE,
+            seed = 20191112
+        )
+        sort_clusters(clus_res$clusters)
+    })
 
-pdf('pdf_image/grid_kmeans_pcs_exprOnly_on_ks.pdf', height = 24, width = 36)
+pdf(
+    'pdf_image/grid_kmeans_pcs_exprOnly_on_ks.pdf',
+    height = 24,
+    width = 36
+)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, "on k's expr PCs only"),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
-}, 3:(length(pcs_klist_exprOnly)-1), pcs_klist_exprOnly_on_ks)
+}, 3:(length(pcs_klist_exprOnly) - 1), pcs_klist_exprOnly_on_ks)
 dev.off()
 save(pcs_klist_exprOnly_on_ks, file = 'rda_image/pc_klist_exprOnly_on_ks.Rdata')
 
 
-pcs_klist_exprOnly_on_ks_withXY <- lapply(3:(length(pcs_klist_exprOnly)), function(k) {
-    clus_res <- KMeans_rcpp(cbind(pcs_klist_exprOnly_mat, sce_df[, extra_cols[-3]]), clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
-    sort_clusters(clus_res$clusters)
-})
+pcs_klist_exprOnly_on_ks_withXY <-
+    lapply(3:(length(pcs_klist_exprOnly)), function(k) {
+        clus_res <-
+            KMeans_rcpp(
+                cbind(pcs_klist_exprOnly_mat, sce_df[, extra_cols[-3]]),
+                clusters = k,
+                num_init = 10,
+                max_iters = 100,
+                initializer = 'kmeans++',
+                verbose = FALSE,
+                seed = 20191112
+            )
+        sort_clusters(clus_res$clusters)
+    })
 
-pdf('pdf_image/grid_kmeans_pcs_exprOnly_on_ks_withXY.pdf', height = 24, width = 36)
+pdf(
+    'pdf_image/grid_kmeans_pcs_exprOnly_on_ks_withXY.pdf',
+    height = 24,
+    width = 36
+)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, "on k's & XY on expr PCs only"),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
 }, 3:(length(pcs_klist_exprOnly)), pcs_klist_exprOnly_on_ks_withXY)
@@ -452,35 +603,64 @@ dev.off()
 save(pcs_klist_exprOnly_on_ks_withXY, file = 'rda_image/pc_klist_exprOnly_on_ks_withXY.Rdata')
 
 
-pcs_klist_exprOnly_on_ks_withXY_andSubj <- lapply(3:(length(pcs_klist_exprOnly)+1), function(k) {
-    clus_res <- KMeans_rcpp(cbind(pcs_klist_exprOnly_mat, sce_df[, extra_cols]), clusters = k,
-        num_init = 10, max_iters = 100,          
-        initializer = 'kmeans++', verbose = FALSE, seed = 20191112)
-    sort_clusters(clus_res$clusters)
-})
+pcs_klist_exprOnly_on_ks_withXY_andSubj <-
+    lapply(3:(length(pcs_klist_exprOnly) + 1), function(k) {
+        clus_res <-
+            KMeans_rcpp(
+                cbind(pcs_klist_exprOnly_mat, sce_df[, extra_cols]),
+                clusters = k,
+                num_init = 10,
+                max_iters = 100,
+                initializer = 'kmeans++',
+                verbose = FALSE,
+                seed = 20191112
+            )
+        sort_clusters(clus_res$clusters)
+    })
 
-pdf('pdf_image/grid_kmeans_pcs_exprOnly_on_ks_withXY_andSubj.pdf', height = 24, width = 36)
+pdf(
+    'pdf_image/grid_kmeans_pcs_exprOnly_on_ks_withXY_andSubj.pdf',
+    height = 24,
+    width = 36
+)
 mapply(function(k, clus) {
-    plots <- sce_image_grid(sce, clus,
+    plots <- sce_image_grid(
+        sce,
+        clus,
         ... = paste(' k = ', k, "on k's & XY + subj/pos on expr PCs only"),
-        return_plots = TRUE, colors = cols)
+        return_plots = TRUE,
+        colors = cols
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
-}, 3:(length(pcs_klist_exprOnly)+1), pcs_klist_exprOnly_on_ks_withXY_andSubj)
+},
+    3:(length(pcs_klist_exprOnly) + 1),
+    pcs_klist_exprOnly_on_ks_withXY_andSubj)
 dev.off()
 save(pcs_klist_exprOnly_on_ks_withXY_andSubj, file = 'rda_image/pc_klist_exprOnly_on_ks_withXY_andSubj.Rdata')
 
 
 
-pdf('pdf_image/grid_kmeans_pcs_exprOnly_VS_pcs_exprOnly_on_ks.pdf', height = 24, width = 36)
+pdf(
+    'pdf_image/grid_kmeans_pcs_exprOnly_VS_pcs_exprOnly_on_ks.pdf',
+    height = 24,
+    width = 36
+)
 mapply(function(k, clus1, clus2) {
-    plots <- sce_image_grid_comp(sce, clus1, clus2,
+    plots <- sce_image_grid_comp(
+        sce,
+        clus1,
+        clus2,
         map_subset = sce$subject == 'Br5292',
         ... = paste(' k = ', k, "on k's & XY + subj/pos on expr PCs only vs expr PCs only"),
-        return_plots = TRUE)
+        return_plots = TRUE
+    )
     print(cowplot::plot_grid(plotlist = plots))
     return(invisible(NULL))
-}, 4:8, pcs_klist_exprOnly[1:5], pcs_klist_exprOnly_on_ks[-1])
+},
+    4:8,
+    pcs_klist_exprOnly[1:5],
+    pcs_klist_exprOnly_on_ks[-1])
 dev.off()
 
 
@@ -489,8 +669,11 @@ clus1 <- pcs_klist_exprOnly[[2]]
 clus2 <- pcs_klist_exprOnly_on_ks[[3]]
 addmargins(table(clus1, clus2))
 
-addmargins(table(sort_clusters(clus1, map_subset = sce$subject == 'Br5292'), sort_clusters(clus2, map_subset = sce$subject == 'Br5292'))) 
- 
+addmargins(table(
+    sort_clusters(clus1, map_subset = sce$subject == 'Br5292'),
+    sort_clusters(clus2, map_subset = sce$subject == 'Br5292')
+))
+
 
 ### Stuff that didn't work
 
@@ -592,12 +775,12 @@ addmargins(table(sort_clusters(clus1, map_subset = sce$subject == 'Br5292'), sor
 
 sce_to_df <- function(sce, slotname) {
     info <- assays(sce)[[slotname]]
-
+    
     sce_df <- as.data.frame(t(as.matrix(info)))
-
+    
     sce_df$row <- sce$row
     sce_df$col <- sce$col
-
+    
     return(sce_df)
 }
 
@@ -607,8 +790,16 @@ sce_df_scaled <- scale(sce_df)
 # d <- dist(sce_df_scaled)
 # km <- kmeans(d, centers = 9, iter.max = 100)
 
-km_init <- KMeans_rcpp(sce_df_scaled, clusters = 9, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init <-
+    KMeans_rcpp(
+        sce_df_scaled,
+        clusters = 9,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init$clusters)
 # 1    2    3    4    5    6    7    8    9
@@ -621,8 +812,16 @@ dev.off()
 
 
 
-km_init_k6 <- KMeans_rcpp(sce_df_scaled, clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6 <-
+    KMeans_rcpp(
+        sce_df_scaled,
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init_k6$clusters)
 # 1    2    3    4    5    6
@@ -634,8 +833,16 @@ sce_image_clus(sce, '151673', 'clus_k6_df')
 dev.off()
 
 
-km_init_k6_noXY <- KMeans_rcpp(sce_df_scaled[, -c(1983, 1984)], clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_noXY <-
+    KMeans_rcpp(
+        sce_df_scaled[, -c(1983, 1984)],
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init_k6_noXY$clusters)
 # 1    2    3    4    5    6
@@ -656,8 +863,16 @@ sce_image_clus(sce, '151673', 'clus_k6_df_noXY')
 dev.off()
 
 
-km_init_k6_noXY_noScale <- KMeans_rcpp(sce_df[, -c(1983, 1984)], clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_noXY_noScale <-
+    KMeans_rcpp(
+        sce_df[, -c(1983, 1984)],
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init_k6_noXY_noScale$clusters)
 #   1    2    3    4    5    6
@@ -687,14 +902,23 @@ sce_image_clus(sce, '151673', 'clus_k6_df_noXY_noScale')
 dev.off()
 
 
-km_init_k6_noScale <- KMeans_rcpp(sce_df, clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_noScale <-
+    KMeans_rcpp(
+        sce_df,
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init_k6_noScale$clusters)
 #   1   2   3   4   5   6
 # 579 628 579 603 660 583
 
-table(km_init_k6_noXY_noScale$clusters, km_init_k6_noScale$clusters)
+table(km_init_k6_noXY_noScale$clusters,
+    km_init_k6_noScale$clusters)
 #     1   2   3   4   5   6
 # 1   1 151 164   2   3   0
 # 2   0   0   1   0   0   0
@@ -709,14 +933,23 @@ sce_image_clus(sce, '151673', 'clus_k6_df_noScale')
 dev.off()
 
 
-km_init_k6_noScale_sXY <- KMeans_rcpp(cbind(sce_df[, -c(1983, 1984)], sce_df_scaled[, c(1983, 1984)]), clusters = 6, num_init = 20, max_iters = 100,          
-    initializer = 'kmeans++', verbose = TRUE, seed = 20191112)
+km_init_k6_noScale_sXY <-
+    KMeans_rcpp(
+        cbind(sce_df[, -c(1983, 1984)], sce_df_scaled[, c(1983, 1984)]),
+        clusters = 6,
+        num_init = 20,
+        max_iters = 100,
+        initializer = 'kmeans++',
+        verbose = TRUE,
+        seed = 20191112
+    )
 
 table(km_init_k6_noScale_sXY$clusters)
 #   1    2    3    4    5    6
 # 857    1  391 1693  370  320
 
-table(km_init_k6_noXY_noScale$clusters, km_init_k6_noScale_sXY$clusters)
+table(km_init_k6_noXY_noScale$clusters,
+    km_init_k6_noScale_sXY$clusters)
 #      1    2    3    4    5    6
 # 1    1    0    0    0    0  320
 # 2    0    0    1    0    0    0
@@ -738,7 +971,3 @@ sce$clus_k6_df_noScale_sXY <- km_init_k6_noScale_sXY$clusters
 pdf('pdf_image/test_151673_k6_df_take2_noScale_sXY.pdf')
 sce_image_clus(sce, '151673', 'clus_k6_df_noScale_sXY')
 dev.off()
-
-
-
-

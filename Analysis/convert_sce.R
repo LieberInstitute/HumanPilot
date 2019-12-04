@@ -25,21 +25,20 @@ table(colData(sce)$sample_name)
 #   3460
 
 ## Add design info
-study <- read.csv('/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/image_index_10xID.csv')
+study <-
+    read.csv(
+        '/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/image_index_10xID.csv'
+    )
 
 ## same order
-stopifnot(identical(
-    match(names(sceList), study$X10xID),
-    seq_len(length(sceList))
-))
+stopifnot(identical(match(names(sceList), study$X10xID),
+    seq_len(length(sceList))))
 
 
 gsub('JHU_|_rep.*', '', study$Description)
 gsub('.*position | µm', '', study$Description)
-sce$subject <- rep(
-    gsub('JHU_|_rep.*', '', study$Description),
-    table(colData(sce)$sample_name)
-)
+sce$subject <- rep(gsub('JHU_|_rep.*', '', study$Description),
+    table(colData(sce)$sample_name))
 with(colData(sce), table(sample_name, subject))
 #            subject
 # sample_name Br5292 Br5595 Br8100
@@ -56,10 +55,8 @@ with(colData(sce), table(sample_name, subject))
 #      151675      0      0   3592
 #      151676      0      0   3460
 
-sce$position <- rep(
-    gsub('.*position | µm', '', study$Description),
-    table(colData(sce)$sample_name)
-)
+sce$position <- rep(gsub('.*position | µm', '', study$Description),
+    table(colData(sce)$sample_name))
 with(colData(sce), table(sample_name, position))
 #            position
 # sample_name    0  300
@@ -76,10 +73,8 @@ with(colData(sce), table(sample_name, position))
 #      151675    0 3592
 #      151676    0 3460
 
-sce$replicate <- rep(
-    gsub('.*0', '', study$Rep),
-    table(colData(sce)$sample_name)
-)
+sce$replicate <- rep(gsub('.*0', '', study$Rep),
+    table(colData(sce)$sample_name))
 with(colData(sce), table(sample_name, replicate))
 #            replicate
 # sample_name    1    2
@@ -104,32 +99,57 @@ save(sce, file = 'Human_DLPFC_Visium_processedData_sce.Rdata')
 
 ## Plotting function
 #' @param ... Parameters passed to paste0() for the plot title
-sce_image_clus <- function(sce, sampleid, clustervar,
-    colors = c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold",
-        "#a65628", "#999999", "black", "grey", "white", "purple"), ...) {
-    
+sce_image_clus <- function(sce,
+    sampleid,
+    clustervar,
+    colors = c(
+        "#b2df8a",
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#ff7f00",
+        "gold",
+        "#a65628",
+        "#999999",
+        "black",
+        "grey",
+        "white",
+        "purple"
+    ),
+    ...) {
     d <- as.data.frame(colData(sce[, sce$sample_name == sampleid]))
     p <- ggplot(d,
-        aes(x = imagecol, y = imagerow, fill = factor(!!sym(clustervar)))) +
-    	geom_spatial(
+        aes(
+            x = imagecol,
+            y = imagerow,
+            fill = factor(!!sym(clustervar))
+        )) +
+        geom_spatial(
             data = subset(metadata(sce)$image, sample == sampleid),
-    		aes(grob = grob), x = 0.5, y = 0.5) +
-    	geom_point(shape = 21, size = 1.25, stroke = 0.25)+
-    	coord_cartesian(expand = FALSE)+
-    	scale_fill_manual(values = colors)+
-    	xlim(0, max(sce$width)) +
-    	ylim(max(sce$height),0) +
-    	xlab("") + ylab("") +
-    	labs(fill = clustervar)+
-    	guides(fill = guide_legend(override.aes = list(size=3)))+
-    	ggtitle(paste0(sampleid, ...)) +
-    	theme_set(theme_bw(base_size = 10))+
-    	theme(panel.grid.major = element_blank(), 
-    		panel.grid.minor = element_blank(),
-    		panel.background = element_blank(), 
-    		axis.line = element_line(colour = "black"),
-    		axis.text = element_blank(),
-    		axis.ticks = element_blank())
+            aes(grob = grob),
+            x = 0.5,
+            y = 0.5
+        ) +
+        geom_point(shape = 21,
+            size = 1.25,
+            stroke = 0.25) +
+        coord_cartesian(expand = FALSE) +
+        scale_fill_manual(values = colors) +
+        xlim(0, max(sce$width)) +
+        ylim(max(sce$height), 0) +
+        xlab("") + ylab("") +
+        labs(fill = clustervar) +
+        guides(fill = guide_legend(override.aes = list(size = 3))) +
+        ggtitle(paste0(sampleid, ...)) +
+        theme_set(theme_bw(base_size = 10)) +
+        theme(
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black"),
+            axis.text = element_blank(),
+            axis.ticks = element_blank()
+        )
     return(p)
 }
 
@@ -141,10 +161,11 @@ unlink('test_plot.pdf')
 
 
 sort_clusters <- function(clusters, map_subset = NULL) {
-    if(is.null(map_subset)) {
+    if (is.null(map_subset)) {
         map_subset <- rep(TRUE, length(clusters))
     }
-    map <- rank(length(clusters[map_subset]) - table(clusters[map_subset]), ties.method = 'first')
+    map <-
+        rank(length(clusters[map_subset]) - table(clusters[map_subset]), ties.method = 'first')
     res <- map[clusters]
     factor(res)
 }
@@ -160,72 +181,150 @@ sort_clusters <- function(clusters, map_subset = NULL) {
 # Levels: 1 2 3 4
 
 
-sce_image_grid <- function(sce, clusters, pdf_file, sort_clust = TRUE, colors = NULL, return_plots = FALSE, ...) {
-    if(is.null(colors)) {
-        ## Original ones
-        # colors <- c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold",
-        # "#a65628", "#999999", "black", "grey", "white", "purple")
-        
-        ## From https://medialab.github.io/iwanthue/
-        ## which I found the link to from
-        ## https://stackoverflow.com/questions/15282580/how-to-generate-a-number-of-most-distinctive-colors-in-r
-        
-        ## Used the colorblind friendly and default palette
-        n_clus <- length(unique(clusters))
-        ## Color-blind friendly
-        # colors <- if(n_clus > 10) c("#573487", "#96b43d", "#5771dd", "#d39830", "#a874d7", "#64c36f", "#c86ebd", "#47bb8a", "#892862", "#33d4d1", "#db5358", "#6a98e4", "#c55e32", "#516bba", "#b3ad52", "#d55f90", "#588234", "#b8465e", "#a97a35", "#a44739") else if (n_clus <= 6) c("#98a441", "#6778d0", "#50b47b","#9750a1", "#ba6437", "#ba496b") else c("#bfa239", "#5a3a8e", "#799f44", "#c771c4", "#54b06c", "#b0457b", "#43c9b0", "#b8434e", "#6e81da", "#b86738")
-        ## Default one
-        # colors <- if(n_clus > 10) c("#aab539", "#6f66d7", "#59b94d", "#bd54c1", "#598124", "#d1478f", "#58bd91", "#d4465a", "#48bbd2", "#d6542d", "#6288cc", "#d69938", "#8d61ab", "#a3b26a", "#da8dc6", "#407e4a", "#a24b66", "#86712e", "#e39178", "#a75932") else if (n_clus <= 6) c("#b88f40", "#7a75cd", "#6ca74d", "#c45ca2", "#49adaa", "#cb584c") else c("#6ab64c", "#8761cc", "#c1a942", "#688bcc", "#d35238", "#4db598", "#c361aa", "#677e39", "#c9566e", "#c07b44")
-        
-        ## Default one if n_clus > 12, otherwise original colors (re-ordered a bit)
-        colors <- if(n_clus > 12) c("#aab539", "#6f66d7", "#59b94d", "#bd54c1", "#598124", "#d1478f", "#58bd91", "#d4465a", "#48bbd2", "#d6542d", "#6288cc", "#d69938", "#8d61ab", "#a3b26a", "#da8dc6", "#407e4a", "#a24b66", "#86712e", "#e39178", "#a75932") else c("#377eb8", "gold", "#ff7f00", "#e41a1c", "#4daf4a", "#b2df8a","#a65628", "#999999", "black", "grey", "white", "purple")
-        names(colors) <- seq_len(length(colors))
-        
+sce_image_grid <-
+    function(sce,
+        clusters,
+        pdf_file,
+        sort_clust = TRUE,
+        colors = NULL,
+        return_plots = FALSE,
+        ...) {
+        if (is.null(colors)) {
+            ## Original ones
+            # colors <- c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold",
+            # "#a65628", "#999999", "black", "grey", "white", "purple")
+            
+            ## From https://medialab.github.io/iwanthue/
+            ## which I found the link to from
+            ## https://stackoverflow.com/questions/15282580/how-to-generate-a-number-of-most-distinctive-colors-in-r
+            
+            ## Used the colorblind friendly and default palette
+            n_clus <- length(unique(clusters))
+            ## Color-blind friendly
+            # colors <- if(n_clus > 10) c("#573487", "#96b43d", "#5771dd", "#d39830", "#a874d7", "#64c36f", "#c86ebd", "#47bb8a", "#892862", "#33d4d1", "#db5358", "#6a98e4", "#c55e32", "#516bba", "#b3ad52", "#d55f90", "#588234", "#b8465e", "#a97a35", "#a44739") else if (n_clus <= 6) c("#98a441", "#6778d0", "#50b47b","#9750a1", "#ba6437", "#ba496b") else c("#bfa239", "#5a3a8e", "#799f44", "#c771c4", "#54b06c", "#b0457b", "#43c9b0", "#b8434e", "#6e81da", "#b86738")
+            ## Default one
+            # colors <- if(n_clus > 10) c("#aab539", "#6f66d7", "#59b94d", "#bd54c1", "#598124", "#d1478f", "#58bd91", "#d4465a", "#48bbd2", "#d6542d", "#6288cc", "#d69938", "#8d61ab", "#a3b26a", "#da8dc6", "#407e4a", "#a24b66", "#86712e", "#e39178", "#a75932") else if (n_clus <= 6) c("#b88f40", "#7a75cd", "#6ca74d", "#c45ca2", "#49adaa", "#cb584c") else c("#6ab64c", "#8761cc", "#c1a942", "#688bcc", "#d35238", "#4db598", "#c361aa", "#677e39", "#c9566e", "#c07b44")
+            
+            ## Default one if n_clus > 12, otherwise original colors (re-ordered a bit)
+            colors <-
+                if (n_clus > 12)
+                    c(
+                        "#aab539",
+                        "#6f66d7",
+                        "#59b94d",
+                        "#bd54c1",
+                        "#598124",
+                        "#d1478f",
+                        "#58bd91",
+                        "#d4465a",
+                        "#48bbd2",
+                        "#d6542d",
+                        "#6288cc",
+                        "#d69938",
+                        "#8d61ab",
+                        "#a3b26a",
+                        "#da8dc6",
+                        "#407e4a",
+                        "#a24b66",
+                        "#86712e",
+                        "#e39178",
+                        "#a75932"
+                    )
+            else
+                c(
+                    "#377eb8",
+                    "gold",
+                    "#ff7f00",
+                    "#e41a1c",
+                    "#4daf4a",
+                    "#b2df8a",
+                    "#a65628",
+                    "#999999",
+                    "black",
+                    "grey",
+                    "white",
+                    "purple"
+                )
+            names(colors) <- seq_len(length(colors))
+            
+        }
+        sce$Clus <- if (sort_clust)
+            sort_clusters(clusters)
+        else
+            clusters
+        plots <- lapply(unique(sce$sample_name), function(sampleid) {
+            sce_image_clus(sce, sampleid, 'Clus', colors = colors, ...)
+        })
+        if (!return_plots) {
+            pdf(pdf_file, height = 24, width = 36)
+            print(cowplot::plot_grid(plotlist = plots))
+            dev.off()
+            return(pdf_file)
+        }
+        else {
+            return(plots)
+        }
     }
-    sce$Clus <- if(sort_clust) sort_clusters(clusters) else clusters
-    plots <- lapply(unique(sce$sample_name), function(sampleid) {
-        sce_image_clus(sce, sampleid, 'Clus', colors = colors, ...)
-    })
-    if(!return_plots) {
+
+sce_image_grid_comp <-
+    function(sce,
+        clus1,
+        clus2,
+        pdf_file,
+        map_subset = NULL,
+        colors = NULL,
+        return_plots = FALSE,
+        ...) {
+        clus1 <- sort_clusters(clus1, map_subset)
+        clus2 <- sort_clusters(clus2, map_subset)
+        if (is.null(colors)) {
+            colors <- c('FALSE' = 'red', 'TRUE' = 'grey80')
+        }
+        clus_agree <-
+            factor(clus1 == clus2, levels = c('FALSE', 'TRUE'))
+        sce_image_grid(
+            sce,
+            clus_agree,
+            pdf_file,
+            sort_clust = FALSE,
+            colors = colors,
+            return_plots = return_plots,
+            ...
+        )
+    }
+
+
+sce_image_grid_by_clus <-
+    function(sce, clusters, pdf_file, colors = NULL, ...) {
+        if (is.null(colors)) {
+            colors <- c('FALSE' = 'transparent', 'TRUE' = 'red')
+        }
+        clusters_uni <- sort(unique(clusters))
         pdf(pdf_file, height = 24, width = 36)
-        print(cowplot::plot_grid(plotlist = plots))
+        lapply(clusters_uni, function(clus) {
+            curr_clus <- factor(clusters == clus, levels = c('FALSE', 'TRUE'))
+            plots <-
+                sce_image_grid(
+                    sce,
+                    curr_clus,
+                    sort_clust = FALSE,
+                    colors = colors,
+                    return_plots = TRUE,
+                    ... = paste(..., '- cluster', clus)
+                )
+            print(cowplot::plot_grid(plotlist = plots))
+            return(clus)
+        })
         dev.off()
         return(pdf_file)
     }
-    else {
-        return(plots)
-    }
-}
-
-sce_image_grid_comp <- function(sce, clus1, clus2, pdf_file, map_subset = NULL, colors = NULL, return_plots = FALSE, ...) {
-    clus1 <- sort_clusters(clus1, map_subset)
-    clus2 <- sort_clusters(clus2, map_subset)
-    if(is.null(colors)) {
-        colors <- c('FALSE' = 'red', 'TRUE' = 'grey80')
-    }
-    clus_agree <- factor(clus1 == clus2, levels = c('FALSE', 'TRUE'))
-    sce_image_grid(sce, clus_agree, pdf_file, sort_clust = FALSE, colors = colors, return_plots = return_plots, ...)
-}
-
-
-sce_image_grid_by_clus <- function(sce, clusters, pdf_file, colors = NULL, ...) {
-    if(is.null(colors)) {
-        colors <- c('FALSE' = 'transparent', 'TRUE' = 'red')
-    }
-    clusters_uni <- sort(unique(clusters))
-    pdf(pdf_file, height = 24, width = 36)
-    lapply(clusters_uni, function(clus) {
-        curr_clus <- factor(clusters == clus, levels = c('FALSE', 'TRUE'))
-        plots <- sce_image_grid(sce, curr_clus, sort_clust = FALSE, colors = colors, return_plots = TRUE, ... = paste(..., '- cluster', clus))
-        print(cowplot::plot_grid(plotlist = plots))
-        return(clus)
-    })
-    dev.off()
-    return(pdf_file)
-}
 
 ## Plotting layer and function
-save(geom_spatial, sce_image_clus, sort_clusters, sce_image_grid, file = 'geom_spatial.Rdata')
+save(geom_spatial,
+    sce_image_clus,
+    sort_clusters,
+    sce_image_grid,
+    file = 'geom_spatial.Rdata')
 
 ## Reproducibility information
 print('Reproducibility information:')

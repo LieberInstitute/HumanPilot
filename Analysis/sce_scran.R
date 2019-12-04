@@ -15,7 +15,7 @@ library('sessioninfo')
 
 # library('zinbwave')
 # library('clusterExperiment')
-# 
+#
 # library('RColorBrewer')
 
 dir.create('pdf_scran', showWarnings = FALSE)
@@ -25,150 +25,166 @@ dir.create('rda_scran', showWarnings = FALSE)
 load('geom_spatial.Rdata', verbose = TRUE)
 
 ## For resuming and other analyses
-if(!file.exists('Human_DLPFC_Visium_processedData_sce_scran.Rdata')) {
-
-load('Human_DLPFC_Visium_processedData_sce.Rdata', verbose = TRUE)
-## From
-## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#2_setting_up_the_data
-qcstats <- perCellQCMetrics(sce)
-qcfilter <- quickPerCellQC(qcstats)
-colSums(as.matrix(qcfilter))
-# low_lib_size low_n_features        discard
-#          451            510            534
-
-with(qcfilter, table(low_lib_size, low_n_features, discard))
-# , , discard = FALSE
-#
-#             low_n_features
-# low_lib_size FALSE  TRUE
-#        FALSE 47147     0
-#        TRUE      0     0
-#
-# , , discard = TRUE
-#
-#             low_n_features
-# low_lib_size FALSE  TRUE
-#        FALSE     0    83
-#        TRUE     24   427
-
-table(sce$sample_name[qcfilter$discard])
-# 151507 151508 151509 151510 151669 151670 151671 151672 151673 151674 151675
-#     45    111     59     38     28     30     59    139      7      3      9
-# 151676
-#      6
-
-## Plot discarded umis
-load('geom_spatial.Rdata', verbose = TRUE)
-sce$discard <- qcfilter$discard
-plots_discard <- lapply(unique(sce$sample_name), function(sampleid) {
-    sce_image_clus(sce, sampleid, 'discard', colors = c('light blue', 'red'))
-})
-pdf('pdf_scran/discarded_cells_grid.pdf',height=24, width=36)
-plot_grid(plotlist = plots_discard)
-dev.off()
-
-## We have decided not to filter umis since they seem to be layer specific
-# sce <- sce[,!qcfilter$discard]
-# summary(qcfilter$discard)
-#    Mode   FALSE    TRUE
-# logical   47147     534
-
-## From
-## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#3_normalizing_cell-specific_biases
-set.seed(20191112)
-Sys.time()
-clusters <- quickCluster(sce, BPPARAM = MulticoreParam(4),
-    block = sce$subject_position, block.BPPARAM = MulticoreParam(4)
-)
-Sys.time()
-## Takes about 2 minutes
-# [1] "2019-11-13 10:56:34 EST"
-# [1] "2019-11-13 10:57:56 EST"
-
-
-sce <- computeSumFactors(sce, clusters=clusters, BPPARAM = MulticoreParam(4))
-Sys.time()
-## Takes about 3 minutes
-# [1] "2019-11-13 11:00:32 EST"
-
-summary(sizeFactors(sce))
-#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 0.1329  0.5613  0.8552  1.0000  1.2695  6.7378
-sce <- logNormCounts(sce)
-
-## From
-## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#4_variance_modelling
-dec <- modelGeneVar(sce, block = sce$subject_position,
-    BPPARAM = MulticoreParam(4))
-Sys.time()
-## Takes about 30 secs to get here from the computeSumFactors() step
-# [1] "2019-11-13 11:00:59 EST"
-
-pdf('pdf_scran/modelGeneVar.pdf', useDingbats = FALSE)
-mapply(function(block, blockname) {
-    plot(block$mean, block$total, xlab="Mean log-expression", ylab="Variance", main = blockname)
-    curve(metadata(block)$trend(x), col="blue", add=TRUE)
-}, dec$per.block, names(dec$per.block))
-dev.off()
-
-top.hvgs <- getTopHVGs(dec, prop=0.1)
-length(top.hvgs)
-# [1] 1942
-
-## Basically the same
-# top.hvgs2 <- getTopHVGs(dec, n=2000)
-# table(top.hvgs %in% top.hvgs2)
-
-top.hvgs.fdr5 <- getTopHVGs(dec, fdr.threshold=0.05)
-length(top.hvgs.fdr5)
-# [1] 13842
-
-top.hvgs.fdr1 <- getTopHVGs(dec, fdr.threshold=0.01)
-length(top.hvgs.fdr1)
-# [1] 12393
-
-## FDR-based selection returns too many genes
-
-set.seed(20191112)
-Sys.time()
-sce <- runPCA(sce, subset_row = top.hvgs)
-Sys.time()
-## Takes about 2 minutes
-# [1] "2019-11-13 11:02:24 EST"
-# [1] "2019-11-13 11:04:33 EST"
-
-reducedDimNames(sce)
-
-## PCs don't have sd = 1
-summary(apply(reducedDim(sce, 'PCA'), 2, sd))
- #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
- # 0.8810  0.8948  0.9143  1.1404  1.0950  4.2064
- 
-summary(apply(reducedDim(sce, 'PCA'), 2, sd))
-#       PC1       PC2       PC3       PC4       PC5       PC6       PC7       PC8
-# 4.2063825 2.9181994 2.4577468 1.9652432 1.7231614 1.4718300 1.3936265 1.3330686
-#       PC9      PC10      PC11      PC12      PC13      PC14      PC15      PC16
-# 1.1943737 1.1733142 1.1550694 1.1171480 1.1067906 1.0595489 1.0156686 0.9805711
-#      PC17      PC18      PC19      PC20      PC21      PC22      PC23      PC24
-# 0.9676315 0.9423317 0.9346976 0.9278445 0.9266340 0.9222307 0.9197716 0.9182687
-#      PC25      PC26      PC27      PC28      PC29      PC30      PC31      PC32
-# 0.9147040 0.9139619 0.9123189 0.9092247 0.9078313 0.9029707 0.9022757 0.9009750
-#      PC33      PC34      PC35      PC36      PC37      PC38      PC39      PC40
-# 0.8999425 0.8980520 0.8973509 0.8957044 0.8952632 0.8947088 0.8933552 0.8930551
-#      PC41      PC42      PC43      PC44      PC45      PC46      PC47      PC48
-# 0.8915526 0.8897350 0.8890296 0.8872520 0.8871032 0.8855887 0.8832843 0.8824588
-#      PC49      PC50
-# 0.8821567 0.8810461
-
-## Means are 0 though
-summary(colMeans(reducedDim(sce, 'PCA')))
-#       Min.    1st Qu.     Median       Mean    3rd Qu.       Max.
-# -1.225e-14 -3.569e-15  1.417e-15  2.647e-15  8.394e-15  2.893e-14
-
-save(sce, top.hvgs, file = 'Human_DLPFC_Visium_processedData_sce_scran.Rdata')
-
+if (!file.exists('Human_DLPFC_Visium_processedData_sce_scran.Rdata')) {
+    load('Human_DLPFC_Visium_processedData_sce.Rdata', verbose = TRUE)
+    ## From
+    ## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#2_setting_up_the_data
+    qcstats <- perCellQCMetrics(sce)
+    qcfilter <- quickPerCellQC(qcstats)
+    colSums(as.matrix(qcfilter))
+    # low_lib_size low_n_features        discard
+    #          451            510            534
+    
+    with(qcfilter, table(low_lib_size, low_n_features, discard))
+    # , , discard = FALSE
+    #
+    #             low_n_features
+    # low_lib_size FALSE  TRUE
+    #        FALSE 47147     0
+    #        TRUE      0     0
+    #
+    # , , discard = TRUE
+    #
+    #             low_n_features
+    # low_lib_size FALSE  TRUE
+    #        FALSE     0    83
+    #        TRUE     24   427
+    
+    table(sce$sample_name[qcfilter$discard])
+    # 151507 151508 151509 151510 151669 151670 151671 151672 151673 151674 151675
+    #     45    111     59     38     28     30     59    139      7      3      9
+    # 151676
+    #      6
+    
+    ## Plot discarded umis
+    load('geom_spatial.Rdata', verbose = TRUE)
+    sce$discard <- qcfilter$discard
+    plots_discard <-
+        lapply(unique(sce$sample_name), function(sampleid) {
+            sce_image_clus(sce, sampleid, 'discard', colors = c('light blue', 'red'))
+        })
+    pdf('pdf_scran/discarded_cells_grid.pdf',
+        height = 24,
+        width = 36)
+    plot_grid(plotlist = plots_discard)
+    dev.off()
+    
+    ## We have decided not to filter umis since they seem to be layer specific
+    # sce <- sce[,!qcfilter$discard]
+    # summary(qcfilter$discard)
+    #    Mode   FALSE    TRUE
+    # logical   47147     534
+    
+    ## From
+    ## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#3_normalizing_cell-specific_biases
+    set.seed(20191112)
+    Sys.time()
+    clusters <- quickCluster(
+        sce,
+        BPPARAM = MulticoreParam(4),
+        block = sce$subject_position,
+        block.BPPARAM = MulticoreParam(4)
+    )
+    Sys.time()
+    ## Takes about 2 minutes
+    # [1] "2019-11-13 10:56:34 EST"
+    # [1] "2019-11-13 10:57:56 EST"
+    
+    
+    sce <-
+        computeSumFactors(sce, clusters = clusters, BPPARAM = MulticoreParam(4))
+    Sys.time()
+    ## Takes about 3 minutes
+    # [1] "2019-11-13 11:00:32 EST"
+    
+    summary(sizeFactors(sce))
+    #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    # 0.1329  0.5613  0.8552  1.0000  1.2695  6.7378
+    sce <- logNormCounts(sce)
+    
+    ## From
+    ## http://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html#4_variance_modelling
+    dec <- modelGeneVar(sce,
+        block = sce$subject_position,
+        BPPARAM = MulticoreParam(4))
+    Sys.time()
+    ## Takes about 30 secs to get here from the computeSumFactors() step
+    # [1] "2019-11-13 11:00:59 EST"
+    
+    pdf('pdf_scran/modelGeneVar.pdf', useDingbats = FALSE)
+    mapply(function(block, blockname) {
+        plot(
+            block$mean,
+            block$total,
+            xlab = "Mean log-expression",
+            ylab = "Variance",
+            main = blockname
+        )
+        curve(metadata(block)$trend(x),
+            col = "blue",
+            add = TRUE)
+    }, dec$per.block, names(dec$per.block))
+    dev.off()
+    
+    top.hvgs <- getTopHVGs(dec, prop = 0.1)
+    length(top.hvgs)
+    # [1] 1942
+    
+    ## Basically the same
+    # top.hvgs2 <- getTopHVGs(dec, n=2000)
+    # table(top.hvgs %in% top.hvgs2)
+    
+    top.hvgs.fdr5 <- getTopHVGs(dec, fdr.threshold = 0.05)
+    length(top.hvgs.fdr5)
+    # [1] 13842
+    
+    top.hvgs.fdr1 <- getTopHVGs(dec, fdr.threshold = 0.01)
+    length(top.hvgs.fdr1)
+    # [1] 12393
+    
+    ## FDR-based selection returns too many genes
+    
+    set.seed(20191112)
+    Sys.time()
+    sce <- runPCA(sce, subset_row = top.hvgs)
+    Sys.time()
+    ## Takes about 2 minutes
+    # [1] "2019-11-13 11:02:24 EST"
+    # [1] "2019-11-13 11:04:33 EST"
+    
+    reducedDimNames(sce)
+    
+    ## PCs don't have sd = 1
+    summary(apply(reducedDim(sce, 'PCA'), 2, sd))
+    #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    # 0.8810  0.8948  0.9143  1.1404  1.0950  4.2064
+    
+    summary(apply(reducedDim(sce, 'PCA'), 2, sd))
+    #       PC1       PC2       PC3       PC4       PC5       PC6       PC7       PC8
+    # 4.2063825 2.9181994 2.4577468 1.9652432 1.7231614 1.4718300 1.3936265 1.3330686
+    #       PC9      PC10      PC11      PC12      PC13      PC14      PC15      PC16
+    # 1.1943737 1.1733142 1.1550694 1.1171480 1.1067906 1.0595489 1.0156686 0.9805711
+    #      PC17      PC18      PC19      PC20      PC21      PC22      PC23      PC24
+    # 0.9676315 0.9423317 0.9346976 0.9278445 0.9266340 0.9222307 0.9197716 0.9182687
+    #      PC25      PC26      PC27      PC28      PC29      PC30      PC31      PC32
+    # 0.9147040 0.9139619 0.9123189 0.9092247 0.9078313 0.9029707 0.9022757 0.9009750
+    #      PC33      PC34      PC35      PC36      PC37      PC38      PC39      PC40
+    # 0.8999425 0.8980520 0.8973509 0.8957044 0.8952632 0.8947088 0.8933552 0.8930551
+    #      PC41      PC42      PC43      PC44      PC45      PC46      PC47      PC48
+    # 0.8915526 0.8897350 0.8890296 0.8872520 0.8871032 0.8855887 0.8832843 0.8824588
+    #      PC49      PC50
+    # 0.8821567 0.8810461
+    
+    ## Means are 0 though
+    summary(colMeans(reducedDim(sce, 'PCA')))
+    #       Min.    1st Qu.     Median       Mean    3rd Qu.       Max.
+    # -1.225e-14 -3.569e-15  1.417e-15  2.647e-15  8.394e-15  2.893e-14
+    
+    save(sce, top.hvgs, file = 'Human_DLPFC_Visium_processedData_sce_scran.Rdata')
+    
 } else {
-    load('Human_DLPFC_Visium_processedData_sce_scran.Rdata', verbose = TRUE)
+    load('Human_DLPFC_Visium_processedData_sce_scran.Rdata',
+        verbose = TRUE)
 }
 
 ## From
@@ -179,8 +195,8 @@ chosen.elbow
 # [1] 2
 
 pdf('pdf_scran/PCA_var_explained.pdf', useDingbats = FALSE)
-plot(percent.var, xlab="PC", ylab="Variance explained (%)")
-abline(v=chosen.elbow, col="red")
+plot(percent.var, xlab = "PC", ylab = "Variance explained (%)")
+abline(v = chosen.elbow, col = "red")
 dev.off()
 
 
@@ -222,7 +238,7 @@ ncol(reducedDim(sced, "PCA"))
 # dev.off()
 
 Sys.time()
-g_k10 <- buildSNNGraph(sce, k=10, use.dimred = 'PCA')
+g_k10 <- buildSNNGraph(sce, k = 10, use.dimred = 'PCA')
 Sys.time()
 
 ## Takes 2 min
@@ -283,34 +299,36 @@ addmargins(table(clust_k10, sce$subject))
 
 ## Needs 28 colors! (for K = 50 further below, use the same colors here then)
 ## From https://medialab.github.io/iwanthue/ with the default preset
-cols <- c("#de84b0",
-"#78bb40",
-"#9c45bd",
-"#46c06f",
-"#cb3e97",
-"#488733",
-"#b978e9",
-"#beae36",
-"#5c6ade",
-"#db9443",
-"#5985dc",
-"#cf4e32",
-"#43c4c4",
-"#d84068",
-"#5fb88e",
-"#e471d1",
-"#327e58",
-"#7454b1",
-"#a4b266",
-"#964f95",
-"#72722a",
-"#c18cd3",
-"#a06332",
-"#54a4d6",
-"#dc8074",
-"#5465a4",
-"#9f4765",
-"#a09cdf")
+cols <- c(
+    "#de84b0",
+    "#78bb40",
+    "#9c45bd",
+    "#46c06f",
+    "#cb3e97",
+    "#488733",
+    "#b978e9",
+    "#beae36",
+    "#5c6ade",
+    "#db9443",
+    "#5985dc",
+    "#cf4e32",
+    "#43c4c4",
+    "#d84068",
+    "#5fb88e",
+    "#e471d1",
+    "#327e58",
+    "#7454b1",
+    "#a4b266",
+    "#964f95",
+    "#72722a",
+    "#c18cd3",
+    "#a06332",
+    "#54a4d6",
+    "#dc8074",
+    "#5465a4",
+    "#9f4765",
+    "#a09cdf"
+)
 names(cols) <- seq_len(length(cols))
 
 sce_image_grid(sce, clust_k10, 'pdf_scran/grid_SNN_k10_noXY.pdf', colors = cols)
@@ -318,7 +336,7 @@ sce_image_grid(sce, clust_k10, 'pdf_scran/grid_SNN_k10_noXY.pdf', colors = cols)
 
 ## Try with another k
 Sys.time()
-g_k50 <- buildSNNGraph(sce, k=50, use.dimred = 'PCA')
+g_k50 <- buildSNNGraph(sce, k = 50, use.dimred = 'PCA')
 Sys.time()
 ## About 12 minutes
 # [1] "2019-11-13 15:20:32 EST"
@@ -378,7 +396,7 @@ addmargins(table(clust_k50, sce$subject))
 #       Sum  18033  15284  14364 47681
 
 ## For it to be k = 7
-clust_k50_k7 <- sort_clusters(igraph::cut_at(g_walk_k50, n=7))
+clust_k50_k7 <- sort_clusters(igraph::cut_at(g_walk_k50, n = 7))
 sce_image_grid(sce, clust_k50_k7, 'pdf_scran/grid_SNN_k50_k7_noXY.pdf')
 addmargins(table(clust_k50_k7, sce$subject))
 # clust_k50_k7 Br5292 Br5595 Br8100   Sum
@@ -426,16 +444,30 @@ addmargins(table(clust_k50, clust_k50_k7))
 #       Sum 22555 14474  4163  2278  1910  1263  1038 47681
 
 
-k50_summ <- as.data.frame(table('TheirCluster' = sce$Cluster, 'ClusterK50' = clust_k50, 'ClusterK50_Cut7' = clust_k50_k7, 'sample_name' = sce$sample_name))
+k50_summ <-
+    as.data.frame(
+        table(
+            'TheirCluster' = sce$Cluster,
+            'ClusterK50' = clust_k50,
+            'ClusterK50_Cut7' = clust_k50_k7,
+            'sample_name' = sce$sample_name
+        )
+    )
 dim(k50_summ)
 # [1] 21168     5
 k50_summ <- subset(k50_summ, Freq != 0)
 dim(k50_summ)
 # [1] 905   5
-write.csv(k50_summ, file = 'rda_scran/k50_summ.csv', row.names = FALSE, quote = FALSE)
+write.csv(k50_summ,
+    file = 'rda_scran/k50_summ.csv',
+    row.names = FALSE,
+    quote = FALSE)
 
-clust_k50_k14 <- sort_clusters(igraph::cut_at(g_walk_k50, n=14))
-sce_image_grid(sce, clust_k50_k14, 'pdf_scran/grid_SNN_k50_k14_noXY.pdf', colors = cols)
+clust_k50_k14 <- sort_clusters(igraph::cut_at(g_walk_k50, n = 14))
+sce_image_grid(sce,
+    clust_k50_k14,
+    'pdf_scran/grid_SNN_k50_k14_noXY.pdf',
+    colors = cols)
 addmargins(table(clust_k50_k14, sce$subject))
 # clust_k50_k14 Br5292 Br5595 Br8100   Sum
 #           1      121  10384    265 10770
@@ -490,7 +522,7 @@ addmargins(table(clust_k50, clust_k50_k14))
 #       Sum 10770  8880  7652  6023  3704  2569  2278  1594  1060   850   766   625   497   413 47681
 
 Sys.time()
-g_k5 <- buildSNNGraph(sce, k=5, use.dimred = 'PCA')
+g_k5 <- buildSNNGraph(sce, k = 5, use.dimred = 'PCA')
 Sys.time()
 ## About 5 minutes
 
@@ -509,7 +541,7 @@ sce_image_grid(sce, clust_k5, 'pdf_scran/grid_SNN_k5_noXY.pdf', colors = cols)
 
 
 ## For it to be k = 7
-clust_k5_k7 <- sort_clusters(igraph::cut_at(g_walk_k5, n=7))
+clust_k5_k7 <- sort_clusters(igraph::cut_at(g_walk_k5, n = 7))
 sce_image_grid(sce, clust_k5_k7, 'pdf_scran/grid_SNN_k5_k7_noXY.pdf')
 addmargins(table(clust_k5_k7, sce$subject))
 # clust_k5_k7 Br5292 Br5595 Br8100   Sum
@@ -541,72 +573,111 @@ addmargins(table(clust_k5_k7, clust_k50_k7))
 ## https://osca.bioconductor.org/clustering.html#assessing-cluster-separation
 
 Sys.time()
-ratio_k5 <- clusterModularity(g_k5, clust_k5, as.ratio=TRUE)
+ratio_k5 <- clusterModularity(g_k5, clust_k5, as.ratio = TRUE)
 Sys.time()
-ratio_k10 <- clusterModularity(g_k10, clust_k10, as.ratio=TRUE)
+ratio_k10 <- clusterModularity(g_k10, clust_k10, as.ratio = TRUE)
 Sys.time()
-ratio_k50 <- clusterModularity(g_k50, clust_k50, as.ratio=TRUE)
+ratio_k50 <- clusterModularity(g_k50, clust_k50, as.ratio = TRUE)
 Sys.time()
 save(ratio_k5, ratio_k10, ratio_k50, file = 'rda_scran/ratio_k5_10_50.Rdata')
 
 pdf('pdf_scran/ratio_k5_10_50.pdf')
-pheatmap(log2(ratio_k5+1), cluster_rows=FALSE, cluster_cols=FALSE,
-    color=colorRampPalette(c("white", "blue"))(100))
-pheatmap(log2(ratio_k10+1), cluster_rows=FALSE, cluster_cols=FALSE,
-    color=colorRampPalette(c("white", "blue"))(100))
-pheatmap(log2(ratio_k50+1), cluster_rows=FALSE, cluster_cols=FALSE,
-    color=colorRampPalette(c("white", "blue"))(100))
+pheatmap(
+    log2(ratio_k5 + 1),
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    color = colorRampPalette(c("white", "blue"))(100)
+)
+pheatmap(
+    log2(ratio_k10 + 1),
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    color = colorRampPalette(c("white", "blue"))(100)
+)
+pheatmap(
+    log2(ratio_k50 + 1),
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    color = colorRampPalette(c("white", "blue"))(100)
+)
 dev.off()
 
 
-cluster.gr_k5 <- igraph::graph_from_adjacency_matrix(ratio_k5, 
-    mode="upper", weighted=TRUE, diag=FALSE)
+cluster.gr_k5 <- igraph::graph_from_adjacency_matrix(ratio_k5,
+    mode = "upper",
+    weighted = TRUE,
+    diag = FALSE)
 Sys.time()
 cluster.gr_k10 <- igraph::graph_from_adjacency_matrix(ratio_k10,
-    mode="upper", weighted=TRUE, diag=FALSE)
+    mode = "upper",
+    weighted = TRUE,
+    diag = FALSE)
 Sys.time()
-cluster.gr_k50 <- igraph::graph_from_adjacency_matrix(ratio_k50, 
-    mode="upper", weighted=TRUE, diag=FALSE)
+cluster.gr_k50 <- igraph::graph_from_adjacency_matrix(ratio_k50,
+    mode = "upper",
+    weighted = TRUE,
+    diag = FALSE)
 Sys.time()
 save(cluster.gr_k5, cluster.gr_k10, cluster.gr_k50, file = 'rda_scran/cluster.gr_k5_10_50.Rdata')
 
 
 pdf('pdf_scran/cluster.gr_k5_10_50.pdf')
 set.seed(11001010)
-plot(cluster.gr_k5, edge.width=igraph::E(cluster.gr_k5)$weight*1/4)
-plot(cluster.gr_k10, edge.width=igraph::E(cluster.gr_k10)$weight*1/4)
-plot(cluster.gr_k50, edge.width=igraph::E(cluster.gr_k50)$weight*1/4)
+plot(cluster.gr_k5, edge.width = igraph::E(cluster.gr_k5)$weight * 1 / 4)
+plot(cluster.gr_k10, edge.width = igraph::E(cluster.gr_k10)$weight * 1 /
+        4)
+plot(cluster.gr_k50, edge.width = igraph::E(cluster.gr_k50)$weight * 1 /
+        4)
 dev.off()
-    
+
 
 ## Focus on the k50 SNN clusters
 ## From https://stackoverflow.com/questions/5812493/how-to-add-leading-zeros
-clust_k50_d2 <- formatC(as.integer(clust_k50), width = 2, format = "d", flag = "0")
+clust_k50_d2 <-
+    formatC(
+        as.integer(clust_k50),
+        width = 2,
+        format = "d",
+        flag = "0"
+    )
 cIndexes <- splitit(paste0(sce$sample_name, '_', clust_k50_d2))
 
 ## Adapted from collapse_clusters.R
-## Collapse UMIs 
-umiComb <- sapply(cIndexes, function(ii) rowSums(assays(sce)$counts[top.hvgs, ii, drop = FALSE]))
+## Collapse UMIs
+umiComb <-
+    sapply(cIndexes, function(ii)
+        rowSums(assays(sce)$counts[top.hvgs, ii, drop = FALSE]))
 dim(umiComb)
 # [1] 1942  306
 
 ## Get a sample-specific size factors, instead of sample/cluster size factors
-umiComb_sample <- sapply(splitit(ss(colnames(umiComb), '_', 1)), function(ii) { rowSums(umiComb[, ii, drop = FALSE]) })
+umiComb_sample <-
+    sapply(splitit(ss(colnames(umiComb), '_', 1)), function(ii) {
+        rowSums(umiComb[, ii, drop = FALSE])
+    })
 ## Same as further below
 # umiComb_sample_k50_k7 <- sapply(splitit(ss(colnames(umiComb_k50_k7), '_', 1)), function(ii) { rowSums(umiComb_k50_k7[, ii, drop = FALSE]) })
 # identical(umiComb_sample, umiComb_sample_k50_k7)
 umiComb_sample_size_fac <- librarySizeFactors(umiComb_sample)
 
-umiComb_sample_size_fac_k50 <- rep(umiComb_sample_size_fac, lengths(splitit(ss(colnames(umiComb), '_', 1))))
+umiComb_sample_size_fac_k50 <-
+    rep(umiComb_sample_size_fac, lengths(splitit(ss(
+        colnames(umiComb), '_', 1
+    ))))
 names(umiComb_sample_size_fac_k50) <- colnames(umiComb)
 
-umiCombLog_k50 <- logNormCounts(SingleCellExperiment(list(counts=umiComb)), size_factors = umiComb_sample_size_fac_k50)
+umiCombLog_k50 <-
+    logNormCounts(SingleCellExperiment(list(counts = umiComb)), size_factors = umiComb_sample_size_fac_k50)
 d_k50 <- dist(t(assays(umiCombLog_k50)$logcounts))
 h_k50 <- hclust(d_k50)
 
 pdf('pdf_scran/dendro_k50.pdf', width = 35)
 palette(RColorBrewer::brewer.pal(12, 'Paired'))
-myplclust(h_k50, labels = ss(names(cIndexes), '_', 2), lab.col = as.numeric(factor(ss(names(cIndexes), '_', 1)))) 
+myplclust(h_k50,
+    labels = ss(names(cIndexes), '_', 2),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes), '_', 1
+    ))))
 dev.off()
 
 cc_k50 <- cor(assays(umiCombLog_k50)$logcounts)
@@ -614,13 +685,18 @@ mean(cc_k50[upper.tri(cc_k50)])
 # [1] 0.6951459
 
 ## Previously without the size factors
-umiCombLog <- logNormCounts(SingleCellExperiment(list(counts=umiComb)))
+umiCombLog <-
+    logNormCounts(SingleCellExperiment(list(counts = umiComb)))
 d <- dist(t(assays(umiCombLog)$logcounts))
 h <- hclust(d)
 
 pdf('pdf_scran/dendro_k50_no_sizeFactors.pdf', width = 35)
 palette(RColorBrewer::brewer.pal(12, 'Paired'))
-myplclust(h, labels = ss(names(cIndexes), '_', 2), lab.col = as.numeric(factor(ss(names(cIndexes), '_', 1)))) 
+myplclust(h,
+    labels = ss(names(cIndexes), '_', 2),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes), '_', 1
+    ))))
 dev.off()
 
 cc <- cor(assays(umiCombLog)$logcounts)
@@ -629,11 +705,10 @@ mean(cc[upper.tri(cc)])
 
 
 ## Build the annotation data.frame for the umi/cluster combination
-col_df <- data.frame(
-    cluster = factor(ss(names(cIndexes), '_', 2)),
-    sample = ss(names(cIndexes), '_', 1)
-)
-col_df$subjpos <- sce$subject_position[match(as.character(col_df$sample), sce$sample_name)]
+col_df <- data.frame(cluster = factor(ss(names(cIndexes), '_', 2)),
+    sample = ss(names(cIndexes), '_', 1))
+col_df$subjpos <-
+    sce$subject_position[match(as.character(col_df$sample), sce$sample_name)]
 rownames(col_df) <- colnames(umiComb)
 
 ## Select colors myself
@@ -647,47 +722,65 @@ names(cols_sample) <- unique(col_df$sample)
 cols_subjpos <- RColorBrewer::brewer.pal(6, 'Paired')
 names(cols_subjpos) <- unique(col_df$subjpos)
 
-ann_colors <- list(
-    cluster = cols_d2,
+ann_colors <- list(cluster = cols_d2,
     sample = cols_sample,
-    subjpos = cols_subjpos
-)
+    subjpos = cols_subjpos)
 
-pdf('pdf_scran/pheatmap_umis_combined_k50_no_sizeFactors.pdf', height = 24)
+pdf('pdf_scran/pheatmap_umis_combined_k50_no_sizeFactors.pdf',
+    height = 24)
 pheatmap(
-    assays(umiCombLog)$logcounts[top.hvgs, ],
-    cluster_rows = TRUE, cluster_cols = TRUE,
+    assays(umiCombLog)$logcounts[top.hvgs,],
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
     color = colorRampPalette(c("white", "blue"))(100),
-    annotation_col = col_df, annotation_names_col = TRUE,
+    annotation_col = col_df,
+    annotation_names_col = TRUE,
     annotation_colors = ann_colors,
-    show_rownames = FALSE, show_colnames = FALSE)
+    show_rownames = FALSE,
+    show_colnames = FALSE
+)
 dev.off()
 
 
 pdf('pdf_scran/pheatmap_umis_combined_k50.pdf', height = 24)
 pheatmap(
-    assays(umiCombLog_k50)$logcounts[top.hvgs, ],
-    cluster_rows = TRUE, cluster_cols = TRUE,
+    assays(umiCombLog_k50)$logcounts[top.hvgs,],
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
     color = colorRampPalette(c("white", "blue"))(100),
-    annotation_col = col_df, annotation_names_col = TRUE,
+    annotation_col = col_df,
+    annotation_names_col = TRUE,
     annotation_colors = ann_colors,
-    show_rownames = FALSE, show_colnames = FALSE)
+    show_rownames = FALSE,
+    show_colnames = FALSE
+)
 dev.off()
 
 
 
 ## Plot each cluster at a time in the grid, so we can clearly find where
 ## they are located
-sce_image_grid_by_clus(sce, clust_k50_k7,
-    'pdf_scran/grid_SNN_k50_k7_noXY_byCluster.pdf', ... = 'SNN k50 (cut to k7)')
-sce_image_grid_by_clus(sce, clust_k50,
-    'pdf_scran/grid_SNN_k50_noXY_byCluster.pdf', ... = 'SNN k50')
+sce_image_grid_by_clus(sce,
+    clust_k50_k7,
+    'pdf_scran/grid_SNN_k50_k7_noXY_byCluster.pdf',
+    ... = 'SNN k50 (cut to k7)')
+sce_image_grid_by_clus(sce,
+    clust_k50,
+    'pdf_scran/grid_SNN_k50_noXY_byCluster.pdf',
+    ... = 'SNN k50')
 
 
 
 ## Find marker genes https://osca.bioconductor.org/marker-gene-detection.html#using-pairwise-t-tests
 Sys.time()
-markers_wmw_k50 <- findMarkers(sce, clust_k50_d2, test = 'wilcox', block = sce$subject_position, direction = 'up')
+markers_wmw_k50 <-
+    findMarkers(
+        sce,
+        clust_k50_d2,
+        test = 'wilcox',
+        block = sce$subject_position,
+        direction = 'up'
+    )
 Sys.time()
 
 ## Takes about 11 minutes
@@ -704,7 +797,7 @@ to_symbols <- function(x) {
 }
 
 AUCs_k50 <- lapply(markers_wmw_k50, function(interesting.wmw) {
-    best.set <- interesting.wmw[interesting.wmw$Top <= 5,]
+    best.set <- interesting.wmw[interesting.wmw$Top <= 5, ]
     AUCs <- to_symbols(as.matrix(best.set[, -(1:3)]))
     colnames(AUCs) <- sub("AUC.", "", colnames(AUCs))
     return(AUCs)
@@ -719,15 +812,25 @@ AUCs_k50 <- lapply(markers_wmw_k50, function(interesting.wmw) {
 ## upregulated candidate marker."
 pdf('pdf_scran/AUCs_k50.pdf')
 lapply(AUCs_k50, function(AUCs) {
-    print(pheatmap(AUCs, breaks=seq(0, 1, length.out=21),
-        color=viridis::viridis(21)))
+    print(pheatmap(
+        AUCs,
+        breaks = seq(0, 1, length.out = 21),
+        color = viridis::viridis(21)
+    ))
     return(invisible(NULL))
 })
 dev.off()
-    
+
 
 Sys.time()
-markers_binom_k50 <- findMarkers(sce, clust_k50_d2, test = 'binom', block = sce$subject_position, direction = 'up')
+markers_binom_k50 <-
+    findMarkers(
+        sce,
+        clust_k50_d2,
+        test = 'binom',
+        block = sce$subject_position,
+        direction = 'up'
+    )
 Sys.time()
 ## Takes about 6 minutes
 # [1] "2019-11-18 15:09:41 EST"
@@ -736,7 +839,10 @@ Sys.time()
 save(markers_binom_k50, file = 'rda_scran/markers_binom_k50.Rdata')
 
 
-top_binom_k50 <- lapply(markers_binom_k50, function(binom) { head(rownames(binom), n = 6) })
+top_binom_k50 <-
+    lapply(markers_binom_k50, function(binom) {
+        head(rownames(binom), n = 6)
+    })
 sce$clust_k50_d2 <- clust_k50_d2
 
 
@@ -744,7 +850,8 @@ pdf('pdf_scran/top_binom_k50.pdf', width = 14)
 lapply(top_binom_k50, function(topgenes) {
     p <- plotExpression(sce, x = 'clust_k50_d2', features = topgenes)
     ## Switch to symbols
-    p$data$Feature <- rowData(sce)$gene_name[match(p$data$Feature, rowData(sce)$gene_id)]
+    p$data$Feature <-
+        rowData(sce)$gene_name[match(p$data$Feature, rowData(sce)$gene_id)]
     print(p)
     return(invisible(NULL))
 })
@@ -759,19 +866,26 @@ dev.off()
 #########################################################################
 
 
-cIndexes_k50_k7 <- splitit(paste0(sce$sample_name, '_', clust_k50_k7))
+cIndexes_k50_k7 <-
+    splitit(paste0(sce$sample_name, '_', clust_k50_k7))
 
 ## Adapted from collapse_clusters.R
-## Collapse UMIs 
-umiComb_k50_k7 <- sapply(cIndexes_k50_k7 , function(ii) rowSums(assays(sce)$counts[top.hvgs, ii, drop = FALSE]))
+## Collapse UMIs
+umiComb_k50_k7 <-
+    sapply(cIndexes_k50_k7 , function(ii)
+        rowSums(assays(sce)$counts[top.hvgs, ii, drop = FALSE]))
 dim(umiComb_k50_k7)
 # [1] 1942  82
 
 ## With the sample-level size factors
-umiComb_sample_size_fac_k50_k7 <- rep(umiComb_sample_size_fac, lengths(splitit(ss(colnames(umiComb_k50_k7), '_', 1))))
+umiComb_sample_size_fac_k50_k7 <-
+    rep(umiComb_sample_size_fac, lengths(splitit(ss(
+        colnames(umiComb_k50_k7), '_', 1
+    ))))
 names(umiComb_sample_size_fac_k50_k7) <- colnames(umiComb_k50_k7)
 
-umiCombLog_k50_k7 <- logNormCounts(SingleCellExperiment(list(counts=umiComb_k50_k7)), size_factors = umiComb_sample_size_fac_k50_k7)
+umiCombLog_k50_k7 <-
+    logNormCounts(SingleCellExperiment(list(counts = umiComb_k50_k7)), size_factors = umiComb_sample_size_fac_k50_k7)
 
 d_k50_k7 <- dist(t(assays(umiCombLog_k50_k7)$logcounts))
 h_k50_k7 <- hclust(d_k50_k7)
@@ -779,10 +893,18 @@ h_k50_k7 <- hclust(d_k50_k7)
 
 pdf('pdf_scran/dendro_k50_k7.pdf', width = 30)
 palette(RColorBrewer::brewer.pal(12, 'Paired'))
-myplclust(h_k50_k7, labels = ss(names(cIndexes_k50_k7), '_', 2), lab.col = as.numeric(factor(ss(names(cIndexes_k50_k7), '_', 1))))
+myplclust(h_k50_k7,
+    labels = ss(names(cIndexes_k50_k7), '_', 2),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes_k50_k7), '_', 1
+    ))))
 
 palette(cols[1:7])
-myplclust(h_k50_k7, labels = ss(names(cIndexes_k50_k7), '_', 1), lab.col = as.numeric(factor(ss(names(cIndexes_k50_k7), '_', 2)))) 
+myplclust(h_k50_k7,
+    labels = ss(names(cIndexes_k50_k7), '_', 1),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes_k50_k7), '_', 2
+    ))))
 dev.off()
 
 
@@ -792,7 +914,8 @@ mean(cc_k50_k7[upper.tri(cc_k50_k7)])
 
 
 ## without the sample-level size factors
-umiCombLog_k50_k7_noS <- logNormCounts(SingleCellExperiment(list(counts=umiComb_k50_k7)))
+umiCombLog_k50_k7_noS <-
+    logNormCounts(SingleCellExperiment(list(counts = umiComb_k50_k7)))
 
 d_k50_k7_noS <- dist(t(assays(umiCombLog_k50_k7_noS)$logcounts))
 h_k50_k7_noS <- hclust(d_k50_k7_noS)
@@ -800,10 +923,18 @@ h_k50_k7_noS <- hclust(d_k50_k7_noS)
 
 pdf('pdf_scran/dendro_k50_k7_no_sizeFactors.pdf', width = 30)
 palette(RColorBrewer::brewer.pal(12, 'Paired'))
-myplclust(h_k50_k7_noS, labels = ss(names(cIndexes_k50_k7), '_', 2), lab.col = as.numeric(factor(ss(names(cIndexes_k50_k7), '_', 1))))
+myplclust(h_k50_k7_noS,
+    labels = ss(names(cIndexes_k50_k7), '_', 2),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes_k50_k7), '_', 1
+    ))))
 
 palette(cols[1:7])
-myplclust(h_k50_k7_noS, labels = ss(names(cIndexes_k50_k7), '_', 1), lab.col = as.numeric(factor(ss(names(cIndexes_k50_k7), '_', 2)))) 
+myplclust(h_k50_k7_noS,
+    labels = ss(names(cIndexes_k50_k7), '_', 1),
+    lab.col = as.numeric(factor(ss(
+        names(cIndexes_k50_k7), '_', 2
+    ))))
 dev.off()
 
 cc_k50_k7_noS <- cor(assays(umiCombLog_k50_k7_noS)$logcounts)
@@ -814,45 +945,58 @@ mean(cc_k50_k7_noS[upper.tri(cc_k50_k7_noS)])
 
 
 ## Build the annotation data.frame for the umi/cluster combination
-col_df_k50_k7 <- data.frame(
-    cluster = factor(ss(names(cIndexes_k50_k7), '_', 2)),
-    sample = ss(names(cIndexes_k50_k7), '_', 1)
-)
-col_df_k50_k7$subjpos <- sce$subject_position[match(as.character(col_df_k50_k7$sample), sce$sample_name)]
+col_df_k50_k7 <- data.frame(cluster = factor(ss(names(cIndexes_k50_k7), '_', 2)),
+    sample = ss(names(cIndexes_k50_k7), '_', 1))
+col_df_k50_k7$subjpos <-
+    sce$subject_position[match(as.character(col_df_k50_k7$sample), sce$sample_name)]
 rownames(col_df_k50_k7) <- colnames(umiComb_k50_k7)
 
 
-ann_colors_k50_k7 <- list(
-    cluster = cols[seq_len(length(unique(clust_k50_k7)))],
+ann_colors_k50_k7 <- list(cluster = cols[seq_len(length(unique(clust_k50_k7)))],
     sample = cols_sample,
-    subjpos = cols_subjpos
-)
+    subjpos = cols_subjpos)
 
 pdf('pdf_scran/pheatmap_umis_combined_k50_k7.pdf', height = 24)
 pheatmap(
-    assays(umiCombLog_k50_k7)$logcounts[top.hvgs, ],
-    cluster_rows = TRUE, cluster_cols = TRUE,
+    assays(umiCombLog_k50_k7)$logcounts[top.hvgs,],
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
     color = colorRampPalette(c("white", "blue"))(100),
-    annotation_col = col_df_k50_k7, annotation_names_col = TRUE,
+    annotation_col = col_df_k50_k7,
+    annotation_names_col = TRUE,
     annotation_colors = ann_colors_k50_k7,
-    show_rownames = FALSE, show_colnames = FALSE)
+    show_rownames = FALSE,
+    show_colnames = FALSE
+)
 dev.off()
 
 
-pdf('pdf_scran/pheatmap_umis_combined_k50_k7_no_sizeFactors.pdf', height = 24)
+pdf('pdf_scran/pheatmap_umis_combined_k50_k7_no_sizeFactors.pdf',
+    height = 24)
 pheatmap(
-    assays(umiCombLog_k50_k7_noS)$logcounts[top.hvgs, ],
-    cluster_rows = TRUE, cluster_cols = TRUE,
+    assays(umiCombLog_k50_k7_noS)$logcounts[top.hvgs,],
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
     color = colorRampPalette(c("white", "blue"))(100),
-    annotation_col = col_df_k50_k7, annotation_names_col = TRUE,
+    annotation_col = col_df_k50_k7,
+    annotation_names_col = TRUE,
     annotation_colors = ann_colors_k50_k7,
-    show_rownames = FALSE, show_colnames = FALSE)
+    show_rownames = FALSE,
+    show_colnames = FALSE
+)
 dev.off()
 
 
 ## Find marker genes https://osca.bioconductor.org/marker-gene-detection.html#using-pairwise-t-tests
 Sys.time()
-markers_wmw_k50_k7 <- findMarkers(sce, clust_k50_k7, test = 'wilcox', block = sce$subject_position, direction = 'up')
+markers_wmw_k50_k7 <-
+    findMarkers(
+        sce,
+        clust_k50_k7,
+        test = 'wilcox',
+        block = sce$subject_position,
+        direction = 'up'
+    )
 Sys.time()
 
 ## Takes about 7 minutes
@@ -862,24 +1006,35 @@ Sys.time()
 save(markers_wmw_k50_k7 , file = 'rda_scran/markers_wmw_k50_k7.Rdata')
 
 
-AUCs_k50_k7 <- lapply(markers_wmw_k50_k7, function(interesting.wmw) {
-    best.set <- interesting.wmw[interesting.wmw$Top <= 5,]
-    AUCs <- to_symbols(as.matrix(best.set[, -(1:3)]))
-    colnames(AUCs) <- sub("AUC.", "", colnames(AUCs))
-    return(AUCs)
-})
+AUCs_k50_k7 <-
+    lapply(markers_wmw_k50_k7, function(interesting.wmw) {
+        best.set <- interesting.wmw[interesting.wmw$Top <= 5, ]
+        AUCs <- to_symbols(as.matrix(best.set[, -(1:3)]))
+        colnames(AUCs) <- sub("AUC.", "", colnames(AUCs))
+        return(AUCs)
+    })
 
 pdf('pdf_scran/AUCs_k50_k7.pdf')
 lapply(AUCs_k50_k7, function(AUCs) {
-    print(pheatmap(AUCs, breaks=seq(0, 1, length.out=21),
-        color=viridis::viridis(21)))
+    print(pheatmap(
+        AUCs,
+        breaks = seq(0, 1, length.out = 21),
+        color = viridis::viridis(21)
+    ))
     return(invisible(NULL))
 })
 dev.off()
-    
+
 
 Sys.time()
-markers_binom_k50_k7 <- findMarkers(sce, clust_k50_k7, test = 'binom', block = sce$subject_position, direction = 'up')
+markers_binom_k50_k7 <-
+    findMarkers(
+        sce,
+        clust_k50_k7,
+        test = 'binom',
+        block = sce$subject_position,
+        direction = 'up'
+    )
 Sys.time()
 ## Takes < 1 minute
 # [1] "2019-11-20 16:25:53 EST"
@@ -888,7 +1043,10 @@ Sys.time()
 save(markers_binom_k50_k7, file = 'rda_scran/markers_binom_k50_k7.Rdata')
 
 
-top_binom_k50_k7 <- lapply(markers_binom_k50_k7, function(binom) { head(rownames(binom), n = 6) })
+top_binom_k50_k7 <-
+    lapply(markers_binom_k50_k7, function(binom) {
+        head(rownames(binom), n = 6)
+    })
 sce$clust_k50_k7 <- clust_k50_k7
 
 
@@ -896,7 +1054,8 @@ pdf('pdf_scran/top_binom_k50_k7.pdf', width = 14)
 lapply(top_binom_k50_k7, function(topgenes) {
     p <- plotExpression(sce, x = 'clust_k50_k7', features = topgenes)
     ## Switch to symbols
-    p$data$Feature <- rowData(sce)$gene_name[match(p$data$Feature, rowData(sce)$gene_id)]
+    p$data$Feature <-
+        rowData(sce)$gene_name[match(p$data$Feature, rowData(sce)$gene_id)]
     print(p)
     return(invisible(NULL))
 })
@@ -912,7 +1071,7 @@ dev.off()
 ## the clusters from 10x Genomics labeled by Kristen Maynard and Keri Martinowich
 clust_k5_list <- lapply(4:28, function(n) {
     message(paste(Sys.time(), 'n =', n))
-    sort_clusters(igraph::cut_at(g_walk_k50, n=n))
+    sort_clusters(igraph::cut_at(g_walk_k50, n = n))
 })
 names(clust_k5_list) <- paste0('k', 4:28)
 save(clust_k5_list, file = 'rda_scran/clust_k5_list.Rdata')
@@ -922,47 +1081,98 @@ library('readxl')
 
 ## Maynard
 clust_10x_maynard_guess <- read_xlsx('guess_the_layer_Kristen.xlsx')
-clust_10x_maynard_guess$sample_cluster <- with(clust_10x_maynard_guess, paste0(sample_name, '_', Cluster))
+clust_10x_maynard_guess$sample_cluster <-
+    with(clust_10x_maynard_guess, paste0(sample_name, '_', Cluster))
 
 clust_10x <- paste0(sce$sample_name, '_', sce$Cluster)
-clust_10x_layer_maynard <- clust_10x_maynard_guess$Layer[match(clust_10x, clust_10x_maynard_guess$sample_cluster)]
-clust_10x_layer_maynard <- factor(clust_10x_layer_maynard, levels = c("1", "2_3", "4", "4_5", "5", "5_6", "6", "1_6", "WM"))
+clust_10x_layer_maynard <-
+    clust_10x_maynard_guess$Layer[match(clust_10x, clust_10x_maynard_guess$sample_cluster)]
+clust_10x_layer_maynard <-
+    factor(clust_10x_layer_maynard,
+        levels = c("1", "2_3", "4", "4_5", "5", "5_6", "6", "1_6", "WM"))
 
-sce_image_grid_by_clus(sce, clust_10x_layer_maynard,
-    'pdf_scran/grid_c10x_layer_maynard_byCluster.pdf', ... = 'c10x layers by Maynard')
-    
+sce_image_grid_by_clus(
+    sce,
+    clust_10x_layer_maynard,
+    'pdf_scran/grid_c10x_layer_maynard_byCluster.pdf',
+    ... = 'c10x layers by Maynard'
+)
 
-cols_layers_maynard <- c("#b2df8a","#e41a1c","#377eb8","#4daf4a","#ff7f00","gold", "#a65628", "#999999", "black", "grey", "white", "purple")[seq_len(length(unique(clust_10x_layer_maynard)))]
+
+cols_layers_maynard <-
+    c(
+        "#b2df8a",
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#ff7f00",
+        "gold",
+        "#a65628",
+        "#999999",
+        "black",
+        "grey",
+        "white",
+        "purple"
+    )[seq_len(length(unique(clust_10x_layer_maynard)))]
 names(cols_layers_maynard) <- unique(clust_10x_layer_maynard)
-sce_image_grid(sce, clust_10x_layer_maynard, 'pdf_scran/grid_c10x_layer_maynard.pdf', sort_clust = FALSE, colors = cols_layers_maynard)
+sce_image_grid(
+    sce,
+    clust_10x_layer_maynard,
+    'pdf_scran/grid_c10x_layer_maynard.pdf',
+    sort_clust = FALSE,
+    colors = cols_layers_maynard
+)
 
 
 ## Keri
-clust_10x_martinowich_guess <- read_xlsx('guess_the_layer_keri.xlsx')
-clust_10x_martinowich_guess$sample_cluster <- with(clust_10x_martinowich_guess, paste0(sample_name, '_', Cluster))
+clust_10x_martinowich_guess <-
+    read_xlsx('guess_the_layer_keri.xlsx')
+clust_10x_martinowich_guess$sample_cluster <-
+    with(clust_10x_martinowich_guess,
+        paste0(sample_name, '_', Cluster))
 
-clust_10x_layer_martinowich <- clust_10x_martinowich_guess$Layer[match(clust_10x, clust_10x_martinowich_guess$sample_cluster)]
-clust_10x_layer_martinowich <- gsub('/', '_', clust_10x_layer_martinowich)
-clust_10x_layer_martinowich <- factor(clust_10x_layer_martinowich, levels = c("1", "2", "2_3", "3", "4", "5", "5_6", "6", "1_6", "1_5", "WM"))
+clust_10x_layer_martinowich <-
+    clust_10x_martinowich_guess$Layer[match(clust_10x, clust_10x_martinowich_guess$sample_cluster)]
+clust_10x_layer_martinowich <-
+    gsub('/', '_', clust_10x_layer_martinowich)
+clust_10x_layer_martinowich <-
+    factor(
+        clust_10x_layer_martinowich,
+        levels = c("1", "2", "2_3", "3", "4", "5", "5_6", "6", "1_6", "1_5", "WM")
+    )
 
-sce_image_grid_by_clus(sce, clust_10x_layer_martinowich,
-    'pdf_scran/grid_c10x_layer_martinowich_byCluster.pdf', ... = 'c10x layers by Martinowich')
+sce_image_grid_by_clus(
+    sce,
+    clust_10x_layer_martinowich,
+    'pdf_scran/grid_c10x_layer_martinowich_byCluster.pdf',
+    ... = 'c10x layers by Martinowich'
+)
 
 
 unique(clust_10x_layer_martinowich)[!unique(clust_10x_layer_martinowich) %in% unique(clust_10x_layer_maynard)]
 # [1] 3   2   1_5
 # Levels: 1 2 2_3 3 4 5 5_6 6 1_6 1_5 WM
 ## Re-use colors and add missing ones
-cols_layers_martinowich <- c(cols_layers_maynard, '3' = "grey", '2' = "white", '1_5' = "purple")
+cols_layers_martinowich <-
+    c(cols_layers_maynard,
+        '3' = "grey",
+        '2' = "white",
+        '1_5' = "purple")
 
-sce_image_grid(sce, clust_10x_layer_martinowich, 'pdf_scran/grid_c10x_layer_martinowich.pdf', sort_clust = FALSE, colors = cols_layers_martinowich)
+sce_image_grid(
+    sce,
+    clust_10x_layer_martinowich,
+    'pdf_scran/grid_c10x_layer_martinowich.pdf',
+    sort_clust = FALSE,
+    colors = cols_layers_martinowich
+)
 
 
 
-addmargins(table(
-    'Maynard' = clust_10x_layer_maynard,
-    'Martinowich' = clust_10x_layer_martinowich
-))
+addmargins(
+    table('Maynard' = clust_10x_layer_maynard,
+        'Martinowich' = clust_10x_layer_martinowich)
+)
 #        Martinowich
 # Maynard     1     2   2_3     3     4     5   5_6     6   1_6   1_5    WM   Sum
 #     1    4665     0     0     0     0     0     0     0     0     0     0  4665
@@ -975,7 +1185,13 @@ addmargins(table(
 #     1_6     0     0     0     0     0     0     0     0  1709   768     0  2477
 #     WM      0     0     0     0     0     0     0     0     0     0  5201  5201
 #     Sum  7371  1295  7829  1577  9868  6322   752  4989  1709   768  5201 47681
-save(clust_10x_layer_maynard, clust_10x_layer_martinowich, cols_layers_maynard, cols_layers_martinowich, file = 'rda_scran/clust_10x_layer_maynard_martinowich.Rdata')
+save(
+    clust_10x_layer_maynard,
+    clust_10x_layer_martinowich,
+    cols_layers_maynard,
+    cols_layers_martinowich,
+    file = 'rda_scran/clust_10x_layer_maynard_martinowich.Rdata'
+)
 
 ## Maynard
 c10x_maynard_vs_snn_k50 <- lapply(clust_k5_list, function(cl) {
@@ -996,13 +1212,17 @@ addmargins(c10x_maynard_vs_snn_k50[[1]])
 #                     1_6  2314    35    77    51  2477
 #                     WM   1608  2616   130   847  5201
 #                     Sum 41192  3173  2278  1038 47681
-                    
+
 pdf('pdf_scran/c10x_maynard_vs_snn_k50_rawSpotCounts.pdf')
 lapply(c10x_maynard_vs_snn_k50, function(x) {
     rownames(x) <- paste(rownames(x), ';', rowSums(x))
     colnames(x) <- paste(colnames(x), ';', colSums(x))
     x[x == 0] <- NA
-    print(pheatmap(x, color=viridis::viridis(21), cluster_rows = FALSE))
+    print(pheatmap(
+        x,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE
+    ))
     return(invisible(NULL))
 })
 dev.off()
@@ -1014,7 +1234,12 @@ lapply(c10x_maynard_vs_snn_k50, function(x) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, breaks=seq(0, 100, length.out=21), color=viridis::viridis(21), cluster_rows = FALSE))
+    print(pheatmap(
+        y,
+        breaks = seq(0, 100, length.out = 21),
+        color = viridis::viridis(21),
+        cluster_rows = FALSE
+    ))
     return(invisible(NULL))
 })
 dev.off()
@@ -1041,13 +1266,17 @@ addmargins(c10x_martinowich_vs_snn_k50[[1]])
 #                         1_5   735     7    21     5   768
 #                         WM   1608  2616   130   847  5201
 #                         Sum 41192  3173  2278  1038 47681
-                    
+
 pdf('pdf_scran/c10x_martinowich_vs_snn_k50_rawSpotCounts.pdf')
 lapply(c10x_martinowich_vs_snn_k50, function(x) {
     rownames(x) <- paste(rownames(x), ';', rowSums(x))
     colnames(x) <- paste(colnames(x), ';', colSums(x))
     x[x == 0] <- NA
-    print(pheatmap(x, color=viridis::viridis(21), cluster_rows = FALSE))
+    print(pheatmap(
+        x,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE
+    ))
     return(invisible(NULL))
 })
 dev.off()
@@ -1059,7 +1288,12 @@ lapply(c10x_martinowich_vs_snn_k50, function(x) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, breaks=seq(0, 100, length.out=21), color=viridis::viridis(21), cluster_rows = FALSE))
+    print(pheatmap(
+        y,
+        breaks = seq(0, 100, length.out = 21),
+        color = viridis::viridis(21),
+        cluster_rows = FALSE
+    ))
     return(invisible(NULL))
 })
 dev.off()
@@ -1073,9 +1307,16 @@ mapply(function(x, k) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, color=viridis::viridis(21), cluster_rows = FALSE, main = paste('Maynard vs SNN K50 cut at', k, '(row percents)')))
+    print(pheatmap(
+        y,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE,
+        main = paste('Maynard vs SNN K50 cut at', k, '(row percents)')
+    ))
     return(invisible(NULL))
-}, c10x_maynard_vs_snn_k50, names(c10x_maynard_vs_snn_k50))
+},
+    c10x_maynard_vs_snn_k50,
+    names(c10x_maynard_vs_snn_k50))
 dev.off()
 
 
@@ -1085,9 +1326,16 @@ mapply(function(x, k) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, color=viridis::viridis(21), cluster_rows = FALSE, main = paste('Martinowich vs SNN K50 cut at', k, '(row percents)')))
+    print(pheatmap(
+        y,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE,
+        main = paste('Martinowich vs SNN K50 cut at', k, '(row percents)')
+    ))
     return(invisible(NULL))
-}, c10x_martinowich_vs_snn_k50, names(c10x_martinowich_vs_snn_k50))
+},
+    c10x_martinowich_vs_snn_k50,
+    names(c10x_martinowich_vs_snn_k50))
 dev.off()
 
 
@@ -1097,9 +1345,16 @@ mapply(function(x, k) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, color=viridis::viridis(21), cluster_rows = FALSE, main = paste('Maynard vs SNN K50 cut at', k, '(col percents)')))
+    print(pheatmap(
+        y,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE,
+        main = paste('Maynard vs SNN K50 cut at', k, '(col percents)')
+    ))
     return(invisible(NULL))
-}, c10x_maynard_vs_snn_k50, names(c10x_maynard_vs_snn_k50))
+},
+    c10x_maynard_vs_snn_k50,
+    names(c10x_maynard_vs_snn_k50))
 dev.off()
 
 
@@ -1109,9 +1364,16 @@ mapply(function(x, k) {
     rownames(y) <- paste(rownames(y), ';', rowSums(x))
     colnames(y) <- paste(colnames(y), ';', colSums(x))
     y[y == 0] <- NA
-    print(pheatmap(y, color=viridis::viridis(21), cluster_rows = FALSE, main = paste('Martinowich vs SNN K50 cut at', k, '(col percents)')))
+    print(pheatmap(
+        y,
+        color = viridis::viridis(21),
+        cluster_rows = FALSE,
+        main = paste('Martinowich vs SNN K50 cut at', k, '(col percents)')
+    ))
     return(invisible(NULL))
-}, c10x_martinowich_vs_snn_k50, names(c10x_martinowich_vs_snn_k50))
+},
+    c10x_martinowich_vs_snn_k50,
+    names(c10x_martinowich_vs_snn_k50))
 dev.off()
 
 
@@ -1126,5 +1388,3 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
-
-

@@ -18,7 +18,8 @@ dir.create('rda_zinbwave', showWarnings = FALSE)
 load('geom_spatial.Rdata', verbose = TRUE)
 
 ## From sce_scran.R
-load('Human_DLPFC_Visium_processedData_sce_scran.Rdata', verbose = TRUE)
+load('Human_DLPFC_Visium_processedData_sce_scran.Rdata',
+    verbose = TRUE)
 
 
 ## For parallelization purposes
@@ -47,7 +48,7 @@ table(rowSums(assay(sce) > 5) > 5)
 
 
 ## makeFilterStats and zinbwave() doesn't work with the Matrix object
-filtered <- sce[top.hvgs, ]
+filtered <- sce[top.hvgs,]
 assays(filtered)$counts <- as.matrix(assays(filtered)$counts)
 # assays(filtered)$logcounts <- as.matrix(assays(filtered)$logcounts)
 
@@ -63,7 +64,7 @@ num_reads
 num_cells <- 0.25 * ncol(filtered)
 num_cells
 # [1] 11920.25
-is_common <- rowSums(assay(filtered) >= num_reads ) >= num_cells
+is_common <- rowSums(assay(filtered) >= num_reads) >= num_cells
 table(is_common)
 # FALSE  TRUE
 # 33039   499
@@ -81,12 +82,21 @@ table(is_common)
 # table(rowSums(assay(filtered) >= num_reads ) >= num_cells)
 # # FALSE  TRUE
 # #  1501   499
- 
+
 ## Adjust for sample
 Sys.time()
-clustered <- zinbwave(filtered, K = 50, X = "~ subject_position", residuals = TRUE,
-    normalizedValues = TRUE, observationalWeights = TRUE, verbose = TRUE,
-    BPPARAM = BiocParallel::MulticoreParam(4), epsilon = 1e12)
+clustered <-
+    zinbwave(
+        filtered,
+        K = 50,
+        X = "~ subject_position",
+        residuals = TRUE,
+        normalizedValues = TRUE,
+        observationalWeights = TRUE,
+        verbose = TRUE,
+        BPPARAM = BiocParallel::MulticoreParam(4),
+        epsilon = 1e12
+    )
 Sys.time()
 ## Takes about 20 hours to run!
 # [1] "2019-11-12 14:11:12 EST"
@@ -95,9 +105,10 @@ save(clustered, file = 'rda_zinbwave/clustered.Rdata')
 Sys.time()
 
 ## Set some colors
-col_samples <- brewer.pal('Set3', n = length(unique(filtered$sample_name)))
+col_samples <-
+    brewer.pal('Set3', n = length(unique(filtered$sample_name)))
 names(col_samples) <- unique(filtered$sample_name)
-    
+
 ## From
 ## https://bioconductor.github.io/BiocWorkshops/analysis-of-single-cell-rna-seq-data-dimensionality-reduction-clustering-and-lineage-inference.html#dimensionality-reduction
 W <- reducedDim(clustered, 'zinbwave')
@@ -118,7 +129,7 @@ fit <- cmdscale(d, eig = TRUE, k = 2)
 
 ## Try with scran
 Sys.time()
-g_k5 <- buildSNNGraph(clustered, k=5, use.dimred = 'zinbwave')
+g_k5 <- buildSNNGraph(clustered, k = 5, use.dimred = 'zinbwave')
 Sys.time()
 ## Takes about 2 minutes
 
@@ -140,7 +151,7 @@ save(g_k5, g_walk_k5, file = 'rda_zinbwave/g_k5.Rdata')
 
 ## Try with K = 10
 Sys.time()
-g_k10 <- buildSNNGraph(clustered, k=10, use.dimred = 'zinbwave')
+g_k10 <- buildSNNGraph(clustered, k = 10, use.dimred = 'zinbwave')
 Sys.time()
 ## Takes about 2 minutes
 
@@ -159,7 +170,7 @@ save(g_k10, g_walk_k10, file = 'rda_zinbwave/g_k10.Rdata')
 
 ## And with K = 50
 Sys.time()
-g_k50 <- buildSNNGraph(clustered, k=50, use.dimred = 'zinbwave')
+g_k50 <- buildSNNGraph(clustered, k = 50, use.dimred = 'zinbwave')
 Sys.time()
 ## Takes about 2 minutes
 
@@ -178,17 +189,26 @@ rm(d, W)
 
 Sys.time()
 ## Fails due to memory
-clustered <- RSEC(clustered, k0s = 4:15, alphas = c(0.1),
-    betas = 0.8, reduceMethod="zinbwave",
-    clusterFunction = "hierarchical01", minSizes=1,
-    ncores = 1, isCount=FALSE,
-    dendroReduce="zinbwave",
-    subsampleArgs = list(resamp.num=100,
-    clusterFunction="kmeans",
-    clusterArgs=list(nstart=10)),
-    verbose=TRUE,
+clustered <- RSEC(
+    clustered,
+    k0s = 4:15,
+    alphas = c(0.1),
+    betas = 0.8,
+    reduceMethod = "zinbwave",
+    clusterFunction = "hierarchical01",
+    minSizes = 1,
+    ncores = 1,
+    isCount = FALSE,
+    dendroReduce = "zinbwave",
+    subsampleArgs = list(
+        resamp.num = 100,
+        clusterFunction = "kmeans",
+        clusterArgs = list(nstart = 10)
+    ),
+    verbose = TRUE,
     consensusProportion = 0.7,
-    mergeMethod = "none", random.seed = 20191111,
+    mergeMethod = "none",
+    random.seed = 20191111,
     consensusMinSize = 10
 )
 Sys.time()
@@ -198,26 +218,41 @@ library('ClusterR')
 
 km_rcpp <- function(x, k, checkArgs, cluster.only, ...) {
     km <- ClusterR::KMeans_rcpp(t(x), clusters = k, ...)
-    if(cluster.only) {
+    if (cluster.only) {
         res <- km$clusters
     } else {
         res <- list(clustering = km$clusters)
     }
     return(res)
 }
-myCF <- ClusterFunction(clusterFUN=km_rcpp, inputType="X",algorithmType="K", outputType="vector")
+myCF <-
+    ClusterFunction(
+        clusterFUN = km_rcpp,
+        inputType = "X",
+        algorithmType = "K",
+        outputType = "vector"
+    )
 
-clustered <- RSEC(clustered, k0s = 4:15, alphas = c(0.1),
-    betas = 0.8, reduceMethod="zinbwave",
-    clusterFunction = "hierarchical01", minSizes=1,
-    ncores = 1, isCount=FALSE,
-    dendroReduce="zinbwave",
-    subsampleArgs = list(resamp.num=100,
-    clusterFunction=myCF,
-    clusterArgs=list(num_init=10)),
-    verbose=TRUE,
+clustered <- RSEC(
+    clustered,
+    k0s = 4:15,
+    alphas = c(0.1),
+    betas = 0.8,
+    reduceMethod = "zinbwave",
+    clusterFunction = "hierarchical01",
+    minSizes = 1,
+    ncores = 1,
+    isCount = FALSE,
+    dendroReduce = "zinbwave",
+    subsampleArgs = list(
+        resamp.num = 100,
+        clusterFunction = myCF,
+        clusterArgs = list(num_init = 10)
+    ),
+    verbose = TRUE,
     consensusProportion = 0.7,
-    mergeMethod = "none", random.seed = 20191111,
+    mergeMethod = "none",
+    random.seed = 20191111,
     consensusMinSize = 10
 )
 
