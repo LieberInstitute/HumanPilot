@@ -180,6 +180,121 @@ if (!file.exists('Human_DLPFC_Visium_processedData_sce_scran.Rdata')) {
     #       Min.    1st Qu.     Median       Mean    3rd Qu.       Max.
     # -1.225e-14 -3.569e-15  1.417e-15  2.647e-15  8.394e-15  2.893e-14
     
+    ## 2019-12-06 edits: add tsne, umap and spot cell numbers
+    
+    
+    ## From https://github.com/davismcc/scater/blob/master/R/runTSNE.R#L85
+    ## I see that the default perplexity will be 50
+    # > mat <- scater:::.get_mat_from_sce(sce, exprs_values = 'logcounts', dimred = 'PCA', n_dimred = NULL)
+    # > dim(mat)
+    # [1] 47681    50
+    # > min(50, floor(nrow(mat) / 5))
+    # [1] 50
+    Sys.time()
+    set.seed(20191206)
+    sce <- runTSNE(sce, dimred = 'PCA', name = 'TSNE_perplexity50', perplexity = 50)
+    Sys.time()
+    ## Takes about 14 min
+    # [1] "2019-12-06 14:07:53 EST"
+    # [1] "2019-12-06 14:21:55 EST"
+    
+    Sys.time()
+    set.seed(20191206)
+    sce <- runTSNE(sce, dimred = 'PCA', name = 'TSNE_perplexity5', perplexity = 5)
+    Sys.time()
+    ## Takes about 10 min
+    # [1] "2019-12-06 14:22:15 EST"
+    # [1] "2019-12-06 14:32:35 EST"
+    
+    Sys.time()
+    set.seed(20191206)
+    sce <- runTSNE(sce, dimred = 'PCA', name = 'TSNE_perplexity20', perplexity = 20)
+    Sys.time()
+    ## Takes about 12 min
+    # [1] "2019-12-06 14:44:38 EST"
+    
+    Sys.time()
+    set.seed(20191206)
+    sce <- runTSNE(sce, dimred = 'PCA', name = 'TSNE_perplexity80', perplexity = 80)
+    Sys.time()
+    
+    ## Takes about 15 min
+    # [1] "2019-12-06 14:44:59 EST"
+    # [1] "2019-12-06 15:00:45 EST"
+    
+    ## From https://github.com/davismcc/scater/blob/master/R/runUMAP.R#L65
+    ## looks like the default n_neighbors is 15
+    Sys.time()
+    set.seed(20191206)
+    sce <- runUMAP(sce, dimred = 'PCA', name = 'UMAP_neighbors15')
+    Sys.time()
+    
+    ## Takes about 2 mins
+    # [1] "2019-12-06 15:07:14 EST"
+    # [1] "2019-12-06 15:08:59 EST"
+    
+    
+    ## Read in the number of cells per spot
+    cells <- do.call(rbind, lapply(dir('Histology'), function(sampleid) {
+        x <- read.csv(file.path('Histology', sampleid, 'tissue_spot_counts.csv'))
+        x$key <- paste0(sampleid, '_', x$barcode)
+        return(x[, c('key', 'count')])
+    }))
+    
+    ## Used in plotly code in spatialLIBD
+    sce$key <- paste0(sce$sample_name, '_', colnames(sce))
+    m <- match(sce$key, cells$key)
+    stopifnot(!all(is.na(m)))
+    sce$cell_count <- cells$count[m]
+    
+    tapply(sce$cell_count, sce$sample_name, summary)
+    # $`151507`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   1.000   2.000   2.202   3.000  19.000
+    #
+    # $`151508`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #    0.00    1.00    3.00    3.31    5.00   24.00
+    #
+    # $`151509`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   1.000   3.000   2.994   4.000  21.000
+    #
+    # $`151510`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   2.000   3.000   3.202   5.000  13.000
+    #
+    # $`151669`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   2.000   2.000   2.633   4.000  10.000
+    #
+    # $`151670`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   3.000   5.000   5.595   8.000  21.000
+    #
+    # $`151671`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   2.000   3.000   2.733   4.000  13.000
+    #
+    # $`151672`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   1.000   2.000   2.066   3.000  13.000
+    #
+    # $`151673`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   3.000   4.000   4.531   6.000  27.000
+    #
+    # $`151674`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   2.000   3.000   3.971   5.000  22.000
+    #
+    # $`151675`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   2.000   3.000   3.457   5.000  24.000
+    #
+    # $`151676`
+    #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+    #   0.000   1.000   2.000   3.243   4.000  20.000
     save(sce, top.hvgs, file = 'Human_DLPFC_Visium_processedData_sce_scran.Rdata')
     
 } else {
