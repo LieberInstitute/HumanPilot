@@ -1,0 +1,65 @@
+---
+title: "Applying spatialDE to identify spatially DE genes"
+author: Stephanie Hicks
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(here)
+
+if(!dir.exists(here("sample_data"))){
+    dir.create(here("sample_data"))
+    processedData_sce_scran <- "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata"
+    file.copy(processedData_sce_scran, here("sample_data"))
+}
+
+load(here("sample_data", "Human_DLPFC_Visium_processedData_sce_scran.Rdata"))
+pryr::object_size(counts(sce)) # 995 MB
+```
+
+# Spatial DE 
+
+Here I am using Python 3. 
+
+I had to upate the numpy modules and install the scipy and pandas modules
+
+```{bash}
+module load conda_R/devel
+python3 -m pip install numpy --upgrade --user
+python3 -m pip install scipy --user
+python3 -m pip install pandas --user
+```
+
+
+To install the [`SpatialDE`] package, use 
+
+```{bash}
+git clone git@github.com:Teichlab/SpatialDE.git
+python3 -m pip install SpatialDE --user
+```
+
+Python modules should be install `/users/<username>/.local/lib/python3.8/site-packages`
+
+```{r}
+library(reticulate)
+use_python("/jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-devel/bin/python3")
+```
+
+Use `repl_python()` python repl from the R command. Use `exit` to exit the repl.
+**Note**: Objects do not have permenancy in R after exiting the python repl.
+```{python}
+import pandas as pd
+
+rcParams['axes.spines.right'] = False
+rcParams['axes.spines.top'] = False
+
+import NaiveDE
+import SpatialDE
+```
+
+
+
