@@ -16,7 +16,7 @@ library(RColorBrewer)
 # ---------
 
 # load scran output file (containing top 50 molecular PCs and 2 spatial coordinates)
-load("../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
 sce
 
 # select cells from one sample
@@ -36,7 +36,7 @@ dims_pcs <- reducedDim(sce, type = "PCA")
 stopifnot(nrow(dims_pcs) == ncol(sce))
 
 # extract spatial dimensions
-dims_spatial <- colData(sce)[, c("imagerow", "imagecol")]
+dims_spatial <- colData(sce)[, c("imagecol", "imagerow")]
 
 stopifnot(nrow(dims_spatial) == ncol(sce))
 
@@ -157,8 +157,9 @@ stopifnot(length(clus) == ncol(sce))
 
 d_plot <- data.frame(
     # get original spatial coordinates (non-scaled) from this sample
-    x_coord = colData(sce)[, c("imagerow")], 
-    y_coord = colData(sce)[, c("imagecol")], 
+    # note: y coordinate is reversed
+    x_coord = colData(sce)[, "imagecol"], 
+    y_coord = -colData(sce)[, "imagerow"], 
     cluster = as.factor(clus)
 )
 
@@ -169,6 +170,6 @@ ggplot(d_plot, aes(x = x_coord, y = y_coord, color = cluster)) +
     theme_bw() + 
     ggtitle("Clustering on top few UMAP dims plus 2 spatial dims (scaled)")
 
-ggsave("plots/clustering_UMAP_spatial/plot_clustering_UMAP_spatial.png", width = 7, height = 7)
+ggsave("../plots/clustering_UMAP_spatial/plot_clustering_UMAP_spatial.png", width = 7, height = 7)
 
 
