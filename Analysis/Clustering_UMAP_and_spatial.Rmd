@@ -1,0 +1,311 @@
+---
+title: "HumanPilot: Clustering using UMAP and spatial coordinates"
+author: "Lukas M. Weber"
+date: "12/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction
+
+This document contains code to perform clustering on the HumanPilot brain dataset using the top few UMAP coordinates together with the two spatial coordinates.
+
+Our reasoning is that performing clustering on a combined set of molecular feature dimensions and spatial dimensions (e.g. concatenating the two spatial dimensions as additional columns with the top 50 PCs) is a simple and intuitive way to combine the molecular and spatial data. However, using 2 spatial dimensions together with 50 PCs (or even all 1942 highly variable genes) risks swamping the spatial information, so the clustering is dominated by the molecular dimensions.
+
+Using the top few UMAP coordinates (instead of top 50 PCs or 1942 HVGs) is a simple way to reduce as much as possible of the molecular information into a small number of dimensions. Then these top 5-10 dimensions can be combined with the 2 spatial dimensions on a more equal basis.
+
+Also important is to ensure that the UMAP coordinates and spatial dimensions are on roughly similar scales. For example, if the top UMAP coordinate ranges from say -5 to +5, then the spatial dimensions should also be scaled to approximately this range. (In addition, UMAP dimensions and spatial dimensions should not be z-scaled -- z-scaling UMAP coordinates would scale up the less meaningful dimensions; and z-scaling spatial dimensions does not make sense since these exist on a uniform scale with physical meaning.)
+
+
+# Code
+
+The following code runs clustering using UMAP coordinates plus spatial dimensions, with a few different attempts at parameter tuning. The main parameters (and other design choices) are:
+
+- number of UMAP coordinates
+- (also try PCs instead of UMAP coordinates?)
+- number of clusters
+- (choice of clustering algorithm: graph-based makes more sense than k-means in this dataset since the clusters are not ellipsoidal in the spatial dimensions)
+
+
+```{r}
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(uwot))
+suppressPackageStartupMessages(library(scran))
+suppressPackageStartupMessages(library(scater))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(RColorBrewer))
+```
+
+
+
+## Load data
+
+Load pre-processed SingleCellExperiment data object.
+
+```{r}
+# load scran output file (containing top 50 molecular PCs and 2 spatial coordinates)
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+```
+
+```{r}
+# select cells from one sample
+ix <- colData(sce)$sample_name == 151673
+
+sce <- sce[, ix]
+sce
+```
+
+
+## Extract features
+
+Extract principal components (PCs) and spatial coordinates from data object.
+
+```{r}
+# extract PCs
+dims_pcs <- reducedDim(sce, type = "PCA")
+
+stopifnot(nrow(dims_pcs) == ncol(sce))
+
+# extract spatial dimensions
+dims_spatial <- colData(sce)[, c("imagecol", "imagerow")]
+
+stopifnot(nrow(dims_spatial) == ncol(sce))
+```
+
+
+## Calculate UMAP dimensions
+
+Calculate UMAP dimensions/coordinates/components. Will aim to use the top few (e.g. 5-10) UMAP components for clustering.
+
+Question: how much of the overall heterogeneity do these top few components capture? Maybe need some additional analyses to investigate this.
+
+Note: calculate UMAP on top 50 PCs for faster runtime (could also calculate on all 1942 highly variable genes instead for more accuracy)
+
+Note: calculating UMAP on one sample only (could also calculate UMAP on all samples combined, then subset for clustering)
+
+Note: could also use top few PCs for clustering (instead of top few UMAP components). Maybe need some additional analyses to show the benefit of using UMAP vs. PCs.
+
+```{r}
+# keep top 50 UMAP components
+set.seed(123)
+dims_umap <- umap(dims_pcs, n_components = 50)
+
+stopifnot(nrow(dims_umap) == ncol(sce))
+```
+
+
+## Scale dimensions
+
+Need all dimensions (UMAP and spatial) to be on approximately comparable scales.
+
+UMAP dimensions are already on a sensible scale, so can leave as is (note: don't do z-score scaling since this will scale up the less meaningful UMAP compenents)
+
+```{r}
+summary(dims_umap)
+mean(dims_umap[, 1])
+sd(dims_umap[, 1])
+
+max(abs(dims_umap))
+
+range(dims_umap[, 1])
+range(dims_umap[, 2])
+range(dims_umap[, 3])
+
+colnames(dims_umap) <- paste0("UMAP_", seq_len(ncol(dims_umap)))
+```
+
+
+Spatial dimensions: scale to e.g. min -5 and max 5, so they are on roughly similar scale as top few UMAP dimensions (note: z-score scaling doesn't really make sense for spatial coordinates, which are on a uniform physical scale)
+
+Note: choice of these max and min values is very important! results will be highly sensitive to this
+
+```{r}
+summary(as.data.frame(dims_spatial))
+range(dims_spatial[, 1])
+range(dims_spatial[, 2])
+
+dims_spatial <- apply(as.matrix(dims_spatial), 2, function(col) {
+    (col - min(col)) / (max(col) - min(col)) * 10 - 5
+})
+
+colnames(dims_spatial) <- c("spatial_x", "spatial_y")
+
+summary(dims_spatial)
+
+stopifnot(nrow(dims_spatial) == ncol(sce))
+```
+
+
+## Graph-based clustering
+
+Now can run standard Bioconductor graph-based clustering on subset of UMAP dimensions and scaled spatial dimensions.
+
+Note: graph-based clustering seems better suited than k-means for this dataset, since the "layers" in brain data do not have an ellipsoidal shape in the spatial feature space. However, for other datasets, e.g. cancer data, k-means may also work.
+
+```{r}
+# number of UMAP dimensions to use
+n_umap <- 10
+
+dims_clus <- cbind(dims_umap[, seq_len(n_umap), drop = FALSE], dims_spatial)
+head(dims_clus)
+```
+
+
+```{r}
+# clustering: see OSCA book
+# note: number of clusters k
+# note: use transpose
+g <- buildSNNGraph(t(dims_clus), k = 10, d = ncol(dims_clus))
+g_walk <- igraph::cluster_walktrap(g)
+
+# default number of clusters (not using this for final results)
+#clus <- g_walk$membership
+#table(clus)
+
+#stopifnot(length(clus) == ncol(sce))
+
+# choose number of clusters
+n_clus <- 8
+
+clus <- igraph::cut_at(g_walk, n = n_clus)
+table(clus)
+
+stopifnot(length(clus) == ncol(sce))
+```
+
+
+
+## Plot results
+
+note: display plot on original spatial coordinates
+
+```{r, fig.width=6, fig.height=6}
+d_plot <- data.frame(
+    # get original spatial coordinates (non-scaled)
+    # note: y coordinate is reversed
+    x_coord = colData(sce)[, c("imagecol")], 
+    y_coord = -colData(sce)[, c("imagerow")], 
+    cluster = as.factor(clus)
+)
+
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = cluster)) + 
+    geom_point(size = 2, alpha = 0.5) + 
+    coord_fixed() + 
+    scale_color_brewer(palette = "Paired") + 
+    theme_bw() + 
+    ggtitle("Clustering on top few UMAP dims plus 2 spatial dims (scaled)")
+
+filename <- "../plots/clustering_UMAP_spatial/plot_clustering_UMAP_spatial.png"
+ggsave(filename, width = 6, height = 6)
+```
+
+
+
+# Comparisons
+
+Question: is there any benefit compared to clustering on UMAP components only? or using PCs only?
+
+
+```{r, fig.width=10, fig.height=11}
+# clustering using UMAP components only
+dims_clus2 <- dims_umap[, seq_len(n_umap), drop = FALSE]
+head(dims_clus2)
+
+g <- buildSNNGraph(t(dims_clus2), k = 10, d = ncol(dims_clus2))
+g_walk <- igraph::cluster_walktrap(g)
+
+clus2 <- igraph::cut_at(g_walk, n = n_clus)
+table(clus2)
+
+stopifnot(length(clus2) == ncol(sce))
+
+
+# clustering using top 50 PCs only
+dim(dims_pcs)
+
+g <- buildSNNGraph(t(dims_pcs), k = 10, d = ncol(dims_pcs))
+g_walk <- igraph::cluster_walktrap(g)
+
+clus3 <- igraph::cut_at(g_walk, n = n_clus)
+table(clus3)
+
+stopifnot(length(clus3) == ncol(sce))
+
+
+# clustering using top few PCS plus spatial coordinates
+n_pcs <- 10
+# check scaling used previously to compare with UMAP coordinates still makes sense
+range(dims_pcs[, 1])
+range(dims_pcs[, 2])
+range(dims_pcs[, 3])
+# no does not; need to rescale spatial dimensions to a more comparable scale
+dims_spatial4 <- apply(as.matrix(dims_spatial), 2, function(col) {
+    (col - min(col)) / (max(col) - min(col)) * 40 - 20
+})
+range(dims_spatial4[, 1])
+range(dims_spatial4[, 2])
+# clustering
+dims_clus4 <- cbind(dims_pcs[, seq_len(n_pcs), drop = FALSE], dims_spatial4)
+head(dims_clus4)
+
+g <- buildSNNGraph(t(dims_clus4), k = 10, d = ncol(dims_clus4))
+g_walk <- igraph::cluster_walktrap(g)
+
+clus4 <- igraph::cut_at(g_walk, n = n_clus)
+table(clus4)
+
+stopifnot(length(clus4) == ncol(sce))
+
+
+# comparison plots
+d_plot2 <- data.frame(
+    x_coord = colData(sce)[, c("imagecol")], 
+    y_coord = -colData(sce)[, c("imagerow")], 
+    cluster = as.factor(clus2)
+)
+d_plot3 <- data.frame(
+    x_coord = colData(sce)[, c("imagecol")], 
+    y_coord = -colData(sce)[, c("imagerow")], 
+    cluster = as.factor(clus3)
+)
+d_plot4 <- data.frame(
+    x_coord = colData(sce)[, c("imagecol")], 
+    y_coord = -colData(sce)[, c("imagerow")], 
+    cluster = as.factor(clus4)
+)
+
+d_plot_combined <- rbind(
+    cbind(d_plot, method = "UMAP_spatial"), 
+    cbind(d_plot2, method = "UMAP"), 
+    cbind(d_plot3, method = "PCs"), 
+    cbind(d_plot4, method = "PCs_spatial")
+)
+d_plot_combined$method <- factor(
+    d_plot_combined$method, 
+    levels = c("UMAP_spatial", "UMAP", "PCs_spatial", "PCs")
+)
+
+head(d_plot_combined)
+table(d_plot_combined$method)
+
+
+# plots
+ggplot(d_plot_combined, aes(x = x_coord, y = y_coord, color = cluster)) + 
+    facet_wrap(~ method) + 
+    geom_point(size = 2, alpha = 0.5) + 
+    coord_fixed() + 
+    scale_color_brewer(palette = "Paired") + 
+    theme_bw() + 
+    ggtitle("Clustering comparison: (i) UMAP plus spatial, (ii) UMAP only, (iii) PCs plus spatial, (iv) PCs only")
+
+filename <- "../plots/clustering_UMAP_spatial/plot_clustering_UMAP_spatial_vs_UMAP_vs_PCs_spatial_vs_PCs.png"
+ggsave(filename, width = 10, height = 11)
+```
+
+
+
