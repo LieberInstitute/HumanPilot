@@ -143,7 +143,7 @@ g_walk <- igraph::cluster_walktrap(g)
 # choose number of clusters
 n_clus <- 8
 
-clus <- igraph::cut_at(g_walk, n = 8)
+clus <- igraph::cut_at(g_walk, n = n_clus)
 table(clus)
 
 stopifnot(length(clus) == ncol(sce))
