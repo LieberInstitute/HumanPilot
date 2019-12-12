@@ -16,14 +16,19 @@ library(RColorBrewer)
 # ---------
 
 # load scran output file (containing top 50 molecular PCs and 2 spatial coordinates)
-load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+load("../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
 
+# select cells from one sample
+ix <- colData(sce)$sample_name == 151673
+
+sce <- sce[, ix]
 sce
 
 
-# ------------
-# extract data
-# ------------
+# ----------------
+# extract features
+# ----------------
 
 # extract PCs
 dims_pcs <- reducedDim(sce, type = "PCA")
@@ -40,13 +45,19 @@ stopifnot(nrow(dims_spatial) == ncol(sce))
 # calculate UMAP dimensions
 # -------------------------
 
-# will aim to use top few (e.g. 5-10) UMAP dimensions (how much of the overall
-# heterogeneity do these really capture?)
+# will aim to use top few (e.g. 5-10) UMAP dimensions (question: how much of the
+# overall heterogeneity do these really capture?)
 
-# calculate UMAP on PCs for faster runtime (could also calculate on all 1942
-# highly variable genes instead for more accuracy)
+# note: calculate UMAP on top 50 PCs for faster runtime (could also calculate on
+# all 1942 highly variable genes instead for more accuracy)
 
-# keep top 50 components
+# note: calculating UMAP on one sample only (could also calculate UMAP on all
+# samples combined, then subset for clustering)
+
+# note: could also use top few PCs for clustering (instead of top few UMAP
+# components)
+
+# keep top 50 UMAP components
 set.seed(123)
 dims_umap <- umap(dims_pcs, n_components = 50)
 
@@ -67,6 +78,8 @@ summary(dims_umap)
 mean(dims_umap[, 1])
 sd(dims_umap[, 1])
 
+max(abs(dims_umap))
+
 range(dims_umap[, 1])
 range(dims_umap[, 2])
 range(dims_umap[, 3])
@@ -76,7 +89,7 @@ colnames(dims_umap) <- paste0("UMAP_", seq_len(ncol(dims_umap)))
 
 # spatial dimensions: scale to e.g. min -5 and max 5, so they are on roughly
 # similar scale as top few UMAP dimensions (note: z-score scaling doesn't really
-# make sense for spatial coordinates)
+# make sense for spatial coordinates, which are on a uniform physical scale)
 
 # note: choice of these max and min values is very important! results will be
 # highly sensitive to this
@@ -102,26 +115,35 @@ stopifnot(nrow(dims_spatial) == ncol(sce))
 # now can run standard Bioconductor graph-based clustering on subset of UMAP
 # dimensions and scaled spatial dimensions
 
+# note: graph-based clustering seems better suited than k-means for this
+# dataset, since the "layers" in brain data do not have an ellipsoidal shape in
+# the spatial feature space. However, for other datasets, e.g. cancer data,
+# k-means may also work.
+
+
 # number of UMAP dimensions to use
-n_umap <- 5
+n_umap <- 10
 
 dims_clus <- cbind(dims_umap[, seq_len(n_umap), drop = FALSE], dims_spatial)
 head(dims_clus)
 
 
-# see OSCA book (clustering chapter)
+# clustering: see OSCA book
+# note: number of clusters k
 # note: use transpose
 g <- buildSNNGraph(t(dims_clus), k = 10, d = ncol(dims_clus))
 g_walk <- igraph::cluster_walktrap(g)
 
 # default number of clusters (not using this for final results)
-clus <- g_walk$membership
-table(clus)
+#clus <- g_walk$membership
+#table(clus)
 
-stopifnot(length(clus) == ncol(sce))
+#stopifnot(length(clus) == ncol(sce))
 
 # choose number of clusters
-clus <- igraph::cut_at(g_walk, n = 10)
+n_clus <- 8
+
+clus <- igraph::cut_at(g_walk, n = 8)
 table(clus)
 
 stopifnot(length(clus) == ncol(sce))
@@ -134,6 +156,7 @@ stopifnot(length(clus) == ncol(sce))
 # display plot on original spatial coordinates
 
 d_plot <- data.frame(
+    # get original spatial coordinates (non-scaled) from this sample
     x_coord = colData(sce)[, c("imagerow")], 
     y_coord = colData(sce)[, c("imagecol")], 
     cluster = as.factor(clus)
@@ -146,6 +169,6 @@ ggplot(d_plot, aes(x = x_coord, y = y_coord, color = cluster)) +
     theme_bw() + 
     ggtitle("Clustering on top few UMAP dims plus 2 spatial dims (scaled)")
 
-ggsave("../plots/plot_clustering_umap_spatial.png", width = 7, height = 7)
+ggsave("plots/clustering_UMAP_spatial/plot_clustering_UMAP_spatial.png", width = 7, height = 7)
 
 
