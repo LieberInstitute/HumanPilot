@@ -87,6 +87,7 @@ Use `repl_python()` python repl from the R command. Use `exit` to exit the repl.
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import datetime
 
 mpl.rcParams['axes.spines.right'] = False
 mpl.rcParams['axes.spines.top'] = False
@@ -99,7 +100,7 @@ Load count data
 ```{python}
 counts = pd.read_csv('/fastscratch/myscratch/shicks1/HumanPilot/sample_data/Human_DLPFC_Visium_processedData_sce_scran_counts.csv', index_col=0)
 counts.shape # get data frame dimension
-counts = counts.T[counts.sum(axis=0) >= 30].T  # Filter practically unobserved genes
+counts = counts.T[counts.sum(axis=0) >= 5].T  # Filter practically unobserved genes
 
 print(counts.shape)
 counts.iloc[:5, :5]
@@ -129,10 +130,18 @@ resid_expr = NaiveDE.regress_out(sample_info, norm_expr.T, 'np.log(sum)').T
 
 For the sake of this example, let's just run the test on 1000 random genes. This should just take a few seconds. With our very fast implementation, testing all 14,000 genes takes about 10 minutes.
 ```{python}
-sample_resid_expr = resid_expr.sample(n=1, axis=1, random_state=1)
+# downsample to 1500 spots
+sample_resid_expr = resid_expr.sample(n=1500, axis=0, random_state=1)
+sample_sample_info = sample_info.loc[sample_resid_expr.index]  # Align sample_info matrix with reduced counts table
 
-X = sample_info[['imagerow', 'imagecol']]
+# sample 100 genes
+sample_resid_expr = sample_resid_expr.sample(n=100, axis=1, random_state=1)
+
+X = sample_sample_info[['imagerow', 'imagecol']]
+
+print(datetime.datetime.now())
 results = SpatialDE.run(X, sample_resid_expr)
+print(datetime.datetime.now())
 
 # Save spatial results
 results.to_csv('/fastscratch/myscratch/shicks1/HumanPilot/sample_data/Human_DLPFC_Visium_processedData_sce_scran_spatialDE_results.csv')
