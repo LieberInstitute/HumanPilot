@@ -1,0 +1,211 @@
+---
+title: "Comparison SpatialDE genes"
+author: "Lukas M. Weber"
+date: "12/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Comparison SpatialDE genes
+
+Comparison of top significant genes detected by SpatialDE (from Stephanie's script `sce_spatialDE.Rmd`) vs. our previous set of highly variable genes (HVGs).
+
+Note that HVGs were previously calculated from all samples combined.
+
+SpatialDE genes were calculated from sample 151673 only, with subsampling to 1500 spots due to slow runtime for SpatialDE (SpatialDE does not scale well with number of spots).
+
+```{r}
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(scales))
+```
+
+
+## Load data: HVGs
+
+Load original object containing HVGs, which were calculated from all samples combined.
+
+```{r}
+# load scran output file
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+
+# vector of top HVGs
+head(top.hvgs)
+```
+
+
+## Load data: SpatialDE
+
+```{r}
+# load spreadsheet containing SpatialDE results
+spatialDE_results <- read_csv("../../data/Human_DLPFC_Visium_processedData_sce_scran_spatialDE_results.csv")
+```
+
+
+## Comparison of gene lists
+
+Compare list of HVGs vs. list of significant genes from SpatialDE.
+
+```{r}
+# select significant genes from SpatialDE
+spatialDE_sig <- filter(spatialDE_results, qval < 0.05)
+spatialDE_sig_genes <- spatialDE_sig$g
+
+head(spatialDE_sig_genes)
+length(spatialDE_sig_genes)
+
+# compare HVGs vs. significant genes from SpatialDE
+head(top.hvgs)
+head(spatialDE_sig_genes)
+
+length(top.hvgs)
+length(spatialDE_sig_genes)
+
+sum(spatialDE_sig_genes %in% top.hvgs)
+sum(top.hvgs %in% spatialDE_sig_genes)
+```
+
+
+## SpatialDE results
+
+Histogram of p-values. Note that a large number of genes have q-values exactly equal to zero.
+
+```{r, fig.width=4, fig.height=4}
+hist(spatialDE_sig$qval)
+
+# number of genes with q-value equal to 0
+sum(spatialDE_sig$qval == 0)
+```
+
+
+## Plots: SpatialDE
+
+Create some plots showing expression (UMI counts) of the top significant genes from Spatial DE, for sample 151673.
+
+Note: since there are 387 genes with q-values exactly equal to 0, we plot a random set of 10 of these.
+
+```{r, fig.width=15, fig.height=13}
+# select spots from sample 151673 only
+ix_151673 <- colData(sce)$sample_name == 151673
+table(ix_151673)
+
+sce_151673 <- sce[, ix_151673]
+sce_151673
+
+# extract x-y coordinates of spots (note: y coordinate is reversed)
+xy_coords <- data.frame(
+    x_coord = colData(sce_151673)[, c("imagecol")], 
+    y_coord = -colData(sce_151673)[, c("imagerow")]
+)
+
+# select top significant genes from SpatialDE
+spatialDE_sig <- mutate(spatialDE_sig, rank = rank(qval, ties.method = "first"))
+n_top <- 10
+spatialDE_top <- filter(spatialDE_sig, rank <= n_top)
+spatialDE_top
+
+spatialDE_top_genes <- spatialDE_top$g
+spatialDE_top_genes
+
+# get expression levels (UMI counts) for top significant genes from SpatialDE
+exprs_151673_spatialDE_top <- counts(sce_151673)[spatialDE_top_genes, ]
+dim(exprs_151673_spatialDE_top)
+
+# match to spots and set up data frame for ggplot2
+stopifnot(all(colData(sce_151673)$barcode == rownames(t(exprs_151673_spatialDE_top))))
+stopifnot(length(colData(sce_151673)$barcode) == length(rownames(t(exprs_151673_spatialDE_top))))
+
+d_plot <- cbind(
+    barcode = colData(sce_151673)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_151673_spatialDE_top)))
+)
+
+head(d_plot)
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_id", 
+    value.name = "UMIs"
+)
+
+head(d_plot)
+
+# generate plots
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+    facet_wrap(~ gene_id) + 
+    geom_point(size = 0.8, alpha = 1) + 
+    scale_color_gradient(low = "gray90", high = "red") + 
+    coord_fixed() + 
+    theme_bw() + 
+    ggtitle("UMIs of top SpatialDE genes for sample 151673")
+
+filename <- "../plots/spatialDE/spatialDE_top_genes_151673.png"
+ggsave(filename, width = 15, height = 13)
+```
+
+
+## Plots: known marker genes
+
+Compare to plots showing expression (UMI counts) of some known marker genes.
+
+Currently using marker genes SNAP25, MOBP, and PCP4 (from Kristen Maynard's slide presentation).
+
+Could also compare with expression of some of the top HVGs (however would need q-values for the HVGs to do this).
+
+```{r, fig.width=11, fig.height=5}
+# choose marker genes and get expression levels (UMI counts)
+marker_genes <- c("SNAP25", "MOBP", "PCP4")
+
+ix_marker_genes <- match(marker_genes, rowData(sce_151673)$gene_name)
+exprs_marker_genes <- counts(sce_151673)[ix_marker_genes, ]
+
+# use original gene names
+rownames(exprs_marker_genes) <- marker_genes
+dim(exprs_marker_genes)
+
+# match to spots and set up data frame for ggplot2
+stopifnot(all(colData(sce_151673)$barcode == rownames(t(exprs_marker_genes))))
+stopifnot(length(colData(sce_151673)$barcode) == length(rownames(t(exprs_marker_genes))))
+
+d_plot <- cbind(
+    barcode = colData(sce_151673)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_marker_genes)))
+)
+
+head(d_plot)
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_id", 
+    value.name = "UMIs"
+)
+
+head(d_plot)
+
+# generate plots
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+    facet_wrap(~ gene_id) + 
+    geom_point(size = 0.8, alpha = 1) + 
+    scale_color_gradientn(colors = c("gray90", "red", "blue"), values = rescale(c(0, 20, 85))) + 
+    coord_fixed() + 
+    theme_bw() + 
+    ggtitle("UMIs of known marker genes for sample 151673")
+
+filename <- "../plots/spatialDE/marker_genes_151673.png"
+ggsave(filename, width = 11, height = 5)
+```
+
+
