@@ -1,7 +1,7 @@
 ---
 title: "Comparison SpatialDE genes"
 author: "Lukas Weber"
-date: "12/19/2019"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: html_document
 ---
 
