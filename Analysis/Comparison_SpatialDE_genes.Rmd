@@ -183,14 +183,14 @@ d_plot <- melt(
 head(d_plot)
 
 # max UMI count for color scale
-max(exprs_151673_spatialDE_top)
+max_UMI <- max(exprs_151673_spatialDE_top)
 
 # generate plots
 ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
     facet_wrap(~ gene_name) + 
     geom_point(size = 0.1, alpha = 1) + 
-    scale_color_gradientn(colors = c("gray90", "red", "yellow", "blue", "black"), 
-                          values = rescale(c(0, 10, 20, 100, 195))) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
     coord_fixed() + 
     theme_bw() + 
     ggtitle("UMIs of top SpatialDE genes for sample 151673")
@@ -273,14 +273,14 @@ d_plot <- melt(
 head(d_plot)
 
 # max UMI count for color scale
-max(exprs_marker_genes_3)
+max_UMI <- max(exprs_marker_genes_3)
 
 # generate plots
 ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
     facet_wrap(~ gene_id) + 
     geom_point(size = 0.8, alpha = 1) + 
-    scale_color_gradientn(colors = c("gray90", "red", "yellow", "blue"), 
-                          values = rescale(c(0, 10, 20, 85))) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
     coord_fixed() + 
     theme_bw() + 
     ggtitle("UMIs of known marker genes for sample 151673")
@@ -350,14 +350,14 @@ d_plot <- melt(
 head(d_plot)
 
 # max UMI count for color scale
-max(exprs_marker_genes_all)
+max_UMI <- max(exprs_marker_genes_all)
 
 # generate plots
 ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
     facet_wrap(~ gene_id) + 
     geom_point(size = 0.1, alpha = 1) + 
-    scale_color_gradientn(colors = c("gray90", "red", "yellow", "blue"), 
-                          values = rescale(c(0, 10, 20, 75))) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
     coord_fixed() + 
     theme_bw() + 
     ggtitle("UMIs of known marker genes for sample 151673")
@@ -383,8 +383,8 @@ Some comments:
 
 - Of the 81 marker genes from Kristen, 77 were available in the SCE object for sample 151673. Also note that many of these are marker genes for multiple layers; the plots show them individually.
 
-- From looking at the plots of the SpatialDE genes, some possible marker genes for individual layers include: NEFH, PCP4, HPCAL1, HOPX, PPP3CA, ENC1, NEFM, DIRAS2, SNCG, FBXL16, CAMK2N1, CXCL14, MALAT1, NCDN
+- From looking at the plots of the SpatialDE genes, some possible marker genes for individual layers include: NEFH, PCP4, HPCAL1, VSNL1, TMSB10, CCK, HOPX, PPP3CA, GPM6A, ENC1, NEFM, NEFL, DIRAS2, SNCG, FBXL16, GFAP, CAMK2N1, CXCL14, TUBB2A, OLFM1, MALAT1, APLP1 (and many for white matter, e.g. MOBP, ERMN, CLDND1, TF, etc).
 
-- To do: check color scale is not distorting the plots visually; try using these genes for clustering
+- Next: try using these genes for clustering (either with or without spatial coordinates included).
 
 
