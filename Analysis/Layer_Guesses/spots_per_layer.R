@@ -52,8 +52,8 @@ save(spots_layer,
 ## Global mean: 641.1 spots per layer across all 6 slides
 ## and across all layers
 summary(spots_layer$spots_per_layer)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 166.0   292.8   533.0   641.1   753.0  1918.0 
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# 166.0   292.8   533.0   641.1   753.0  1918.0
 
 ## Mean number of spots per layer for each of the 6 slides
 summarize(spots_layer, mean_spots = mean(spots_per_layer))
@@ -109,6 +109,53 @@ group_by(spots_layer, subject, layer) %>% summarize(mean_spots = mean(spots_per_
 # 18 Br8100  Layer 6         574.
 # 19 Br8100  WM              592.
 
+## Also check the number of cells per spot
+
+## First globally
+summary(sce$cell_count)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# 0.000   1.000   3.000   3.281   4.000  27.000
+
+## Then by sample
+group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = mean(cell_count))
+# # A tibble: 12 x 2
+# sample_name mean_cells
+# <int>      <dbl>
+#     1      151507       2.20
+# 2      151508       3.31
+# 3      151509       2.99
+# 4      151510       3.20
+# 5      151669       2.63
+# 6      151670       5.59
+# 7      151671       2.73
+# 8      151672       2.07
+# 9      151673       4.53
+# 10      151674       3.97
+# 11      151675       3.46
+# 12      151676       3.24
+
+## Next by subject
+group_by(as.data.frame(colData(sce)), subject) %>% summarize(mean_cells = mean(cell_count))
+# # A tibble: 3 x 2
+# subject mean_cells
+# <chr>        <dbl>
+#     1 Br5292        2.94
+# 2 Br5595        3.19
+# 3 Br8100        3.81
+
+## Finally by subject and position
+group_by(as.data.frame(colData(sce)), subject, position) %>% summarize(mean_cells = mean(cell_count))
+# # A tibble: 6 x 3
+# # Groups:   subject [3]
+# subject position mean_cells
+# <chr>   <chr>         <dbl>
+#     1 Br5292  0              2.77
+# 2 Br5292  300            3.10
+# 3 Br5595  0              4.08
+# 4 Br5595  300            2.40
+# 5 Br8100  0              4.25
+# 6 Br8100  300            3.35
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
@@ -117,36 +164,36 @@ options(width = 120)
 session_info()
 
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
-# setting  value                       
+# setting  value
 # version  R version 3.6.2 (2019-12-12)
-# os       Windows 10 x64              
-# system   x86_64, mingw32             
-# ui       RStudio                     
-# language (EN)                        
-# collate  English_United States.1252  
-# ctype    English_United States.1252  
-# tz       America/Mexico_City         
-# date     2020-01-07                  
-# 
+# os       Windows 10 x64
+# system   x86_64, mingw32
+# ui       RStudio
+# language (EN)
+# collate  English_United States.1252
+# ctype    English_United States.1252
+# tz       America/Mexico_City
+# date     2020-01-07
+#
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-# package              * version   date       lib source        
+# package              * version   date       lib source
 # assertthat             0.2.1     2019-03-21 [1] CRAN (R 3.6.1)
 # backports              1.1.5     2019-10-02 [1] CRAN (R 3.6.1)
-# Biobase              * 2.46.0    2019-10-29 [1] Bioconductor  
-# BiocGenerics         * 0.32.0    2019-10-29 [1] Bioconductor  
-# BiocParallel         * 1.20.1    2019-12-21 [1] Bioconductor  
+# Biobase              * 2.46.0    2019-10-29 [1] Bioconductor
+# BiocGenerics         * 0.32.0    2019-10-29 [1] Bioconductor
+# BiocParallel         * 1.20.1    2019-12-21 [1] Bioconductor
 # bitops                 1.0-6     2013-08-17 [1] CRAN (R 3.6.0)
 # cli                    2.0.0     2019-12-09 [1] CRAN (R 3.6.1)
 # crayon                 1.3.4     2017-09-16 [1] CRAN (R 3.6.1)
-# DelayedArray         * 0.12.1    2019-12-17 [1] Bioconductor  
+# DelayedArray         * 0.12.1    2019-12-17 [1] Bioconductor
 # dplyr                * 0.8.3     2019-07-04 [1] CRAN (R 3.6.1)
 # fansi                  0.4.0     2018-10-05 [1] CRAN (R 3.6.1)
-# GenomeInfoDb         * 1.22.0    2019-10-29 [1] Bioconductor  
-# GenomeInfoDbData       1.2.2     2019-12-18 [1] Bioconductor  
-# GenomicRanges        * 1.38.0    2019-10-29 [1] Bioconductor  
+# GenomeInfoDb         * 1.22.0    2019-10-29 [1] Bioconductor
+# GenomeInfoDbData       1.2.2     2019-12-18 [1] Bioconductor
+# GenomicRanges        * 1.38.0    2019-10-29 [1] Bioconductor
 # glue                   1.3.1     2019-03-12 [1] CRAN (R 3.6.1)
 # here                 * 0.1       2017-05-28 [1] CRAN (R 3.6.1)
-# IRanges              * 2.20.1    2019-11-20 [1] Bioconductor  
+# IRanges              * 2.20.1    2019-11-20 [1] Bioconductor
 # lattice                0.20-38   2018-11-04 [2] CRAN (R 3.6.2)
 # magrittr               1.5       2014-11-22 [1] CRAN (R 3.6.1)
 # Matrix                 1.2-18    2019-11-27 [2] CRAN (R 3.6.2)
@@ -161,18 +208,18 @@ session_info()
 # rlang                  0.4.2     2019-11-23 [1] CRAN (R 3.6.1)
 # rprojroot              1.3-2     2018-01-03 [1] CRAN (R 3.6.1)
 # rstudioapi             0.10      2019-03-19 [1] CRAN (R 3.6.1)
-# S4Vectors            * 0.24.1    2019-12-01 [1] Bioconductor  
+# S4Vectors            * 0.24.1    2019-12-01 [1] Bioconductor
 # sessioninfo          * 1.1.1     2018-11-05 [1] CRAN (R 3.6.1)
-# SingleCellExperiment * 1.8.0     2019-10-29 [1] Bioconductor  
-# SummarizedExperiment * 1.16.1    2019-12-20 [1] Bioconductor  
+# SingleCellExperiment * 1.8.0     2019-10-29 [1] Bioconductor
+# SummarizedExperiment * 1.16.1    2019-12-20 [1] Bioconductor
 # tibble                 2.1.3     2019-06-06 [1] CRAN (R 3.6.1)
 # tidyselect             0.2.5     2018-10-11 [1] CRAN (R 3.6.1)
 # utf8                   1.1.4     2018-05-24 [1] CRAN (R 3.6.1)
 # vctrs                  0.2.1     2019-12-17 [1] CRAN (R 3.6.2)
 # withr                  2.1.2     2018-03-15 [1] CRAN (R 3.6.1)
-# XVector                0.26.0    2019-10-29 [1] Bioconductor  
+# XVector                0.26.0    2019-10-29 [1] Bioconductor
 # zeallot                0.1.0     2018-01-28 [1] CRAN (R 3.6.1)
-# zlibbioc               1.32.0    2019-10-29 [1] Bioconductor  
-# 
+# zlibbioc               1.32.0    2019-10-29 [1] Bioconductor
+#
 # [1] D:/Documents/R/win-library/3.6
 # [2] D:/R/R-3.6.2/library
