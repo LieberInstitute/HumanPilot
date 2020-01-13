@@ -48,9 +48,7 @@ write.csv(df, quote = FALSE, row.names = TRUE,
           file = here("sample_data", "Human_DLPFC_Visium_processedData_sce_scran_meta.csv"))
 ```
 
-
 This code is the same as above, but I have extended it to create dense count matrices and meta data files for all twelves samples. 
-I will likely delete the code above soon. 
 ```{r}
 if(!dir.exists(here("sample_data", "by_sample_id"))){
     dir.create(here("sample_data", "by_sample_id"))
@@ -87,6 +85,8 @@ if(!dir.exists(here("sample_data", "by_sample_id"))){
 
 # Spatial DE 
 
+## Getting python 3 set up on jhpce
+
 Here I am using Python 3. 
 
 I had to upate the numpy modules and install the scipy and pandas modules
@@ -99,6 +99,8 @@ python3 -m pip install pandas --user
 python3 -m pip install patsy --user
 python3 -m pip install matplotlib --user
 ```
+
+## installing `SpatialDE` and `NaiveDE` Python modules
 
 To install the [`SpatialDE`](https://github.com/Teichlab/SpatialDE) 
 and [`NaiveDE`](https://github.com/Teichlab/NaiveDE) packages, use 
@@ -116,6 +118,7 @@ Python modules should be install `/users/<username>/.local/lib/python3.8/site-pa
 ```{r}
 library(reticulate)
 use_python("/jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-devel/bin/python3")
+repl_python()
 ```
 
 Use `repl_python()` python repl from the R command. Use `exit` to exit the repl.
@@ -132,6 +135,8 @@ mpl.rcParams['axes.spines.top'] = False
 import NaiveDE
 import SpatialDE
 ```
+
+## Applying `SpatialDE` for one sample 
 
 Load count data
 ```{python}
@@ -188,4 +193,36 @@ ms_results = SpatialDE.model_search(X, sample_resid_expr, de_results)
 
 ms_results.to_csv('/fastscratch/myscratch/shicks1/HumanPilot/sample_data/Human_DLPFC_Visium_processedData_sce_scran_spatialDE_MS_results.csv')
 ```
+
+
+
+
+## Applying `SpatialDE` for all 12 samples
+
+```{python}
+import glob
+samp_counts = glob.glob('/fastscratch/myscratch/shicks1/HumanPilot/sample_data/by_sample_id/*_counts.csv')
+samp_meta = [[x[:-10] + 'meta.csv'] for x in samp_counts]
+samp_output = [[x[:-10] + 'spatialDE_results.csv'] for x in samp_counts]
+df = pd.DataFrame({'counts':samp_counts, 'meta':samp_meta, 'out':samp_output})
+
+# make sure I remember for loops in python and the order of the samples matches
+for index, row in df.iterrows():
+    print(row['counts'], row['meta'], row['out'])
+
+# loop over all twelve samples and save output
+for index, row in df.iterrows():
+    counts = pd.read_csv(row['counts'], index_col=0) # load counts
+    counts = counts.T[counts.sum(axis=0) >= 5].T  # Filter practically unobserved genes
+    sample_info = pd.read_csv(row['meta'], index_col=0) # load meta data with spatial coordinates
+    norm_expr = NaiveDE.stabilize(counts.T).T # remove tech variation
+    resid_expr = NaiveDE.regress_out(sample_info, norm_expr.T, 'np.log(sum)').T
+    sample_resid_expr = resid_expr.sample(n=1500, axis=0, random_state=1) # downsample to 1500 spots
+    sample_sample_info = sample_info.loc[sample_resid_expr.index]  # Align sample_info matrix with reduced counts table
+    X = sample_sample_info[['imagerow', 'imagecol']]
+    results = SpatialDE.run(X, sample_resid_expr)
+    results.to_csv(row['out']) # Save spatial results
+
+```
+
 
