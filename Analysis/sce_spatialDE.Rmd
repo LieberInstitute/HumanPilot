@@ -25,7 +25,7 @@ if(!dir.exists(here("sample_data"))){
 }
 ```
 
-Load data 
+Pick one sample (e.g. `sample_name==151673`) and create a dense count matrix and meta data `.csv` filel to use as input into `spatialDE`. 
 ```{r}
 load(here("sample_data", "Human_DLPFC_Visium_processedData_sce_scran.Rdata"))
 
@@ -47,6 +47,43 @@ head(df)
 write.csv(df, quote = FALSE, row.names = TRUE,
           file = here("sample_data", "Human_DLPFC_Visium_processedData_sce_scran_meta.csv"))
 ```
+
+
+This code is the same as above, but I have extended it to create dense count matrices and meta data files for all twelves samples. 
+I will likely delete the code above soon. 
+```{r}
+if(!dir.exists(here("sample_data", "by_sample_id"))){
+    dir.create(here("sample_data", "by_sample_id"))
+    
+    # create individual sample folders
+    samp_ids <- names(table(colData(sce)$sample_name))
+    for(samp in samp_ids[-1]){
+        ix <- colData(sce)$sample_name == samp
+        samp_name_counts <- paste("sample", samp, "counts.csv", sep = "_")
+        samp_name_meta <- paste("sample", samp, "meta.csv", sep = "_")
+        sce_sub <- sce[, ix]
+
+        tmp <- t(as.matrix(counts(sce_sub)))
+        if(!file.exists(here("sample_data", "by_sample_id", samp_name_counts))){
+            write.csv(tmp, quote = FALSE, row.names = TRUE,
+                      file = here("sample_data", "by_sample_id", samp_name_counts))
+        }
+
+        is.mito <- grep("^MT-", rowData(sce_sub)$gene_name)
+        df <- scater::perCellQCMetrics(sce_sub, subsets=list(Mito=is.mito))
+        df <- cbind(colData(sce_sub), df)
+
+        if(!file.exists(here("sample_data", "by_sample_id", samp_name_meta))){
+            write.csv(df, quote = FALSE, row.names = TRUE,
+                      file = here("sample_data", "by_sample_id", samp_name_meta))
+        }
+        rm(sce_sub, tmp, is.mito, df)
+    }
+   
+ }
+
+```
+
 
 # Spatial DE 
 
