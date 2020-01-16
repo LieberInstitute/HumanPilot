@@ -36,3 +36,16 @@ for(i in seq(along=fList2)) {
 	newpath = paste0(path, "/", names(fList)[i])
 	file.move(fList2[[i]], newpath) 
 }
+
+### and loupe files
+path3 = "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/Lieber_websummary_and_loupe"
+f3 = list.files(path3,full =TRUE,recur=TRUE)
+names(f3) = ss(ss(f3, "/", 9), "\\.")
+names(f3) = ss(names(f3), "_")
+
+fList3 = split(f3, names(f3))
+
+for(i in seq(along=fList3)) {
+	newpath = paste0(path, "/", names(fList3)[i])
+	file.move(fList3[[i]], newpath,overwrite=TRUE) 
+}
