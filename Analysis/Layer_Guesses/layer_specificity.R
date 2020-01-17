@@ -4,7 +4,11 @@ library('jaffelab')
 library('scater')
 library('scran')
 library('pheatmap')
+library('readxl')
+library('Polychrome')
 library('sessioninfo')
+
+dir.create('pdf', showWarnings = FALSE)
 
 ## Load data
 load(here(
@@ -41,6 +45,7 @@ with(colData(sce), addmargins(table(layer_guess, sample_name, useNA = 'ifany')))
 #   Sum         4226   4384   4789   4634   3661   3498   4110   4015   3639   3673   3592   3460 47681
 
 ## Drop the layer guess NAs for now
+sce_original <- sce
 sce <- sce[, !is.na(sce$layer_guess)]
 dim(sce)
 # [1] 33538 47329
@@ -81,6 +86,19 @@ dim(umiComb)
 ## That's because 2 layers are absent in subject 2
 stopifnot(12 * 7 - 2 * 4 == ncol(umiComb))
 
+## Build a data.frame with the pheno data by layer
+layer_df <- data.frame(
+    sample_name = ss(colnames(umiComb), '_', 1),
+    layer_guess = factor(ss(colnames(umiComb), '_', 2), levels = levels(sce$layer_guess)),
+    stringsAsFactors = FALSE
+)
+m_layer <- match(layer_df$sample_name, sce$sample_name)
+layer_df$subject <- sce$subject[m_layer]
+layer_df$position <- sce$position[m_layer]
+layer_df$replicate <- sce$replicate[m_layer]
+layer_df$subject_position <- sce$subject_position[m_layer]
+rownames(layer_df) <- colnames(umiComb)
+
 ## Get a sample-specific size factors, instead of sample/layer size factors
 umiComb_sample <-
     sapply(splitit(ss(colnames(umiComb), '_', 1)), function(ii) {
@@ -94,18 +112,29 @@ umiComb_sample_size_fac_layer <-
     ))))
 names(umiComb_sample_size_fac_layer) <- colnames(umiComb)
 
-## Build a data.frame with the pheno data by layer
-layer_df <- data.frame(
-    sample_name = ss(colnames(umiComb), '_', 1),
-    layer_guess = factor(ss(colnames(umiComb), '_', 2), levels = levels(sce$layer_guess)),
-    stringsAsFactors = FALSE
+## Compare the size factors
+pdf('pdf/size_factors_comparison.pdf', useDingbats = FALSE)
+plot(
+    librarySizeFactors(umiComb),
+    umiComb_sample_size_fac_layer,
+    bg = Polychrome::palette36.colors(7)[as.integer(layer_df$layer_guess)],
+    pch = 21,
+    xlab = 'Default size factors',
+    ylab = 'Sample size factors (repeated across layers)',
+    main = 'Compare size factors'
 )
-m_layer <- match(layer_df$sample_name, sce$sample_name)
-layer_df$subject <- sce$subject[m_layer]
-layer_df$position <- sce$position[m_layer]
-layer_df$replicate <- sce$replicate[m_layer]
-layer_df$subject_position <- sce$subject_position[m_layer]
-rownames(layer_df) <- colnames(umiComb)
+legend(
+    x = 1,
+    y = 1.5,
+    legend = levels(layer_df$layer_guess),
+    col =  Polychrome::palette36.colors(7),
+    lwd = 3,
+    bty = 'n',
+    ncol = 2
+)
+dev.off()
+
+
 
 ## Build a new sce object with the library size factors
 ## by sample instead of sample/layer
@@ -122,15 +151,45 @@ sce_layer <-
 ## looping code myself
 ## More at https://osca.bioconductor.org/marker-detection.html
 
+## Use 'block' for random effects
+## https://support.bioconductor.org/p/29768/
+
+sce_layer_avg <- calculateAverage(sce_layer)
+summary(sce_layer_avg)
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# 0.00     0.01     1.13    64.15    30.37 62467.74
+
+## They are identical, likely since sce_layer was created using them
+sce_layer_avg2 <-
+    calculateAverage(sce_layer, size_factors = umiComb_sample_size_fac_layer)
+stopifnot(identical(sce_layer_avg, sce_layer_avg2))
+
 ##
-markers_layer_any <-
-    findMarkers(
-        sce_layer,
-        sce_layer$layer_guess,
-        pval.type = 'all',
-        direction = 'up',
-        block = sce_layer$subject_position
-    )
+markers_layer <- lapply(c('any', 'all'), function(pval) {
+    directions <- c('any', 'up', 'down')
+    res_direc <- lapply(directions, function(direc) {
+        message(paste(
+            Sys.time(),
+            'finding markers for p-val',
+            pval,
+            'and',
+            direc,
+            'direction'
+        ))
+        findMarkers(
+            sce_layer,
+            sce_layer$layer_guess,
+            pval.type = pval,
+            direction = direc,
+            block = sce_layer$subject_position,
+            gene.names = rowData(sce_layer)$gene_name
+        )
+    })
+    names(res_direc) <- directions
+    return(res_direc)
+})
+names(markers_layer) <- c('any', 'all')
+
 
 
 ## I downloaded the current git version (026edd8eb68fa0479769450473a31795ae50c742)
@@ -147,13 +206,14 @@ getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
     out
 }
 
+## Read in the pieces for the gene annotation below
+genes_km_raw <-
+    read_xlsx(here('Analysis', 'KRM_Layer_Markers.xlsx'))
+genes_bm_raw <-
+    read_xlsx('/dcl01/lieber/ajaffe/Brady/ipsc/reRun/cortical layer marker gene list_1.xlsx')
 
-to_symbols <- function(x) {
-    m <- match(rownames(x), rownames(rowData(sce_layer)))
-    rownames(x) <- rowData(sce_layer)$gene_name[m]
-    return(x)
-}
 
+## Build and annotation
 
 
 pdf('test2.pdf', height = 20, useDingbats = FALSE)
@@ -162,11 +222,17 @@ lapply(seq_along(markers_layer_any), function(chosen) {
     # best.set <- interesting[interesting$Top <= 6,] ## for pval.type = 'any'
     best.set <- head(interesting, 30) ## for pval.type == 'all'
     logFCs <- getMarkerEffects(best.set)
-    print(pheatmap(
-        logFCs,
-        breaks = seq(-5, 5, length.out = 101),
-        main = names(markers_layer_any)[chosen]
-    ))
+    print(
+        pheatmap(
+            logFCs,
+            breaks = seq(-5, 5, length.out = 101),
+            main = names(markers_layer_any)[chosen],
+            color = colorRampPalette(c("white", "blue"))(100),
+            annotation_col = col_df_k50_k7,
+            annotation_names_col = TRUE,
+            annotation_colors = ann_colors_k50_k7
+        )
+    )
     return(NULL)
 })
 dev.off()
