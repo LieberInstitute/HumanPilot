@@ -146,15 +146,152 @@ sce_layer <-
     ))
 # ,size_factors = umiComb_sample_size_fac_layer)
 
+## From Lukas's code
+## https://github.com/LieberInstitute/HumanPilot/commit/0bd87cb5cd69863ceafc343f5456dcafca0dccb6#diff-6c1a4dea06c53f935341cef1d3bccbfdR158
+## for identifying the mitochondrial genes
+ix_mito <- grep("^MT-", rowData(sce_layer)$gene_name)
+
+## Several of the mitochondrial genes are among the most expressed ones
+pdf('pdf/highest_expressed.pdf', useDingbats = FALSE)
+plotHighestExprs(
+    sce_layer,
+    exprs_values = "counts",
+    colour_cells_by = 'layer_guess',
+    feature_names_to_plot = 'gene_name',
+) + ggplot2::ggtitle('All genes') + ggplot2::xlab('Percent among counts') +
+    ggplot2::scale_colour_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotHighestExprs(
+    sce_layer,
+    exprs_values = "counts",
+    colour_cells_by = 'layer_guess',
+    feature_names_to_plot = 'gene_name',
+    drop_features = seq_len(nrow(sce_layer))[-ix_mito]
+) + ggplot2::ggtitle('Only mitochondrial genes') +
+    ggplot2::xlab('Percent among counts') +
+    ggplot2::scale_colour_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotHighestExprs(
+    sce_layer,
+    exprs_values = "counts",
+    colour_cells_by = 'layer_guess',
+    feature_names_to_plot = 'gene_name',
+    drop_features = ix_mito,
+) + ggplot2::ggtitle('Without mitochondrial genes') +
+    ggplot2::xlab('Percent among counts') +
+    ggplot2::scale_colour_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+dev.off()
+
+
+pdf('pdf/mt_expression.pdf', useDingbats = FALSE)
+## Hack my way around it so I can show the gene symbols
+x <-
+    plotExpression(sce_layer, rownames(sce_layer)[ix_mito], x = 'layer_guess')
+x$data$Feature <-
+    rowData(sce_layer)$gene_name[match(as.character(x$data$Feature), rownames(sce_layer))]
+print(x)
+
+## Different yet similar hack
+x <-
+    plotExpression(sce_layer, rownames(sce_layer)[ix_mito], colour_by = 'layer_guess')
+x$data$X <-
+    rowData(sce_layer)$gene_name[match(as.character(x$data$X), rownames(sce_layer))]
+print(x +
+        ggplot2::scale_fill_manual(
+            values =  unname(Polychrome::palette36.colors(7)),
+            name = 'Layer'
+        ))
+dev.off()
+rm(x)
+
+## Drop mitochondrial genes
+sce_layer <- sce_layer[-ix_mito,]
+
 
 ## Find which genes to drop due to low expression values
 sce_layer_avg <- calculateAverage(sce_layer)
 summary(sce_layer_avg)
+#  Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# 0.000    0.007    1.186   53.215   31.427 9507.091
+
+## Results without dropping the mitochondrial genes:
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
 # 0.00     0.01     1.19    64.31    31.50 59084.15
 
+hist(sce_layer_avg)
+
+sce_layer_avg_logcounts <-
+    calculateAverage(sce_layer, exprs_values = 'logcounts')
+summary(sce_layer_avg_logcounts)
+#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
+# 0.000000  0.003973  1.379983  4.770529  9.678251 26.245639
+
+## Results without dropping the mitochondrial genes:
+#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
+# 0.000000  0.003973  1.384647  4.779067  9.683280 30.899169
+
+hist(sce_layer_avg_logcounts)
+
+
+
+## From scater's vignette at
+## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#333_subsetting_by_row
+keep_feature <- nexprs(sce_layer, byrow = TRUE) > 0
+
+## The avg log counts cutoff would be more strict
+addmargins(table(keep_feature, 'avg log > 0.05' = sce_layer_avg_logcounts > 0.05))
+#             avg log > 0.05
+# keep_feature FALSE  TRUE   Sum
+#        FALSE  7943     0  7943
+#        TRUE   2746 22836 25582
+#        Sum   10689 22836 33525
+
+## For comparison, try with the other library size factors
+sce_layer_sfac <-
+    logNormCounts(SingleCellExperiment(
+        list(counts = umiComb),
+        colData = layer_df,
+        rowData = rowData(sce)
+    ),
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,]
+
+## From scater's vignette at
+## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
+vars <- getVarianceExplained(
+    sce_layer,
+    variables = c(
+        'sample_name',
+        'layer_guess',
+        'subject',
+        'subject_position',
+        'position'
+    )
+)
+vars_sfac <- getVarianceExplained(
+    sce_layer_sfac,
+    variables = c(
+        'sample_name',
+        'layer_guess',
+        'subject',
+        'subject_position',
+        'position'
+    )
+)
+pdf('pdf/gene_explanatory_vars.pdf', useDingbats = FALSE)
+plotExplanatoryVariables(vars) + ggplot2::ggtitle('With default sample size factors; no MT')
+## Hack it so the colors are the same in both plots
+plotExplanatoryVariables(vars_sfac) +
+    ggplot2::ggtitle('With sample size factors (repeated across layers); no MT') +
+    ggplot2::scale_colour_manual(values =  unname(scater:::.get_palette('tableau10medium')[c(2, 1, 3:5)]),
+        name = '')
+dev.off()
+## From the above plots it indeed looks like using the default size factors is best
+
+
+
 ## Try using the scran::findMarkers() function instead of coding the
-## looping code myself
+## looping code myself around limma::lmFit()
 ## More at https://osca.bioconductor.org/marker-detection.html
 
 ## Use 'block' for random effects
@@ -204,7 +341,7 @@ getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
 genes_km_raw <-
     read_xlsx(here('Analysis', 'KRM_Layer_Markers.xlsx'))
 genes_bm_raw <-
-    read_xlsx('/dcl01/lieber/ajaffe/Brady/ipsc/reRun/cortical layer marker gene list_1.xlsx')
+    read_xlsx(here('cortical layer marker gene list_1.xlsx'))
 
 
 ## Build and annotation
