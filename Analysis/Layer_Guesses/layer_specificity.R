@@ -134,18 +134,24 @@ legend(
 )
 dev.off()
 
+## There are layer differences, so it's likely best to use the default
+## size factors instead
 
-
-## Build a new sce object with the library size factors
-## by sample instead of sample/layer
+## Build a new sce object
 sce_layer <-
     logNormCounts(SingleCellExperiment(
         list(counts = umiComb),
         colData = layer_df,
         rowData = rowData(sce)
-    ),
-        size_factors = umiComb_sample_size_fac_layer)
+    ))
+# ,size_factors = umiComb_sample_size_fac_layer)
 
+
+## Find which genes to drop due to low expression values
+sce_layer_avg <- calculateAverage(sce_layer)
+summary(sce_layer_avg)
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# 0.00     0.01     1.19    64.31    31.50 59084.15
 
 ## Try using the scran::findMarkers() function instead of coding the
 ## looping code myself
@@ -153,18 +159,6 @@ sce_layer <-
 
 ## Use 'block' for random effects
 ## https://support.bioconductor.org/p/29768/
-
-sce_layer_avg <- calculateAverage(sce_layer)
-summary(sce_layer_avg)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
-# 0.00     0.01     1.13    64.15    30.37 62467.74
-
-## They are identical, likely since sce_layer was created using them
-sce_layer_avg2 <-
-    calculateAverage(sce_layer, size_factors = umiComb_sample_size_fac_layer)
-stopifnot(identical(sce_layer_avg, sce_layer_avg2))
-
-##
 markers_layer <- lapply(c('any', 'all'), function(pval) {
     directions <- c('any', 'up', 'down')
     res_direc <- lapply(directions, function(direc) {
