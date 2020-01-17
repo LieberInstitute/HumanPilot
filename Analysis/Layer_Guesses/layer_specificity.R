@@ -13,10 +13,8 @@ load(here(
 ))
 
 ## Load layer guesses
-load(here(
-    'Analysis', 'Layer_Guesses',
-    'layer_guess_tab.Rdata'
-))
+load(here('Analysis', 'Layer_Guesses',
+    'layer_guess_tab.Rdata'))
 
 ## Add layer guesses to the sce object
 sce$layer_guess <- NA
@@ -52,7 +50,8 @@ dim(sce)
 sce$layer_guess[sce$layer_guess == 'Layer 2/3'] <- 'Layer 3'
 
 ## Make it into a factor with WM as the reference
-sce$layer_guess <- factor(sce$layer_guess, levels = c('WM', paste('Layer', 1:6)))
+sce$layer_guess <-
+    factor(sce$layer_guess, levels = c('WM', paste('Layer', 1:6)))
 
 ## Check again
 with(colData(sce), addmargins(table(layer_guess, sample_name, useNA = 'ifany')))
@@ -66,11 +65,12 @@ with(colData(sce), addmargins(table(layer_guess, sample_name, useNA = 'ifany')))
 #     Layer 5    675    737    363    310    510    581    721    728    673    621    732    649  7300
 #     Layer 6    486    525    215    179    391    308    760    882    692    614    533    616  6201
 #     Sum       4221   4381   4788   4595   3636   3484   4093   3888   3611   3635   3566   3431 47329
-    
+
 ## Split spots by layer and image
 ## Based on here('Analysis', 'sce_scran.R')
 ## /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/sce_scran.R
-layerIndexes <- splitit(paste0(sce$sample_name, '_', sce$layer_guess))
+layerIndexes <-
+    splitit(paste0(sce$sample_name, '_', sce$layer_guess))
 
 ## Collapse UMIs
 umiComb <-
@@ -110,30 +110,37 @@ rownames(layer_df) <- colnames(umiComb)
 ## Build a new sce object with the library size factors
 ## by sample instead of sample/layer
 sce_layer <-
-    logNormCounts(
-        SingleCellExperiment(list(counts = umiComb),
+    logNormCounts(SingleCellExperiment(
+        list(counts = umiComb),
         colData = layer_df,
-        rowData = rowData(sce)),
-        size_factors = umiComb_sample_size_fac_layer
-    )
+        rowData = rowData(sce)
+    ),
+        size_factors = umiComb_sample_size_fac_layer)
 
 
 ## Try using the scran::findMarkers() function instead of coding the
 ## looping code myself
 ## More at https://osca.bioconductor.org/marker-detection.html
 
-## 
-markers_layer_any <- findMarkers(sce_layer, sce_layer$layer_guess, pval.type = 'all', direction = 'up', block = sce_layer$subject_position)
+##
+markers_layer_any <-
+    findMarkers(
+        sce_layer,
+        sce_layer$layer_guess,
+        pval.type = 'all',
+        direction = 'up',
+        block = sce_layer$subject_position
+    )
 
 
 ## I downloaded the current git version (026edd8eb68fa0479769450473a31795ae50c742)
 ## to obtain the code for this function
 ## git clone https://git.bioconductor.org/packages/scran
-getMarkerEffects <- function(x, prefix="logFC", strip=TRUE) {
+getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
     regex <- paste0("^", prefix, "\\.")
     i <- grep(regex, colnames(x))
-    out <- as.matrix(x[,i])
-
+    out <- as.matrix(x[, i])
+    
     if (strip) {
         colnames(out) <- sub(regex, "", colnames(out))
     }
@@ -155,7 +162,11 @@ lapply(seq_along(markers_layer_any), function(chosen) {
     # best.set <- interesting[interesting$Top <= 6,] ## for pval.type = 'any'
     best.set <- head(interesting, 30) ## for pval.type == 'all'
     logFCs <- getMarkerEffects(best.set)
-    print(pheatmap(logFCs, breaks=seq(-5, 5, length.out=101), main = names(markers_layer_any)[chosen]))
+    print(pheatmap(
+        logFCs,
+        breaks = seq(-5, 5, length.out = 101),
+        main = names(markers_layer_any)[chosen]
+    ))
     return(NULL)
 })
 dev.off()
