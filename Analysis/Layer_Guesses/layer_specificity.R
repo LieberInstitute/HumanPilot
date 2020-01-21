@@ -9,6 +9,7 @@ library('Polychrome')
 library('sessioninfo')
 
 dir.create('pdf', showWarnings = FALSE)
+dir.create('rda', showWarnings = FALSE)
 
 ## Load data
 load(here(
@@ -206,7 +207,7 @@ dev.off()
 rm(x)
 
 ## Drop mitochondrial genes
-sce_layer <- sce_layer[-ix_mito,]
+sce_layer <- sce_layer[-ix_mito, ]
 
 
 ## Find which genes to drop due to low expression values
@@ -219,7 +220,6 @@ summary(sce_layer_avg)
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
 # 0.00     0.01     1.19    64.31    31.50 59084.15
 
-hist(sce_layer_avg)
 
 sce_layer_avg_logcounts <-
     calculateAverage(sce_layer, exprs_values = 'logcounts')
@@ -231,9 +231,39 @@ summary(sce_layer_avg_logcounts)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
 # 0.000000  0.003973  1.384647  4.779067  9.683280 30.899169
 
-hist(sce_layer_avg_logcounts)
+# hist(sce_layer_avg)
+# hist(sce_layer_avg_logcounts, breaks = 50)
 
-
+addmargins(
+    table(
+        'avg log > 0.1' = sce_layer_avg_logcounts > 0.1,
+        'avg log > 0.05' = sce_layer_avg_logcounts > 0.05,
+        'avg log > 0' = sce_layer_avg_logcounts > 0
+    )
+)
+# , , avg log > 0 = FALSE
+#
+#              avg log > 0.05
+# avg log > 0.1 FALSE  TRUE   Sum
+#         FALSE  7943     0  7943
+#         TRUE      0     0     0
+#         Sum    7943     0  7943
+#
+# , , avg log > 0 = TRUE
+#
+#              avg log > 0.05
+# avg log > 0.1 FALSE  TRUE   Sum
+#         FALSE  2746  1015  3761
+#         TRUE      0 21821 21821
+#         Sum    2746 22836 25582
+#
+# , , avg log > 0 = Sum
+#
+#              avg log > 0.05
+# avg log > 0.1 FALSE  TRUE   Sum
+#         FALSE 10689  1015 11704
+#         TRUE      0 21821 21821
+#         Sum   10689 22836 33525
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#333_subsetting_by_row
@@ -247,6 +277,129 @@ addmargins(table(keep_feature, 'avg log > 0.05' = sce_layer_avg_logcounts > 0.05
 #        TRUE   2746 22836 25582
 #        Sum   10689 22836 33525
 
+## From scater's vignette:
+# detected: the percentage of cells with non-zero counts for each gene.
+per.feat <- perFeatureQCMetrics(sce_layer)
+summary(per.feat$detected)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# 0.000   1.316  55.263  51.674 100.000 100.000
+
+addmargins(
+    table(
+        'Detected >5%' = per.feat$detected > 5,
+        'avg log > 0.05' = sce_layer_avg_logcounts > 0.05,
+        keep_feature
+    )
+)
+# , , keep_feature = FALSE
+#
+#             avg log > 0.05
+# Detected >5% FALSE  TRUE   Sum
+#        FALSE  7943     0  7943
+#        TRUE      0     0     0
+#        Sum    7943     0  7943
+#
+# , , keep_feature = TRUE
+#
+#             avg log > 0.05
+# Detected >5% FALSE  TRUE   Sum
+#        FALSE  2389   505  2894
+#        TRUE    357 22331 22688
+#        Sum    2746 22836 25582
+#
+# , , keep_feature = Sum
+#
+#             avg log > 0.05
+# Detected >5% FALSE  TRUE   Sum
+#        FALSE 10332   505 10837
+#        TRUE    357 22331 22688
+#        Sum   10689 22836 33525
+
+## From https://gist.githubusercontent.com/mages/5339689/raw/2aaa482dfbbecbfcb726525a3d81661f9d802a8e/add.alpha.R
+add.alpha <- function(col, alpha = 1) {
+    if (missing(col))
+        stop("Please provide a vector of colours.")
+    apply(sapply(col, col2rgb) / 255, 2,
+        function(x)
+            rgb(x[1], x[2], x[3], alpha = alpha))
+}
+
+pdf('pdf/avg_logcounts_VS_detected_percent.pdf', useDingbats = FALSE)
+plot(
+    sce_layer_avg_logcounts,
+    log10(per.feat$detected),
+    bg = add.alpha('black', 1 / 10),
+    pch = 21,
+    col = NA,
+    xlab = 'Average logcounts',
+    ylab = 'Layer/image % detected (log10)'
+)
+abline(v = 0.05,
+    col = 'red',
+    lwd = 2,
+    lty = 2)
+abline(
+    h = log10(5),
+    col = 'blue',
+    lwd = 2,
+    lty = 2
+)
+
+plot(
+    sce_layer_avg_logcounts,
+    per.feat$detected,
+    xlim = c(0, 0.1),
+    ylim = c(0, 10),
+    bg = add.alpha('black', 1 / 10),
+    pch = 21,
+    col = NA,
+    xlab = 'Average logcounts',
+    ylab = 'Layer/image % detected'
+)
+abline(v = 0.05,
+    col = 'red',
+    lwd = 2,
+    lty = 2)
+abline(h = 5,
+    col = 'blue',
+    lwd = 2,
+    lty = 2)
+
+plot(
+    sce_layer_avg_logcounts,
+    log10(per.feat$detected),
+    xlim = c(0.05, max(sce_layer_avg_logcounts)),
+    ylim = log10(c(5, 100)),
+    bg = add.alpha('black', 1 / 10),
+    pch = 21,
+    col = NA,
+    xlab = 'Average logcounts',
+    ylab = 'Layer/image % detected  (log10)'
+)
+abline(v = 0.05,
+    col = 'red',
+    lwd = 2,
+    lty = 2)
+abline(
+    h = log10(5),
+    col = 'blue',
+    lwd = 2,
+    lty = 2
+)
+dev.off()
+
+## The 5% detected means that the gene must be expressed in at least 4/76 layer/image combinations
+4 / 76
+# [1] 0.05263158
+
+## Drop genes
+selected_genes <-
+    which(per.feat$detected > 5 & sce_layer_avg_logcounts > 0.05)
+length(selected_genes)
+# [1] 22331
+sce_layer <- sce_layer[selected_genes,]
+
+
 ## For comparison, try with the other library size factors
 sce_layer_sfac <-
     logNormCounts(SingleCellExperiment(
@@ -254,7 +407,7 @@ sce_layer_sfac <-
         colData = layer_df,
         rowData = rowData(sce)
     ),
-        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,]
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito, ][selected_genes,]
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
@@ -287,6 +440,456 @@ plotExplanatoryVariables(vars_sfac) +
         name = '')
 dev.off()
 ## From the above plots it indeed looks like using the default size factors is best
+
+## From here('Analysis', 'sce_scran.R')
+## Find the highly variable genes
+dec <- modelGeneVar(sce_layer,
+    block = sce_layer$subject_position)
+
+pdf('pdf/modelGeneVar.pdf', useDingbats = FALSE)
+mapply(function(block, blockname) {
+    plot(
+        block$mean,
+        block$total,
+        xlab = "Mean log-expression",
+        ylab = "Variance",
+        main = blockname
+    )
+    curve(metadata(block)$trend(x),
+        col = "blue",
+        add = TRUE)
+}, dec$per.block, names(dec$per.block))
+dev.off()
+
+top.hvgs <- getTopHVGs(dec, prop = 0.1)
+length(top.hvgs)
+# [1] 1280
+
+## Run PCA with a reduced number of components to avoid errors
+## (since we are starting with 76 columns anyway instead of thousands)
+sce_layer <-
+    runPCA(sce_layer, subset_row = top.hvgs, ncomponents = 20)
+
+## Default perplexity is 15
+mat <-
+    scater:::.get_mat_from_sce(
+        sce_layer,
+        exprs_values = 'logcounts',
+        dimred = 'PCA',
+        n_dimred = NULL
+    )
+dim(mat)
+min(50, floor(nrow(mat) / 5))
+# [1] 15
+
+## Run TSNE and UMAP
+set.seed(20200121)
+sce_layer <-
+    runTSNE(sce_layer,
+        dimred = 'PCA',
+        name = 'TSNE_perplexity5',
+        perplexity = 5)
+set.seed(20200121)
+sce_layer <-
+    runTSNE(sce_layer,
+        dimred = 'PCA',
+        name = 'TSNE_perplexity15',
+        perplexity = 15)
+set.seed(20200121)
+sce_layer <-
+    runTSNE(sce_layer,
+        dimred = 'PCA',
+        name = 'TSNE_perplexity20',
+        perplexity = 20)
+set.seed(20200121)
+sce_layer <-
+    runUMAP(sce_layer, dimred = 'PCA', name = 'UMAP_neighbors15')
+
+
+## Save for later
+save(sce_layer, file = 'rda/sce_layer.Rdata')
+## For mapping back to the original sce object
+save(layerIndexes, file = 'rda/layerIndexes.Rdata')
+## For subsetting again the genes if necessary
+save(ix_mito, selected_genes, file = 'rda/selected_genes.Rdata')
+
+
+pdf('pdf/reduced_dim_PCA.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'sample_name')
+plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'subject_position')
+plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'subject')
+plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'position')
+dev.off()
+
+## Just to compare the PCA on the data using library size factors
+## by sample repeated across layers
+sce_layer_sfac <-
+    runPCA(sce_layer_sfac,
+        subset_row = top.hvgs,
+        ncomponents = 20)
+pdf('pdf/reduced_dim_PCA_sfact.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'sample_name')
+plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'subject_position')
+plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'subject')
+plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'position')
+dev.off()
+## Comparing the two, it seems to me that the default library size reduces the
+## layer differences but makes more sense in the PCA plot:
+## like it's PC1 for WM vs non-WM, then PC2 across layers 1 through 6
+## instead of PC1 for some layers vs others, PC2 for WM vs layer 2?
+## with layers like 6 and 5 across the PC1 vs PC2 plot.
+
+
+
+
+pdf('pdf/reduced_dim_TSNE_perplexity5.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'sample_name')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'subject_position')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'subject')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'position')
+dev.off()
+
+pdf('pdf/reduced_dim_TSNE_perplexity15.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'sample_name')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'subject_position')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'subject')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'position')
+dev.off()
+
+pdf('pdf/reduced_dim_TSNE_perplexity20.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'sample_name')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'subject_position')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'subject')
+plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'position')
+dev.off()
+
+pdf('pdf/reduced_dim_UMAP_neighbors15.pdf', useDingbats = FALSE)
+plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'layer_guess') +
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+        name = 'Layer')
+plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'sample_name')
+plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'subject_position')
+plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'subject')
+plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'position')
+dev.off()
+
+## Across PCA, TSNE and UMAP the WM for samples 151669 and 151670
+## (middle subject, position 0) group closer to the layer 6 data from
+## the other images.
+## In TSNE and UMAP, there points do group by subject more than they
+## do in PCA space.
+
+
+set.seed(20200121)
+sced <-
+    denoisePCA(
+        sce_layer,
+        dec,
+        subset.row = top.hvgs,
+        max.rank = 20,
+        min.rank = 2
+    )
+ncol(reducedDim(sced, "PCA"))
+# [1] 7
+
+## Unlike here('Analysis', 'sce_scran.R') here this code ran within 2-5 secs
+choices <-
+    getClusteredPCs(reducedDim(sce_layer),
+        max.rank = 20,
+        min.rank = 2)
+npcs <- metadata(choices)$chosen
+npcs
+# [1] 5
+reducedDim(sce_layer, "PCAsub") <-
+    reducedDim(sce_layer, "PCA")[, seq_len(npcs), drop = FALSE]
+
+## This plot doesn't seem very informative in this scenario...
+pdf('pdf/PC_choices.pdf', useDingbats = FALSE)
+plot(choices$n.pcs,
+    choices$n.clusters,
+    xlab = "Number of PCs",
+    ylab = "Number of clusters")
+abline(a = 1, b = 1, col = "red")
+abline(v = metadata(choices)$chosen,
+    col = "grey80",
+    lty = 2)
+dev.off()
+
+
+
+## From here('Analysis', 'convert_sce.R')
+sort_clusters <- function(clusters, map_subset = NULL) {
+    if (is.null(map_subset)) {
+        map_subset <- rep(TRUE, length(clusters))
+    }
+    map <-
+        rank(length(clusters[map_subset]) - table(clusters[map_subset]), ties.method = 'first')
+    res <- map[clusters]
+    factor(res)
+}
+
+g_k5 <- buildSNNGraph(sce_layer, k = 5, use.dimred = 'PCA')
+g_walk_k5 <- igraph::cluster_walktrap(g_k5)
+clust_k5 <- sort_clusters(g_walk_k5$membership)
+save(g_k5, g_walk_k5, file = 'rda/g_k5.Rdata')
+
+
+addmargins(table(clust_k5, sce_layer$layer_guess))
+# clust_k5 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#      1    0       8       8      12       0       0       0  28
+#      2    0       0       0       0      12      12       0  24
+#      3    3       0       0       0       0       0      12  15
+#      4    9       0       0       0       0       0       0   9
+#      Sum 12       8       8      12      12      12      12  76
+
+## ehem... that's why it makes more sense to have k = 7 :P
+## since we have 7 layers. That was the k that denoisePCA()
+## suggested earlier
+
+g_k7 <- buildSNNGraph(sce_layer, k = 7, use.dimred = 'PCA')
+g_walk_k7 <- igraph::cluster_walktrap(g_k7)
+clust_k7 <- sort_clusters(g_walk_k7$membership)
+save(g_k7, g_walk_k7, file = 'rda/g_k7.Rdata')
+
+addmargins(table(clust_k7, sce_layer$layer_guess))
+# clust_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#      1    0       8       8      12      10       0       0  38
+#      2    4       0       0       0       2      12      12  30
+#      3    8       0       0       0       0       0       0   8
+#      Sum 12       8       8      12      12      12      12  76
+
+
+## Hm... cut at k = 7
+clust_k5_k7 <- sort_clusters(igraph::cut_at(g_walk_k5, n = 7))
+clust_k7_k7 <- sort_clusters(igraph::cut_at(g_walk_k7, n = 7))
+
+addmargins(table(clust_k5_k7, sce_layer$layer_guess))
+# clust_k5_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       8      12       0       0       0  20
+#         2    0       0       0       0       4      12       0  16
+#         3    3       0       0       0       0       0      12  15
+#         4    9       0       0       0       0       0       0   9
+#         5    0       8       0       0       0       0       0   8
+#         6    0       0       0       0       4       0       0   4
+#         7    0       0       0       0       4       0       0   4
+#         Sum 12       8       8      12      12      12      12  76
+addmargins(table(clust_k7_k7, sce_layer$layer_guess))
+# clust_k7_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       4      12       0       0       0  16
+#         2    0       0       0       0       2      12       0  14
+#         3    0       1       0       0      10       0       0  11
+#         4    0       7       4       0       0       0       0  11
+#         5    2       0       0       0       0       0       8  10
+#         6    8       0       0       0       0       0       0   8
+#         7    2       0       0       0       0       0       4   6
+#         Sum 12       8       8      12      12      12      12  76
+
+
+
+
+## Try with all 20 PCs
+g_k20 <- buildSNNGraph(sce_layer, k = 20, use.dimred = 'PCA')
+g_walk_k20 <- igraph::cluster_walktrap(g_k20)
+clust_k20 <- sort_clusters(g_walk_k20$membership)
+save(g_k20, g_walk_k20, file = 'rda/g_k20.Rdata')
+clust_k20_k7 <- sort_clusters(igraph::cut_at(g_walk_k20, n = 7))
+
+addmargins(table(clust_k20, sce_layer$layer_guess))
+# clust_k20 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#       1    0       8       8      12      12       0       0  40
+#       2   12       0       0       0       0      12      12  36
+#       Sum 12       8       8      12      12      12      12  76
+addmargins(table(clust_k20_k7, sce_layer$layer_guess))
+# clust_k20_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#          1    6       0       0       0       0       0      11  17
+#          2    0       5       1      11       0       0       0  17
+#          3    1       0       0       0       0      12       1  14
+#          4    0       1       0       0      12       0       0  13
+#          5    0       0       7       0       0       0       0   7
+#          6    5       0       0       0       0       0       0   5
+#          7    0       2       0       1       0       0       0   3
+#          Sum 12       8       8      12      12      12      12  76
+
+## They are all highly variable
+addmargins(table(clust_k7_k7, clust_k5_k7))
+#            clust_k5_k7
+# clust_k7_k7  1  2  3  4  5  6  7 Sum
+#         1   16  0  0  0  0  0  0  16
+#         2    0 14  0  0  0  0  0  14
+#         3    0  2  0  0  1  4  4  11
+#         4    4  0  0  0  7  0  0  11
+#         5    0  0 10  0  0  0  0  10
+#         6    0  0  0  8  0  0  0   8
+#         7    0  0  5  1  0  0  0   6
+#         Sum 20 16 15  9  8  4  4  76
+
+addmargins(table(clust_k7_k7, clust_k20_k7))
+#            clust_k20_k7
+# clust_k7_k7  1  2  3  4  5  6  7 Sum
+#         1    0 12  0  0  3  0  1  16
+#         2    0  0 12  2  0  0  0  14
+#         3    0  0  0 11  0  0  0  11
+#         4    0  5  0  0  4  0  2  11
+#         5   10  0  0  0  0  0  0  10
+#         6    3  0  0  0  0  5  0   8
+#         7    4  0  2  0  0  0  0   6
+#         Sum 17 17 14 13  7  5  3  76
+
+
+
+## Hm... could it be that it's picking up the subject variability?
+addmargins(table(clust_k7_k7, sce_layer$subject))
+# clust_k7_k7 Br5292 Br5595 Br8100 Sum
+#         1        4      4      8  16
+#         2        4      6      4  14
+#         3        4      2      5  11
+#         4        8      0      3  11
+#         5        4      6      0  10
+#         6        4      0      4   8
+#         7        0      2      4   6
+#         Sum     28     20     28  76
+addmargins(table(clust_k7_k7, sce_layer$layer_guess, sce_layer$subject))
+# , ,  = Br5292
+#
+#
+# clust_k7_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       0       4       0       0       0   4
+#         2    0       0       0       0       0       4       0   4
+#         3    0       0       0       0       4       0       0   4
+#         4    0       4       4       0       0       0       0   8
+#         5    0       0       0       0       0       0       4   4
+#         6    4       0       0       0       0       0       0   4
+#         7    0       0       0       0       0       0       0   0
+#         Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Br5595
+#
+#
+# clust_k7_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       0       4       0       0       0   4
+#         2    0       0       0       0       2       4       0   6
+#         3    0       0       0       0       2       0       0   2
+#         4    0       0       0       0       0       0       0   0
+#         5    2       0       0       0       0       0       4   6
+#         6    0       0       0       0       0       0       0   0
+#         7    2       0       0       0       0       0       0   2
+#         Sum  4       0       0       4       4       4       4  20
+#
+# , ,  = Br8100
+#
+#
+# clust_k7_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       4       4       0       0       0   8
+#         2    0       0       0       0       0       4       0   4
+#         3    0       1       0       0       4       0       0   5
+#         4    0       3       0       0       0       0       0   3
+#         5    0       0       0       0       0       0       0   0
+#         6    4       0       0       0       0       0       0   4
+#         7    0       0       0       0       0       0       4   4
+#         Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Sum
+#
+#
+# clust_k7_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       4      12       0       0       0  16
+#         2    0       0       0       0       2      12       0  14
+#         3    0       1       0       0      10       0       0  11
+#         4    0       7       4       0       0       0       0  11
+#         5    2       0       0       0       0       0       8  10
+#         6    8       0       0       0       0       0       0   8
+#         7    2       0       0       0       0       0       4   6
+#         Sum 12       8       8      12      12      12      12  76
+
+## So subject 1, it merges layers 1 & 2
+## subject 2, it breaks layer 4 (mixes it a bit with layer 5) and WM
+## subject 3, for one it merges layer 1 with 4, merges layers 2 and 3
+
+
+
+addmargins(table(clust_k5_k7, sce_layer$subject))
+# clust_k5_k7 Br5292 Br5595 Br8100 Sum
+#         1        8      4      8  20
+#         2        4      8      4  16
+#         3        4      7      4  15
+#         4        4      1      4   9
+#         5        4      0      4   8
+#         6        4      0      0   4
+#         7        0      0      4   4
+#         Sum     28     20     28  76
+
+addmargins(table(clust_k5_k7, sce_layer$layer_guess, sce_layer$subject))
+# , ,  = Br5292
+#
+#
+# clust_k5_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       4       4       0       0       0   8
+#         2    0       0       0       0       0       4       0   4
+#         3    0       0       0       0       0       0       4   4
+#         4    4       0       0       0       0       0       0   4
+#         5    0       4       0       0       0       0       0   4
+#         6    0       0       0       0       4       0       0   4
+#         7    0       0       0       0       0       0       0   0
+#         Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Br5595
+#
+#
+# clust_k5_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       0       4       0       0       0   4
+#         2    0       0       0       0       4       4       0   8
+#         3    3       0       0       0       0       0       4   7
+#         4    1       0       0       0       0       0       0   1
+#         5    0       0       0       0       0       0       0   0
+#         6    0       0       0       0       0       0       0   0
+#         7    0       0       0       0       0       0       0   0
+#         Sum  4       0       0       4       4       4       4  20
+#
+# , ,  = Br8100
+#
+#
+# clust_k5_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       4       4       0       0       0   8
+#         2    0       0       0       0       0       4       0   4
+#         3    0       0       0       0       0       0       4   4
+#         4    4       0       0       0       0       0       0   4
+#         5    0       4       0       0       0       0       0   4
+#         6    0       0       0       0       0       0       0   0
+#         7    0       0       0       0       4       0       0   4
+#         Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Sum
+#
+#
+# clust_k5_k7 WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#         1    0       0       8      12       0       0       0  20
+#         2    0       0       0       0       4      12       0  16
+#         3    3       0       0       0       0       0      12  15
+#         4    9       0       0       0       0       0       0   9
+#         5    0       8       0       0       0       0       0   8
+#         6    0       0       0       0       4       0       0   4
+#         7    0       0       0       0       4       0       0   4
+#         Sum 12       8       8      12      12      12      12  76
+
+## In this one, again for subject 1, it merges layers 1 & 2
+## subject 2, it breaks WM, merges layers 4 and 5, WM and layer 6
+## subject 3, for one it merges layers 2 and 3
+
 
 
 
@@ -330,7 +933,7 @@ getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
     regex <- paste0("^", prefix, "\\.")
     i <- grep(regex, colnames(x))
     out <- as.matrix(x[, i])
-    
+
     if (strip) {
         colnames(out) <- sub(regex, "", colnames(out))
     }
