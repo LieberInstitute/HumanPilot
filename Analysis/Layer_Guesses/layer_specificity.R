@@ -1065,7 +1065,7 @@ plot_markers_expr <- function(x, pval.type = c('any', 'all')) {
             sce_layer_symbol,
             features = rownames(best.set),
             main = names(x)[chosen],
-            colour_columns_by = c('layer_guess', 'subject', 'sample_name'),
+            colour_columns_by = c('layer_guess', 'subject', 'subject_position', 'sample_name'),
             # color = colorRampPalette(c("white", "blue"))(100),
             # annotation_colors = ann_colors,
             annotation_row = gene_ann(rownames(best.set)),
