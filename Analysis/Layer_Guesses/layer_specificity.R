@@ -6,6 +6,7 @@ library('scran')
 library('pheatmap')
 library('readxl')
 library('Polychrome')
+library('cluster')
 library('sessioninfo')
 
 dir.create('pdf', showWarnings = FALSE)
@@ -623,14 +624,6 @@ abline(v = metadata(choices)$chosen,
     lty = 2)
 dev.off()
 
-## Save for later
-save(sce_layer, file = 'rda/sce_layer.Rdata')
-## For mapping back to the original sce object
-save(layerIndexes, file = 'rda/layerIndexes.Rdata')
-## For subsetting again the genes if necessary
-save(ix_mito, selected_genes, file = 'rda/selected_genes.Rdata')
-
-
 ## From here('Analysis', 'convert_sce.R')
 sort_clusters <- function(clusters, map_subset = NULL) {
     if (is.null(map_subset)) {
@@ -890,6 +883,119 @@ addmargins(table(clust_k5_k7, sce_layer$layer_guess, sce_layer$subject))
 ## subject 3, for one it merges layers 2 and 3
 
 
+## Try some of the k-means clustering
+set.seed(20200122)
+clust.kmeans <- kmeans(reducedDim(sce_layer, "PCA"), centers = 7)
+save(clust.kmeans, file = 'rda/clust.kmeans.Rdata')
+table(sort_clusters(clust.kmeans$cluster))
+#  1  2  3  4  5  6  7
+# 25 20 12  8  7  3  1
+
+addmargins(table(
+    sort_clusters(clust.kmeans$cluster),
+    sce_layer$layer_guess,
+    sce_layer$subject
+))
+# , ,  = Br5292
+#
+#
+#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#   1    0       0       0       0       0       4       3   7
+#   2    0       0       4       4       0       0       0   8
+#   3    0       0       0       0       4       0       0   4
+#   4    0       4       0       0       0       0       0   4
+#   5    3       0       0       0       0       0       0   3
+#   6    1       0       0       0       0       0       0   1
+#   7    0       0       0       0       0       0       1   1
+#   Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Br5595
+#
+#
+#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#   1    2       0       0       0       0       4       4  10
+#   2    0       0       0       4       0       0       0   4
+#   3    0       0       0       0       4       0       0   4
+#   4    0       0       0       0       0       0       0   0
+#   5    0       0       0       0       0       0       0   0
+#   6    2       0       0       0       0       0       0   2
+#   7    0       0       0       0       0       0       0   0
+#   Sum  4       0       0       4       4       4       4  20
+#
+# , ,  = Br8100
+#
+#
+#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#   1    0       0       0       0       0       4       4   8
+#   2    0       0       4       4       0       0       0   8
+#   3    0       0       0       0       4       0       0   4
+#   4    0       4       0       0       0       0       0   4
+#   5    4       0       0       0       0       0       0   4
+#   6    0       0       0       0       0       0       0   0
+#   7    0       0       0       0       0       0       0   0
+#   Sum  4       4       4       4       4       4       4  28
+#
+# , ,  = Sum
+#
+#
+#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
+#   1    2       0       0       0       0      12      11  25
+#   2    0       0       8      12       0       0       0  20
+#   3    0       0       0       0      12       0       0  12
+#   4    0       8       0       0       0       0       0   8
+#   5    7       0       0       0       0       0       0   7
+#   6    3       0       0       0       0       0       0   3
+#   7    0       0       0       0       0       0       1   1
+#   Sum 12       8       8      12      12      12      12  76
+
+set.seed(20200122)
+gaps <- clusGap(reducedDim(sce_layer, "PCA"), kmeans, K.max = 20)
+best.k <- maxSE(gaps$Tab[, "gap"], gaps$Tab[, "SE.sim"])
+best.k
+# [1] 7
+## Yay, at least here we get 7 :P
+
+ncells <- tabulate(sort_clusters(clust.kmeans$cluster))
+tab <- data.frame(wcss = clust.kmeans$withinss, ncells = ncells)
+tab$rms <- sqrt(tab$wcss / tab$ncells)
+tab
+#        wcss ncells      rms
+# 1  5505.886     25 14.84033
+# 2  4691.834     20 15.31639
+# 3  2310.057     12 13.87461
+# 4 11830.172      8 38.45480
+# 5  3151.878      7 21.21952
+# 6  6504.841      3 46.56480
+# 7     0.000      1  0.00000
+
+pdf('pdf/kmeans_gaps.pdf', useDingbats = FALSE)
+plot(gaps$Tab[, "gap"], xlab = "Number of clusters", ylab = "Gap statistic")
+abline(v = best.k, col = "red")
+dev.off()
+
+centers <- clust.kmeans$centers
+## Fix the names
+rownames(centers) <- unique(sort_clusters(clust.kmeans$cluster))
+cent.tree <- hclust(dist(centers), "ward.D2")
+pdf('pdf/kmeans_k7_dendro.pdf', useDingbats = FALSE)
+plot(cent.tree)
+dev.off()
+
+
+
+## Save for later
+colData(sce_layer)$c_k5_k7 <- clust_k5_k7
+colData(sce_layer)$c_k7_k7 <- clust_k7_k7
+colData(sce_layer)$c_k20_k7 <- clust_k20_k7
+colData(sce_layer)$kmeans_k7 <- sort_clusters(clust.kmeans$cluster)
+
+save(sce_layer, file = 'rda/sce_layer.Rdata')
+## For mapping back to the original sce object
+save(layerIndexes, file = 'rda/layerIndexes.Rdata')
+## For subsetting again the genes if necessary
+save(ix_mito, selected_genes, file = 'rda/selected_genes.Rdata')
+
+
 
 
 ## Try using the scran::findMarkers() function instead of coding the
@@ -934,6 +1040,39 @@ names(markers_layer) <- c('any', 'all')
 save(markers_layer, file = 'rda/markers_layer.Rdata')
 
 
+
+markers_layer_wilcox <- lapply(c('any', 'all'), function(pval) {
+    directions <- c('any', 'up')
+    res_direc <- lapply(directions, function(direc) {
+        message(paste(
+            Sys.time(),
+            'finding markers for p-val',
+            pval,
+            'and',
+            direc,
+            'direction'
+        ))
+        findMarkers(
+            sce_layer,
+            sce_layer$layer_guess,
+            pval.type = pval,
+            direction = direc,
+            block = sce_layer$subject_position,
+            gene.names = rowData(sce_layer)$gene_name,
+            test.type = 'wilcox'
+        )
+    })
+    names(res_direc) <- directions
+    return(res_direc)
+})
+names(markers_layer_wilcox) <- c('any', 'all')
+# 2020-01-22 14:51:06 finding markers for p-val any and any direction
+# 2020-01-22 14:51:14 finding markers for p-val any and up direction
+# 2020-01-22 14:51:22 finding markers for p-val all and any direction
+# 2020-01-22 14:51:29 finding markers for p-val all and up direction
+save(markers_layer_wilcox, file = 'rda/markers_layer_wilcox.Rdata')
+
+
 ## I downloaded the current git version (026edd8eb68fa0479769450473a31795ae50c742)
 ## to obtain the code for this function
 ## git clone https://git.bioconductor.org/packages/scran
@@ -962,7 +1101,7 @@ gene_ann <- function(x) {
     res <-
         data.frame(KM_Zeng = factor(!is.na(m_km), levels = c('FALSE', 'TRUE')),
             BM = factor(!is.na(m_bm), levels = c('FALSE', 'TRUE')))
-    rownames(res) <- make.names(x, unique = TRUE)
+    rownames(res) <- make.unique(x)
     return(res)
 }
 summary(gene_ann(rowData(sce_layer)$gene_name))
@@ -1023,108 +1162,185 @@ ann_colors <-
     )
 
 ## Plotting code
-plot_markers_logfc <- function(x, pval.type = c('any', 'all')) {
-    lapply(seq_along(x), function(chosen) {
-        interesting <- x[[chosen]]
-        if (pval.type == 'any') {
-            best.set <-
-                interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
-        } else {
-            best.set <- head(interesting, 30) ## for pval.type == 'all'
-        }
-        logFCs <- getMarkerEffects(best.set)
-        print(
-            pheatmap(
-                logFCs,
-                breaks = seq(-3, 3, length.out = 101),
-                main = names(x)[chosen],
-                # color = colorRampPalette(c("white", "blue"))(100),
-                annotation_colors = ann_colors,
-                annotation_row = gene_ann(rownames(logFCs)),
-                annotation_names_row = TRUE
+plot_markers_logfc <-
+    function(x,
+        pval.type = c('any', 'all'),
+        prefix = 'logFC',
+        ...) {
+        lapply(seq_along(x), function(chosen) {
+            interesting <- x[[chosen]]
+            if (pval.type == 'any') {
+                best.set <-
+                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
+            } else {
+                best.set <- head(interesting, 30) ## for pval.type == 'all'
+            }
+            logFCs <- getMarkerEffects(best.set, prefix = prefix)
+            print(
+                pheatmap(
+                    logFCs,
+                    main = names(x)[chosen],
+                    # color = colorRampPalette(c("white", "blue"))(100),
+                    annotation_colors = ann_colors,
+                    annotation_row = gene_ann(rownames(logFCs)),
+                    annotation_names_row = TRUE,
+                    ...
+                )
             )
-        )
-        return(NULL)
-    })
-}
+            return(NULL)
+        })
+    }
 
+
+
+## Copy the sce object but with other
+## rownames so it'll be easier to re-use existing functions
 sce_layer_symbol <- sce_layer
 rownames(sce_layer_symbol) <-
-    make.names(rowData(sce_layer)$gene_name, unique = TRUE)
+    make.unique(rowData(sce_layer)$gene_name)
 
-plot_markers_expr <- function(x, pval.type = c('any', 'all')) {
-    lapply(seq_along(x), function(chosen) {
-        interesting <- x[[chosen]]
-        if (pval.type == 'any') {
-            best.set <-
-                interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
-        } else {
-            best.set <- head(interesting, 30) ## for pval.type == 'all'
-        }
-        pheat <- plotHeatmap(
-            sce_layer_symbol,
-            features = rownames(best.set),
-            main = names(x)[chosen],
-            colour_columns_by = c('layer_guess', 'subject', 'subject_position', 'sample_name'),
-            # color = colorRampPalette(c("white", "blue"))(100),
-            # annotation_colors = ann_colors,
-            annotation_row = gene_ann(rownames(best.set)),
-            annotation_names_row = TRUE
-        )
-        
-        ## Fix the colors for the layers
-        layout_num <-
-            which(pheat$gtable$layout$name == 'col_annotation')
-        layer_names <-
-            rownames(pheat$gtable$grobs[[layout_num]]$gp$fill)
-        new_layer_cols <-
-            Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess[match(layer_names, colnames(sce_layer))])]
-        names(new_layer_cols) <- layer_names
-        pheat$gtable$grobs[[layout_num]]$gp$fill[, 'layer_guess'] <-
-            new_layer_cols
-        
-        ## Now fix the legend
-        layout_num <-
-            which(pheat$gtable$layout$name == 'annotation_legend')
-        children_name <-
-            pheat$gtable$grobs[[layout_num]]$childrenOrder['layer_guess r']
-        layer_names <-
-            names(pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill)
-        new_layer_cols <- Polychrome::palette36.colors(7)
-        names(new_layer_cols) <- layer_names
-        pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill <-
-            new_layer_cols
-        
-        ## Print the heatmap
-        print(pheat)
-        return(NULL)
-    })
-}
-
-plot_markers_loop <- function(pdf_header, FUN) {
-    for (pval in names(markers_layer)) {
-        for (direc in names(markers_layer[[1]])) {
-            pdf(
-                paste0(
-                    'pdf/',
-                    pdf_header,
-                    '_pval_',
-                    pval,
-                    '_direc_',
-                    direc,
-                    '.pdf'
+plot_markers_expr <-
+    function(x,
+        pval.type = c('any', 'all'),
+        prefix = NULL,
+        ...) {
+        lapply(seq_along(x), function(chosen) {
+            interesting <- x[[chosen]]
+            if (pval.type == 'any') {
+                best.set <-
+                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
+            } else {
+                best.set <- head(interesting, 30) ## for pval.type == 'all'
+            }
+            pheat <- plotHeatmap(
+                sce_layer_symbol,
+                features = rownames(best.set),
+                main = names(x)[chosen],
+                colour_columns_by = c(
+                    'layer_guess',
+                    'subject',
+                    'subject_position',
+                    'sample_name',
+                    'c_k5_k7',
+                    'c_k7_k7',
+                    'c_k20_k7',
+                    'kmeans_k7'
                 ),
-                useDingbats = FALSE,
-                height = 14
+                # color = colorRampPalette(c("white", "blue"))(100),
+                # annotation_colors = ann_colors,
+                # color = viridis::viridis(21),
+                annotation_row = gene_ann(rownames(best.set)),
+                annotation_names_row = TRUE,
+                ...
             )
-            FUN(markers_layer[[pval]][[direc]], pval.type = pval)
-            dev.off()
+            
+            ## Fix the colors for the layers
+            layout_num <-
+                which(pheat$gtable$layout$name == 'col_annotation')
+            layer_names <-
+                rownames(pheat$gtable$grobs[[layout_num]]$gp$fill)
+            new_layer_cols <-
+                Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess[match(layer_names, colnames(sce_layer))])]
+            names(new_layer_cols) <- layer_names
+            pheat$gtable$grobs[[layout_num]]$gp$fill[, 'layer_guess'] <-
+                new_layer_cols
+            
+            ## Now fix the legend
+            layout_num <-
+                which(pheat$gtable$layout$name == 'annotation_legend')
+            children_name <-
+                pheat$gtable$grobs[[layout_num]]$childrenOrder['layer_guess r']
+            layer_names <-
+                names(pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill)
+            new_layer_cols <- Polychrome::palette36.colors(7)
+            names(new_layer_cols) <- layer_names
+            pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill <-
+                new_layer_cols
+            
+            ## Print the heatmap
+            print(pheat)
+            return(NULL)
+        })
+    }
+
+plot_markers_loop <-
+    function(x,
+        pdf_header,
+        FUN,
+        h = 14,
+        prefix = NULL,
+        ...) {
+        for (pval in names(x)) {
+            for (direc in names(x[[1]])) {
+                pdf(
+                    paste0(
+                        'pdf/',
+                        pdf_header,
+                        '_pval_',
+                        pval,
+                        '_direc_',
+                        direc,
+                        '.pdf'
+                    ),
+                    useDingbats = FALSE,
+                    height = h
+                )
+                FUN(x[[pval]][[direc]], pval.type = pval, prefix = prefix, ...)
+                dev.off()
+            }
         }
     }
-}
 
-plot_markers_loop('markers_logFC', plot_markers_logfc)
-plot_markers_loop('markers_expr', plot_markers_expr)
+## t-test versions
+plot_markers_loop(
+    markers_layer,
+    'markers_t-test_logFC',
+    plot_markers_logfc,
+    prefix = 'logFC',
+    breaks = seq(-2, 2, length.out = 101)
+)
+plot_markers_loop(
+    markers_layer,
+    'markers_t-test_expr',
+    plot_markers_expr,
+    h = 16,
+    color = viridis::viridis(101)
+)
+plot_markers_loop(
+    markers_layer,
+    'markers_t-test_expr_centered',
+    plot_markers_expr,
+    h = 16,
+    center = TRUE,
+    zlim = c(-2, 2)
+)
+
+## wilcox test versions
+plot_markers_loop(
+    markers_layer_wilcox,
+    'markers_wilcox_AUC',
+    plot_markers_logfc,
+    prefix = 'AUC',
+    breaks = seq(0, 1, length.out = 101),
+    color = viridis::viridis(101)
+)
+plot_markers_loop(
+    markers_layer_wilcox,
+    'markers_wilcox_expr',
+    plot_markers_expr,
+    h = 16,
+    color = viridis::viridis(101)
+)
+plot_markers_loop(
+    markers_layer_wilcox,
+    'markers_wilcox_expr_centered',
+    plot_markers_expr,
+    h = 16,
+    center = TRUE,
+    zlim = c(-2, 2)
+)
+
+
 
 
 ## Reproducibility information
