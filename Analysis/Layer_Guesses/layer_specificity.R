@@ -398,7 +398,8 @@ selected_genes <-
 length(selected_genes)
 # [1] 22331
 sce_layer <- sce_layer[selected_genes,]
-
+dim(sce_layer)
+# [1] 22331    76
 
 ## For comparison, try with the other library size factors
 sce_layer_sfac <-
@@ -504,14 +505,6 @@ sce_layer <-
 set.seed(20200121)
 sce_layer <-
     runUMAP(sce_layer, dimred = 'PCA', name = 'UMAP_neighbors15')
-
-
-## Save for later
-save(sce_layer, file = 'rda/sce_layer.Rdata')
-## For mapping back to the original sce object
-save(layerIndexes, file = 'rda/layerIndexes.Rdata')
-## For subsetting again the genes if necessary
-save(ix_mito, selected_genes, file = 'rda/selected_genes.Rdata')
 
 
 pdf('pdf/reduced_dim_PCA.pdf', useDingbats = FALSE)
@@ -630,6 +623,12 @@ abline(v = metadata(choices)$chosen,
     lty = 2)
 dev.off()
 
+## Save for later
+save(sce_layer, file = 'rda/sce_layer.Rdata')
+## For mapping back to the original sce object
+save(layerIndexes, file = 'rda/layerIndexes.Rdata')
+## For subsetting again the genes if necessary
+save(ix_mito, selected_genes, file = 'rda/selected_genes.Rdata')
 
 
 ## From here('Analysis', 'convert_sce.R')
@@ -899,8 +898,13 @@ addmargins(table(clust_k5_k7, sce_layer$layer_guess, sce_layer$subject))
 
 ## Use 'block' for random effects
 ## https://support.bioconductor.org/p/29768/
+
+## I see that there's more info about findMarkers() now at
+## https://bioconductor.riken.jp/packages/release/workflows/vignettes/simpleSingleCell/inst/doc/de.html
+## and
+## https://bioconductor.org/packages/3.9/workflows/vignettes/simpleSingleCell/inst/doc/reads.html#detecting-marker-genes-between-clusters
 markers_layer <- lapply(c('any', 'all'), function(pval) {
-    directions <- c('any', 'up', 'down')
+    directions <- c('any', 'up')
     res_direc <- lapply(directions, function(direc) {
         message(paste(
             Sys.time(),
@@ -923,7 +927,11 @@ markers_layer <- lapply(c('any', 'all'), function(pval) {
     return(res_direc)
 })
 names(markers_layer) <- c('any', 'all')
-
+# 2020-01-22 10:46:09 finding markers for p-val any and any direction
+# 2020-01-22 10:46:18 finding markers for p-val any and up direction
+# 2020-01-22 10:46:27 finding markers for p-val all and any direction
+# 2020-01-22 10:46:36 finding markers for p-val all and up direction
+save(markers_layer, file = 'rda/markers_layer.Rdata')
 
 
 ## I downloaded the current git version (026edd8eb68fa0479769450473a31795ae50c742)
@@ -933,7 +941,7 @@ getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
     regex <- paste0("^", prefix, "\\.")
     i <- grep(regex, colnames(x))
     out <- as.matrix(x[, i])
-
+    
     if (strip) {
         colnames(out) <- sub(regex, "", colnames(out))
     }
@@ -947,29 +955,176 @@ genes_bm_raw <-
     read_xlsx(here('cortical layer marker gene list_1.xlsx'))
 
 
-## Build and annotation
+## Build gene annotation data.frame for heatmap
+gene_ann <- function(x) {
+    m_km <- match(tolower(x), tolower(genes_km_raw$Gene))
+    m_bm <- match(tolower(x), tolower(genes_bm_raw$Gene))
+    res <-
+        data.frame(KM_Zeng = factor(!is.na(m_km), levels = c('FALSE', 'TRUE')),
+            BM = factor(!is.na(m_bm), levels = c('FALSE', 'TRUE')))
+    rownames(res) <- make.names(x, unique = TRUE)
+    return(res)
+}
+summary(gene_ann(rowData(sce_layer)$gene_name))
+#  KM_Zeng          BM
+# FALSE:22255   FALSE:22275
+# TRUE :   76   TRUE :   56
+nrow(genes_km_raw)
+# [1] 81
+nrow(genes_bm_raw)
+# [1] 65
+## So 5 and 9 genes are not here to begin with
+
+summary(gene_ann(rowData(sce_original)$gene_name))
+#  KM_Zeng          BM
+# FALSE:33461   FALSE:33481
+# TRUE :   77   TRUE :   57
+## But only 1 of each wasn't in the original data
+
+## Find which are these genes:
+subset(gene_ann(rowData(sce_original)$gene_name[-ix_mito][-selected_genes]), KM_Zeng == 'TRUE' |
+        BM == 'TRUE')
+#        KM_Zeng    BM
+# LHX5     FALSE  TRUE
+# CACNG5    TRUE FALSE
+
+with(gene_ann(rowData(sce_original)$gene_name), addmargins(table(KM_Zeng, BM)))
+#        BM
+# KM_Zeng FALSE  TRUE   Sum
+#   FALSE 33416    45 33461
+#   TRUE     65    12    77
+#   Sum   33481    57 33538
+
+## Find which ones are absent to begin with
+genes_km_raw$Gene[!tolower(genes_km_raw$Gene) %in% tolower(rowData(sce_original)$gene_name)]
+# [1] "C4orf31"   "Pvrl3"     "C20orf103" "Kiaa1456"
+genes_bm_raw$Gene[!tolower(genes_bm_raw$Gene) %in% tolower(rowData(sce_original)$gene_name)]
+# [1] "A930038C07Rik" "9830123M21Rik" "Brn1"          "Brn2"
+# [5] "6430573F11Rik" "C030003D03Rik" "Trb"           "Igh6"
+
+## Double check
+rowData(sce_original)$gene_name[grep('c4orf3', tolower(rowData(sce_original)$gene_name))]
+rowData(sce_original)$gene_name[grep('c20orf', tolower(rowData(sce_original)$gene_name))]
+rowData(sce_original)$gene_name[grep('pvr', tolower(rowData(sce_original)$gene_name))]
+rowData(sce_original)$gene_name[grep('rik', tolower(rowData(sce_original)$gene_name))]
+# [1] "GRIK3"     "GRIK2"     "GRIK4"     "GRIK5"     "GRIK1"     "GRIK1-AS1"
 
 
-pdf('test2.pdf', height = 20, useDingbats = FALSE)
-lapply(seq_along(markers_layer_any), function(chosen) {
-    interesting <- to_symbols(markers_layer_any[[chosen]])
-    # best.set <- interesting[interesting$Top <= 6,] ## for pval.type = 'any'
-    best.set <- head(interesting, 30) ## for pval.type == 'all'
-    logFCs <- getMarkerEffects(best.set)
-    print(
-        pheatmap(
-            logFCs,
-            breaks = seq(-5, 5, length.out = 101),
-            main = names(markers_layer_any)[chosen],
-            color = colorRampPalette(c("white", "blue"))(100),
-            annotation_col = col_df_k50_k7,
-            annotation_names_col = TRUE,
-            annotation_colors = ann_colors_k50_k7
+ann_colors <-
+    list(
+        BM = c(
+            'FALSE' = RColorBrewer::brewer.pal(4, 'Dark2')[1],
+            'TRUE' = RColorBrewer::brewer.pal(4, 'Dark2')[2]
+        ),
+        KM_Zeng = c(
+            'FALSE' = RColorBrewer::brewer.pal(4, 'Dark2')[3],
+            'TRUE' = RColorBrewer::brewer.pal(4, 'Dark2')[4]
         )
     )
-    return(NULL)
-})
-dev.off()
+
+## Plotting code
+plot_markers_logfc <- function(x, pval.type = c('any', 'all')) {
+    lapply(seq_along(x), function(chosen) {
+        interesting <- x[[chosen]]
+        if (pval.type == 'any') {
+            best.set <-
+                interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
+        } else {
+            best.set <- head(interesting, 30) ## for pval.type == 'all'
+        }
+        logFCs <- getMarkerEffects(best.set)
+        print(
+            pheatmap(
+                logFCs,
+                breaks = seq(-3, 3, length.out = 101),
+                main = names(x)[chosen],
+                # color = colorRampPalette(c("white", "blue"))(100),
+                annotation_colors = ann_colors,
+                annotation_row = gene_ann(rownames(logFCs)),
+                annotation_names_row = TRUE
+            )
+        )
+        return(NULL)
+    })
+}
+
+sce_layer_symbol <- sce_layer
+rownames(sce_layer_symbol) <-
+    make.names(rowData(sce_layer)$gene_name, unique = TRUE)
+
+plot_markers_expr <- function(x, pval.type = c('any', 'all')) {
+    lapply(seq_along(x), function(chosen) {
+        interesting <- x[[chosen]]
+        if (pval.type == 'any') {
+            best.set <-
+                interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
+        } else {
+            best.set <- head(interesting, 30) ## for pval.type == 'all'
+        }
+        pheat <- plotHeatmap(
+            sce_layer_symbol,
+            features = rownames(best.set),
+            main = names(x)[chosen],
+            colour_columns_by = c('layer_guess', 'subject', 'sample_name'),
+            # color = colorRampPalette(c("white", "blue"))(100),
+            # annotation_colors = ann_colors,
+            annotation_row = gene_ann(rownames(best.set)),
+            annotation_names_row = TRUE
+        )
+        
+        ## Fix the colors for the layers
+        layout_num <-
+            which(pheat$gtable$layout$name == 'col_annotation')
+        layer_names <-
+            rownames(pheat$gtable$grobs[[layout_num]]$gp$fill)
+        new_layer_cols <-
+            Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess[match(layer_names, colnames(sce_layer))])]
+        names(new_layer_cols) <- layer_names
+        pheat$gtable$grobs[[layout_num]]$gp$fill[, 'layer_guess'] <-
+            new_layer_cols
+        
+        ## Now fix the legend
+        layout_num <-
+            which(pheat$gtable$layout$name == 'annotation_legend')
+        children_name <-
+            pheat$gtable$grobs[[layout_num]]$childrenOrder['layer_guess r']
+        layer_names <-
+            names(pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill)
+        new_layer_cols <- Polychrome::palette36.colors(7)
+        names(new_layer_cols) <- layer_names
+        pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill <-
+            new_layer_cols
+        
+        ## Print the heatmap
+        print(pheat)
+        return(NULL)
+    })
+}
+
+plot_markers_loop <- function(pdf_header, FUN) {
+    for (pval in names(markers_layer)) {
+        for (direc in names(markers_layer[[1]])) {
+            pdf(
+                paste0(
+                    'pdf/',
+                    pdf_header,
+                    '_pval_',
+                    pval,
+                    '_direc_',
+                    direc,
+                    '.pdf'
+                ),
+                useDingbats = FALSE,
+                height = 14
+            )
+            FUN(markers_layer[[pval]][[direc]], pval.type = pval)
+            dev.off()
+        }
+    }
+}
+
+plot_markers_loop('markers_logFC', plot_markers_logfc)
+plot_markers_loop('markers_expr', plot_markers_expr)
 
 
 ## Reproducibility information
