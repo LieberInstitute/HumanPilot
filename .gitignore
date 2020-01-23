@@ -3,3 +3,6 @@ Human_DLPFC_OTS-19_4277.tif
 .Rproj.user
 plots
 sample_data/
+Analysis/Comparison_SpatialDE_genes_cache/
+Analysis/Comparison_SpatialDE_genes_files/
+Analysis/Comparison_SpatialDE_genes.html
