@@ -1,0 +1,288 @@
+---
+title: "HumanPilot: Clustering using PCA, UMAP, marker genes, spatial coordinates"
+author: "Lukas Weber"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+# Introduction
+
+This script contains code for several attempts at clustering the HumanPilot brain dataset, using various combinations of top PCs, UMAP dimensions, SpatialDE marker genes, and spatial coordinates.
+
+
+```{r}
+suppressPackageStartupMessages({
+    library(SingleCellExperiment)
+    library(uwot)
+    library(scran)
+    library(scater)
+    library(ggplot2)
+    library(RColorBrewer)
+})
+```
+
+
+## Load data
+
+Load SingleCellExperiment data object containing UMI counts, top 50 PCs, and spatial coordinates.
+
+```{r}
+# load scran output file
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+
+# get sample names
+sample_names <- as.factor(unique(colData(sce)$sample_name))
+```
+
+
+## SpatialDE marker genes
+
+List of SpatialDE marker genes to use for clustering (from separate script "Comparison_SpatialDE_genes_pooled.Rmd").
+
+```{r}
+marker_genes_SpatialDE <- c(
+    "ARPP19", "CAMK2N1", "CARTPT", "CCK", "CNP", "CRYAB", "CXCL14", "DIRAS2", 
+    "EEF1A1", "ENC1", "FAU", "FTL", "GFAP", "HOPX", "HPCAL1", "MALAT1", "MOBP", 
+    "NEFH", "NEFM", "PCP4", "RPL12", "SERPINE2", "TF"
+)
+length(marker_genes_SpatialDE)
+```
+
+
+## Extract features, run UMAP, run clustering for each sample
+
+Run separately for each sample:
+
+- extract features from data object: top 50 PCs, spatial coordinates, log counts of SpatialDE marker genes
+
+- run UMAP (on either top 50 PCs or SpatialDE marker genes) (note: using log counts; no additional z-scaling required)
+
+- scale spatial dimensions (note: use range comparable to range of UMAP dimension; no z-scaling since these are physical coordinates)
+
+- run graph-based clustering (on various combinations of PCs, UMAP dimensions, SpatialDE marker genes, and spatial dimensions) (Bioconductor graph-based clustering; note graph-based clustering seems better suited than k-means since clusters do not necessarily have an ellipsoidal shape in the spatial dimensions)
+
+```{r}
+# parameters
+n_umap <- 10
+max_spatial <- 1
+n_clus_k <- 10
+n_clus <- 8
+
+
+d_plot <- data.frame()
+
+
+# run separately for each sample
+for (i in seq_along(sample_names)) {
+    
+    # -----------------------------
+    # extract features and run UMAP
+    # -----------------------------
+    
+    # select spots from this sample
+    ix <- colData(sce)$sample_name == sample_names[i]
+    table(ix)
+    sce_sub <- sce[, ix]
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_sub)[, c("imagecol")], 
+        y_coord = -colData(sce_sub)[, c("imagerow")]
+    )
+    dims_spatial <- xy_coords
+    colnames(dims_spatial) <- c("spatial_x", "spatial_y")
+    stopifnot(nrow(dims_spatial) == ncol(sce_sub))
+    
+    # select SpatialDE marker genes
+    stopifnot(all(marker_genes_SpatialDE %in% toupper(rowData(sce_sub)$gene_name)))
+    sce_sub <- sce_sub[toupper(rowData(sce_sub)$gene_name) %in% marker_genes_SpatialDE, ]
+    dim(sce_sub)
+    
+    # extract top 50 PCs
+    dims_pcs <- reducedDim(sce_sub, type = "PCA")
+    stopifnot(nrow(dims_pcs) == ncol(sce_sub))
+    dim(dims_pcs)
+    
+    # run UMAP on top 50 PCs
+    # note: no z-scaling
+    set.seed(123)
+    dims_umap <- umap(dims_pcs, n_components = n_umap)
+    colnames(dims_umap) <- paste0("UMAP_", seq_len(ncol(dims_umap)))
+    
+    # extract log counts for SpatialDE marker genes
+    dims_markers_SpatialDE <- t(as.matrix(logcounts(sce_sub)))
+    stopifnot(ncol(dims_markers_SpatialDE) == length(marker_genes_SpatialDE))
+    colnames(dims_markers_SpatialDE) <- marker_genes_SpatialDE
+    dim(dims_markers_SpatialDE)
+    
+    # run UMAP on SpatialDE marker genes
+    # note: no z-scaling
+    set.seed(123)
+    dims_umap_SpatialDE <- umap(dims_markers_SpatialDE, n_components = n_umap)
+    colnames(dims_umap_SpatialDE) <- paste0("UMAP_", seq_len(ncol(dims_umap)))
+    
+    # scale spatial dimensions
+    apply(dims_spatial, 2, range)
+    dims_spatial <- apply(as.matrix(dims_spatial), 2, function(col) {
+        (col - min(col)) / (max(col) - min(col)) * (2 * max_spatial) - max_spatial
+    })
+    apply(dims_spatial, 2, range)
+    stopifnot(nrow(dims_spatial) == ncol(sce_sub))
+    
+    
+    # ----------
+    # clustering
+    # ----------
+    
+    # graph-based clustering (see Bioconductor OSCA book)
+    
+    
+    # (i) clustering on top 50 PCs
+    
+    dims_clus <- dims_pcs
+    head(dims_clus, 2)
+    
+    g <- buildSNNGraph(t(dims_clus), k = n_clus_k, d = ncol(dims_clus))
+    g_walk <- igraph::cluster_walktrap(g)
+    clus <- igraph::cut_at(g_walk, n = n_clus)
+    table(clus)
+    
+    stopifnot(length(clus) == nrow(xy_coords))
+    
+    res <- cbind(
+        xy_coords, 
+        cluster = clus, 
+        method = "top50_PCs", 
+        sample_name = paste0("sample_", sample_names[i])
+    )
+    
+    d_plot <- rbind(d_plot, res)
+    
+    
+    # (ii) clustering on top 10 UMAP dimensions
+    
+    dims_clus <- dims_umap
+    head(dims_clus, 2)
+    
+    g <- buildSNNGraph(t(dims_clus), k = n_clus_k, d = ncol(dims_clus))
+    g_walk <- igraph::cluster_walktrap(g)
+    clus <- igraph::cut_at(g_walk, n = n_clus)
+    table(clus)
+    
+    stopifnot(length(clus) == nrow(xy_coords))
+    
+    res <- cbind(
+        xy_coords, 
+        cluster = clus, 
+        method = "top10_UMAP", 
+        sample_name = paste0("sample_", sample_names[i])
+    )
+    
+    d_plot <- rbind(d_plot, res)
+    
+    
+    # (iii) clustering on logcounts of SpatialDE marker genes
+    
+    dims_clus <- dims_markers_SpatialDE
+    head(dims_clus, 2)
+    
+    g <- buildSNNGraph(t(dims_clus), k = n_clus_k, d = ncol(dims_clus))
+    g_walk <- igraph::cluster_walktrap(g)
+    clus <- igraph::cut_at(g_walk, n = n_clus)
+    table(clus)
+    
+    stopifnot(length(clus) == nrow(xy_coords))
+    
+    res <- cbind(
+        xy_coords, 
+        cluster = clus, 
+        method = "SpatialDE", 
+        sample_name = paste0("sample_", sample_names[i])
+    )
+    
+    d_plot <- rbind(d_plot, res)
+    
+    
+    # (iv) clustering on top 10 UMAP dimensions plus scaled spatial dimensions
+    
+    dims_clus <- cbind(dims_umap, dims_spatial)
+    head(dims_clus, 2)
+    
+    g <- buildSNNGraph(t(dims_clus), k = n_clus_k, d = ncol(dims_clus))
+    g_walk <- igraph::cluster_walktrap(g)
+    clus <- igraph::cut_at(g_walk, n = n_clus)
+    table(clus)
+    
+    stopifnot(length(clus) == nrow(xy_coords))
+    
+    res <- cbind(
+        xy_coords, 
+        cluster = clus, 
+        method = "top10_UMAP_spatial", 
+        sample_name = paste0("sample_", sample_names[i])
+    )
+    
+    d_plot <- rbind(d_plot, res)
+    
+    
+    # (v) clustering on logcounts of SpatialDE marker genes plus scaled spatial dimensions
+    
+    dims_clus <- cbind(dims_markers_SpatialDE, dims_spatial)
+    head(dims_clus, 2)
+    
+    g <- buildSNNGraph(t(dims_clus), k = n_clus_k, d = ncol(dims_clus))
+    g_walk <- igraph::cluster_walktrap(g)
+    clus <- igraph::cut_at(g_walk, n = n_clus)
+    table(clus)
+    
+    stopifnot(length(clus) == nrow(xy_coords))
+    
+    res <- cbind(
+        xy_coords, 
+        cluster = clus, 
+        method = "SpatialDE_spatial", 
+        sample_name = paste0("sample_", sample_names[i])
+    )
+    
+    d_plot <- rbind(d_plot, res)
+}
+
+d_plot$cluster <- as.factor(d_plot$cluster)
+d_plot$sample_name <- as.factor(d_plot$sample_name)
+```
+
+
+## Generate plots
+
+Separate panel of plots for each sample.
+
+```{r, fig.width=12, fig.height=3.25}
+for (i in seq_along(sample_names)) {
+    
+    d_plot_sub <- d_plot[d_plot$sample_name == paste0("sample_", sample_names[i]), ]
+    
+    print(
+        ggplot(d_plot_sub, aes(x = x_coord, y = y_coord, color = cluster)) + 
+            facet_wrap(~ method, nrow = 1) + 
+            geom_point(size = 0.5, alpha = 0.5) + 
+            coord_fixed() + 
+            scale_color_brewer(palette = "Paired") + 
+            theme_bw() + 
+            ggtitle(paste0("Clustering: sample ", sample_names[i]))
+    )
+    
+    filename <- paste0("../plots/clustering/clustering_sample_", sample_names[i], ".png")
+    ggsave(filename, width = 12, height = 3.25)
+}
+```
+
+
