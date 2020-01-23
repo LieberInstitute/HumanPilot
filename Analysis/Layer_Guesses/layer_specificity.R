@@ -7,6 +7,7 @@ library('pheatmap')
 library('readxl')
 library('Polychrome')
 library('cluster')
+library('limma')
 library('sessioninfo')
 
 dir.create('pdf', showWarnings = FALSE)
@@ -208,7 +209,7 @@ dev.off()
 rm(x)
 
 ## Drop mitochondrial genes
-sce_layer <- sce_layer[-ix_mito, ]
+sce_layer <- sce_layer[-ix_mito,]
 
 
 ## Find which genes to drop due to low expression values
@@ -398,7 +399,7 @@ selected_genes <-
     which(per.feat$detected > 5 & sce_layer_avg_logcounts > 0.05)
 length(selected_genes)
 # [1] 22331
-sce_layer <- sce_layer[selected_genes,]
+sce_layer <- sce_layer[selected_genes, ]
 dim(sce_layer)
 # [1] 22331    76
 
@@ -409,7 +410,7 @@ sce_layer_sfac <-
         colData = layer_df,
         rowData = rowData(sce)
     ),
-        size_factors = umiComb_sample_size_fac_layer)[-ix_mito, ][selected_genes,]
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,][selected_genes, ]
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
@@ -1026,17 +1027,18 @@ markers_layer <- lapply(c('any', 'all'), function(pval) {
             pval.type = pval,
             direction = direc,
             block = sce_layer$subject_position,
-            gene.names = rowData(sce_layer)$gene_name
+            gene.names = rowData(sce_layer)$gene_name,
+            full.stats = TRUE
         )
     })
     names(res_direc) <- directions
     return(res_direc)
 })
 names(markers_layer) <- c('any', 'all')
-# 2020-01-22 10:46:09 finding markers for p-val any and any direction
-# 2020-01-22 10:46:18 finding markers for p-val any and up direction
-# 2020-01-22 10:46:27 finding markers for p-val all and any direction
-# 2020-01-22 10:46:36 finding markers for p-val all and up direction
+# 2020-01-23 14:12:06 finding markers for p-val any and any direction
+# 2020-01-23 14:12:13 finding markers for p-val any and up direction
+# 2020-01-23 14:12:19 finding markers for p-val all and any direction
+# 2020-01-23 14:12:26 finding markers for p-val all and up direction
 save(markers_layer, file = 'rda/markers_layer.Rdata')
 
 
@@ -1059,17 +1061,18 @@ markers_layer_wilcox <- lapply(c('any', 'all'), function(pval) {
             direction = direc,
             block = sce_layer$subject_position,
             gene.names = rowData(sce_layer)$gene_name,
-            test.type = 'wilcox'
+            test.type = 'wilcox',
+            full.stats = TRUE
         )
     })
     names(res_direc) <- directions
     return(res_direc)
 })
 names(markers_layer_wilcox) <- c('any', 'all')
-# 2020-01-22 14:51:06 finding markers for p-val any and any direction
-# 2020-01-22 14:51:14 finding markers for p-val any and up direction
-# 2020-01-22 14:51:22 finding markers for p-val all and any direction
-# 2020-01-22 14:51:29 finding markers for p-val all and up direction
+# 2020-01-23 14:13:02 finding markers for p-val any and any direction
+# 2020-01-23 14:13:07 finding markers for p-val any and up direction
+# 2020-01-23 14:13:12 finding markers for p-val all and any direction
+# 2020-01-23 14:13:16 finding markers for p-val all and up direction
 save(markers_layer_wilcox, file = 'rda/markers_layer_wilcox.Rdata')
 
 
@@ -1080,7 +1083,7 @@ getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
     regex <- paste0("^", prefix, "\\.")
     i <- grep(regex, colnames(x))
     out <- as.matrix(x[, i])
-    
+
     if (strip) {
         colnames(out) <- sub(regex, "", colnames(out))
     }
@@ -1171,7 +1174,7 @@ plot_markers_logfc <-
             interesting <- x[[chosen]]
             if (pval.type == 'any') {
                 best.set <-
-                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
+                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
             } else {
                 best.set <- head(interesting, 30) ## for pval.type == 'all'
             }
@@ -1208,7 +1211,7 @@ plot_markers_expr <-
             interesting <- x[[chosen]]
             if (pval.type == 'any') {
                 best.set <-
-                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
+                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
             } else {
                 best.set <- head(interesting, 30) ## for pval.type == 'all'
             }
@@ -1217,14 +1220,14 @@ plot_markers_expr <-
                 features = rownames(best.set),
                 main = names(x)[chosen],
                 colour_columns_by = c(
-                    'layer_guess',
                     'subject',
                     'subject_position',
                     'sample_name',
                     'c_k5_k7',
                     'c_k7_k7',
                     'c_k20_k7',
-                    'kmeans_k7'
+                    'kmeans_k7',
+                    'layer_guess'
                 ),
                 # color = colorRampPalette(c("white", "blue"))(100),
                 # annotation_colors = ann_colors,
@@ -1233,7 +1236,7 @@ plot_markers_expr <-
                 annotation_names_row = TRUE,
                 ...
             )
-            
+
             ## Fix the colors for the layers
             layout_num <-
                 which(pheat$gtable$layout$name == 'col_annotation')
@@ -1244,7 +1247,7 @@ plot_markers_expr <-
             names(new_layer_cols) <- layer_names
             pheat$gtable$grobs[[layout_num]]$gp$fill[, 'layer_guess'] <-
                 new_layer_cols
-            
+
             ## Now fix the legend
             layout_num <-
                 which(pheat$gtable$layout$name == 'annotation_legend')
@@ -1256,7 +1259,7 @@ plot_markers_expr <-
             names(new_layer_cols) <- layer_names
             pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill <-
                 new_layer_cols
-            
+
             ## Print the heatmap
             print(pheat)
             return(NULL)
@@ -1339,6 +1342,184 @@ plot_markers_loop(
     center = TRUE,
     zlim = c(-2, 2)
 )
+
+
+find_marker_gene <-
+    function(x,
+        markers,
+        pval = 'any',
+        direc = 'any',
+        layer = 1) {
+        m <- match(x, rownames(markers[[pval]][[direc]][[layer]]))
+        res <- markers[[pval]][[direc]][[layer]][m,]
+        res$rownum <- m
+        return(res)
+    }
+find_marker_gene('MOBP', markers_layer, 'any', 'any')
+find_marker_gene('MOBP', markers_layer, 'any', 'up')
+find_marker_gene('MOBP', markers_layer, 'all', 'any')
+find_marker_gene('MOBP', markers_layer, 'all', 'up')
+
+
+## Direct limma approach
+mat <- assays(sce_layer)$logcounts
+mod <- with(colData(sce_layer), model.matrix( ~ layer_guess))
+colnames(mod) <- gsub('layer_guess| ', '', colnames(mod))
+## Takes like 2 min to run
+corfit <-
+    duplicateCorrelation(mat, mod, block = sce_layer$subject_position)
+fit <-
+    lmFit(
+        mat,
+        design = mod,
+        block = sce_layer$subject_position,
+        correlation = corfit$consensus.correlation
+    )
+eb <- eBayes(fit)
+top <-
+    topTable(eb,
+        coef = 2:ncol(mod),
+        n = nrow(mat),
+        sort.by = 'none')
+top$gene_name <- rowData(sce_layer)$gene_name
+
+pdf('temp.pdf')
+hist(top$adj.P.Val)
+dev.off()
+
+summary(-log10(top$adj.P.Val))
+#    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# 0.00037  0.37211  1.17321  3.08097  3.82736 32.63100
+
+
+
+
+layer_combs <- combn(colnames(mod)[-1], 2)
+
+layer_contrasts <- apply(layer_combs, 2, function(x) {
+    z <- paste(x, collapse = '-')
+    print(z)
+    print(parse(text = z))
+    makeContrasts(eval(as.name(z)), levels = mod)
+})
+
+
+layer_contrasts <- matrix(0, ncol = 15, nrow = 7)
+layer_i_comb <- combn(6, 2)
+for (i in seq_len(ncol(layer_i_comb))) {
+    x <- layer_i_comb[, i]
+    layer_contrasts[x[1] + 1, i] <- 1
+    layer_contrasts[x[2] + 1, i] <- -1
+}
+rownames(layer_contrasts) <- colnames(mod)
+colnames(layer_contrasts) <-
+    apply(layer_combs, 2, paste, collapse = '-')
+
+eb_contrasts <- eBayes(contrasts.fit(fit, layer_contrasts))
+
+
+x <- eb$p.value[, -1]
+colnames(x) <- paste0(colnames(x), '-WM')
+pvals_contrasts <- cbind(eb_contrasts$p.value, x)
+
+## Fing the sig ones
+colSums(apply(pvals_contrasts, 2, p.adjust, 'fdr') < 0.05)
+# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
+#          3686          3566          4677          4638          4255           377          2284          2305
+# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
+#          2447           327           942          1752           292          1745           515          5667
+#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
+#          7992          8500          8458          7979          6686
+
+
+colSums(pvals_contrasts  < 1e-6)
+# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
+#           486           641           940          1090           893            70           415           508
+# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
+#           467            60           224           334            67           246           103          1291
+#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
+#          2529          2875          2874          2653          1922
+colSums(pvals_contrasts  < 1e-8)
+# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
+#           185           267           512           599           459            24           213           275
+# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
+#           256            24           124           192            35           140            44           766
+#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
+#          1652          1986          1944          1752          1210
+
+
+layer_idx <- splitit(sce_layer$layer_guess)
+
+eb0_list <- lapply(layer_idx, function(x) {
+    res <- rep(0, ncol(sce_layer))
+    res[x] <- 1
+    m <- model.matrix( ~ res)
+
+    eBayes(
+        lmFit(
+            mat,
+            design = m,
+            block = sce_layer$subject_position,
+            correlation = corfit$consensus.correlation
+        )
+    )
+})
+names(eb0_list) <- gsub(' ', '', names(eb0_list))
+
+pvals0_contrasts <- sapply(eb0_list, function(x) {
+    x$p.value[, 2, drop = FALSE]
+})
+
+colSums(apply(pvals0_contrasts, 2, p.adjust, 'fdr') < 0.05)
+# WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
+#  9124   3033   1562    183    740    643    379
+
+
+colSums(pvals0_contrasts  < 1e-6)
+#   WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
+# 3039    368    128      9     29     64     71
+colSums(pvals0_contrasts  < 1e-8)
+#  WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
+# 2021    170     28      3     10     27     27
+
+tstats0_contrasts <- sapply(eb0_list, function(x) {
+    x$t[, 2, drop = FALSE]
+})
+
+
+layer0_sig_genes <- apply(tstats0_contrasts, 2, function(x) {
+    rowData(sce_layer)$gene_name[order(x, decreasing = TRUE)[1:10]]
+})
+#       WM        Layer1      Layer2     Layer3      Layer4      Layer5    Layer6
+#  [1,] "NDRG1"   "MT1G"      "DACT1"    "CARTPT"    "VAMP1"     "PCP4"    "ISLR"
+#  [2,] "PTP4A2"  "VIM"       "MPL"      "BAIAP3"    "GUCA1C"    "CAMK2D"  "NR4A2"
+#  [3,] "AQP1"    "FABP7"     "STXBP6"   "ADCYAP1"   "NEFH"      "SMYD2"   "MCTP2"
+#  [4,] "PAQR6"   "LINC00052" "SIPA1L1"  "LINC01007" "LINC01827" "TRABD2A" "DACH1"
+#  [5,] "ANP32B"  "MT1F"      "MAN1A1"   "CNGB1"     "SCN1B"     "TMSB10"  "NTNG2"
+#  [6,] "JAM3"    "MYL9"      "DDX54"    "SPON2"     "NGB"       "HTR2C"   "SMIM32"
+#  [7,] "PHLDB1"  "F3"        "CAMK2N1"  "FREM3"     "PVALB"     "VAT1L"   "OPRK1"
+#  [8,] "PMP22"   "CDC42EP4"  "SERPINE2" "CA10"      "TPBG"      "RHO"     "MMD"
+#  [9,] "MTUS1"   "ATP1A2"    "PAX2"     "SNX3"      "SLC5A12"   "PID1"    "KRT17"
+# [10,] "PLEKHG3" "SOX9"      "GNAL"     "FAM84A"    "NEFM"      "KIF17"   "THEMIS"
+
+
+## Check MOBP
+which(rowData(sce_layer)$gene_name == 'MOBP')
+# [1] 3978
+tstats0_contrasts[3978,]
+#         WM     Layer1     Layer2     Layer3     Layer4     Layer5     Layer6
+# 13.4424968 -1.7046759 -3.2331275 -3.3204295 -1.4682195 -0.4631963  1.6300541
+
+
+layer0_sig_i <- apply(tstats0_contrasts, 2, function(x) {
+    order(x, decreasing = TRUE)[1:10]
+})
+layer0_sig_i
+
+mapply(function(i, pval) {
+    print(length(i))
+    print(length(pval))
+}, layer0_sig_i, pvals0_contrasts, SIMPLIFY = FALSE)
 
 
 
