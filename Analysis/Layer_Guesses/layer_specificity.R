@@ -23,6 +23,13 @@ load(here(
 source(here('Analysis', 'spatialLIBD_global_plot_code.R'))
 genes <- paste0(rowData(sce)$gene_name, '; ', rowData(sce)$gene_id)
 
+## Functions derived from this script, to make it easier to resume the work
+sce_layer_file <-
+    here('Analysis', 'Layer_Guesses', 'rda', 'sce_layer.Rdata')
+if (file.exists(sce_layer_file))
+    load(sce_layer_file, verbose = TRUE)
+source(here('Analysis', 'Layer_Guesses', 'layer_specificity_functions.R'))
+
 ## Load layer guesses
 load(here('Analysis', 'Layer_Guesses',
     'layer_guess_tab.Rdata'))
@@ -214,7 +221,7 @@ dev.off()
 rm(x)
 
 ## Drop mitochondrial genes
-sce_layer <- sce_layer[-ix_mito, ]
+sce_layer <- sce_layer[-ix_mito,]
 
 
 ## Find which genes to drop due to low expression values
@@ -322,15 +329,6 @@ addmargins(
 #        TRUE    357 22331 22688
 #        Sum   10689 22836 33525
 
-## From https://gist.githubusercontent.com/mages/5339689/raw/2aaa482dfbbecbfcb726525a3d81661f9d802a8e/add.alpha.R
-add.alpha <- function(col, alpha = 1) {
-    if (missing(col))
-        stop("Please provide a vector of colours.")
-    apply(sapply(col, col2rgb) / 255, 2,
-        function(x)
-            rgb(x[1], x[2], x[3], alpha = alpha))
-}
-
 pdf('pdf/avg_logcounts_VS_detected_percent.pdf', useDingbats = FALSE)
 plot(
     sce_layer_avg_logcounts,
@@ -404,7 +402,7 @@ selected_genes <-
     which(per.feat$detected > 5 & sce_layer_avg_logcounts > 0.05)
 length(selected_genes)
 # [1] 22331
-sce_layer <- sce_layer[selected_genes,]
+sce_layer <- sce_layer[selected_genes, ]
 dim(sce_layer)
 # [1] 22331    76
 
@@ -415,7 +413,7 @@ sce_layer_sfac <-
         colData = layer_df,
         rowData = rowData(sce)
     ),
-        size_factors = umiComb_sample_size_fac_layer)[-ix_mito, ][selected_genes,]
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,][selected_genes, ]
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
@@ -779,17 +777,6 @@ abline(v = metadata(choices)$chosen,
     col = "grey80",
     lty = 2)
 dev.off()
-
-## From here('Analysis', 'convert_sce.R')
-sort_clusters <- function(clusters, map_subset = NULL) {
-    if (is.null(map_subset)) {
-        map_subset <- rep(TRUE, length(clusters))
-    }
-    map <-
-        rank(length(clusters[map_subset]) - table(clusters[map_subset]), ties.method = 'first')
-    res <- map[clusters]
-    factor(res)
-}
 
 g_k5 <- buildSNNGraph(sce_layer, k = 5, use.dimred = 'PCA')
 g_walk_k5 <- igraph::cluster_walktrap(g_k5)
@@ -1223,44 +1210,9 @@ names(markers_layer_wilcox) <- c('any', 'all')
 save(markers_layer_wilcox, file = 'rda/markers_layer_wilcox.Rdata')
 
 
-## I downloaded the current git version (026edd8eb68fa0479769450473a31795ae50c742)
-## to obtain the code for this function
-## git clone https://git.bioconductor.org/packages/scran
-getMarkerEffects <- function(x, prefix = "logFC", strip = TRUE) {
-    regex <- paste0("^", prefix, "\\.")
-    i <- grep(regex, colnames(x))
-    out <- as.matrix(x[, i])
 
-    if (strip) {
-        colnames(out) <- sub(regex, "", colnames(out))
-    }
-    out
-}
 
-## Read in the pieces for the gene annotation below
-genes_km_raw <-
-    read_xlsx(here('Analysis', 'KRM_Layer_Markers.xlsx'))
-genes_bm_raw <-
-    read_xlsx(here('cortical layer marker gene list_1.xlsx'))
-genes_RNAscope_raw <-
-    read_xlsx(here('Analysis', 'RNAscope_Probe_List_December2018.xlsx'),
-        sheet = 'Human Probes')
 
-## Build gene annotation data.frame for heatmap
-gene_ann <- function(x) {
-    m_km <- match(tolower(x), tolower(genes_km_raw$Gene))
-    m_bm <- match(tolower(x), tolower(genes_bm_raw$Gene))
-    m_RNAscope <-
-        match(tolower(x), tolower(genes_RNAscope_raw[['Gene Symbol']]))
-    res <-
-        data.frame(
-            KM_Zeng = factor(!is.na(m_km), levels = c('FALSE', 'TRUE')),
-            BM = factor(!is.na(m_bm), levels = c('FALSE', 'TRUE')),
-            RNAscope = factor(!is.na(m_RNAscope), levels = c('FALSE', 'TRUE'))
-        )
-    rownames(res) <- make.unique(x)
-    return(res)
-}
 summary(gene_ann(rowData(sce_layer)$gene_name))
 #  KM_Zeng          BM         RNAscope
 # FALSE:22255   FALSE:22275   FALSE:18594
@@ -1306,151 +1258,7 @@ rowData(sce_original)$gene_name[grep('rik', tolower(rowData(sce_original)$gene_n
 # [1] "GRIK3"     "GRIK2"     "GRIK4"     "GRIK5"     "GRIK1"     "GRIK1-AS1"
 
 
-ann_colors <-
-    list(
-        BM = c(
-            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[1],
-            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[2]
-        ),
-        KM_Zeng = c(
-            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[3],
-            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[4]
-        ),
-        RNAscope = c(
-            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[5],
-            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[6]
-        )
-    )
 
-## Plotting code
-plot_markers_logfc <-
-    function(x,
-        pval.type = c('any', 'all'),
-        prefix = 'logFC',
-        ...) {
-        lapply(seq_along(x), function(chosen) {
-            interesting <- x[[chosen]]
-            if (pval.type == 'any') {
-                best.set <-
-                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
-            } else {
-                best.set <- head(interesting, 30) ## for pval.type == 'all'
-            }
-            logFCs <- getMarkerEffects(best.set, prefix = prefix)
-            print(
-                pheatmap(
-                    logFCs,
-                    main = names(x)[chosen],
-                    # color = colorRampPalette(c("white", "blue"))(100),
-                    annotation_colors = ann_colors,
-                    annotation_row = gene_ann(rownames(logFCs)),
-                    annotation_names_row = TRUE,
-                    ...
-                )
-            )
-            return(NULL)
-        })
-    }
-
-
-
-## Copy the sce object but with other
-## rownames so it'll be easier to re-use existing functions
-sce_layer_symbol <- sce_layer
-rownames(sce_layer_symbol) <-
-    make.unique(rowData(sce_layer)$gene_name)
-
-plot_markers_expr <-
-    function(x,
-        pval.type = c('any', 'all'),
-        prefix = NULL,
-        ...) {
-        lapply(seq_along(x), function(chosen) {
-            interesting <- x[[chosen]]
-            if (pval.type == 'any') {
-                best.set <-
-                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
-            } else {
-                best.set <- head(interesting, 30) ## for pval.type == 'all'
-            }
-            pheat <- plotHeatmap(
-                sce_layer_symbol,
-                features = rownames(best.set),
-                main = names(x)[chosen],
-                colour_columns_by = c(
-                    'subject',
-                    'subject_position',
-                    'sample_name',
-                    'c_k5_k7',
-                    'c_k7_k7',
-                    'c_k20_k7',
-                    'kmeans_k7',
-                    'layer_guess'
-                ),
-                # color = colorRampPalette(c("white", "blue"))(100),
-                # annotation_colors = ann_colors,
-                # color = viridis::viridis(21),
-                annotation_row = gene_ann(rownames(best.set)),
-                annotation_names_row = TRUE,
-                ...
-            )
-
-            ## Fix the colors for the layers
-            layout_num <-
-                which(pheat$gtable$layout$name == 'col_annotation')
-            layer_names <-
-                rownames(pheat$gtable$grobs[[layout_num]]$gp$fill)
-            new_layer_cols <-
-                Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess[match(layer_names, colnames(sce_layer))])]
-            names(new_layer_cols) <- layer_names
-            pheat$gtable$grobs[[layout_num]]$gp$fill[, 'layer_guess'] <-
-                new_layer_cols
-
-            ## Now fix the legend
-            layout_num <-
-                which(pheat$gtable$layout$name == 'annotation_legend')
-            children_name <-
-                pheat$gtable$grobs[[layout_num]]$childrenOrder['layer_guess r']
-            layer_names <-
-                names(pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill)
-            new_layer_cols <- Polychrome::palette36.colors(7)
-            names(new_layer_cols) <- layer_names
-            pheat$gtable$grobs[[layout_num]]$children[[children_name]]$gp$fill <-
-                new_layer_cols
-
-            ## Print the heatmap
-            print(pheat)
-            return(NULL)
-        })
-    }
-
-plot_markers_loop <-
-    function(x,
-        pdf_header,
-        FUN,
-        h = 14,
-        prefix = NULL,
-        ...) {
-        for (pval in names(x)) {
-            for (direc in names(x[[1]])) {
-                pdf(
-                    paste0(
-                        'pdf/',
-                        pdf_header,
-                        '_pval_',
-                        pval,
-                        '_direc_',
-                        direc,
-                        '.pdf'
-                    ),
-                    useDingbats = FALSE,
-                    height = h
-                )
-                FUN(x[[pval]][[direc]], pval.type = pval, prefix = prefix, ...)
-                dev.off()
-            }
-        }
-    }
 
 ## t-test versions
 plot_markers_loop(
@@ -1502,17 +1310,7 @@ plot_markers_loop(
 )
 
 
-find_marker_gene <-
-    function(x,
-        markers,
-        pval = 'any',
-        direc = 'any',
-        layer = 1) {
-        m <- match(x, rownames(markers[[pval]][[direc]][[layer]]))
-        res <- markers[[pval]][[direc]][[layer]][m, ]
-        res$rownum <- m
-        return(res)
-    }
+
 find_marker_gene('MOBP', markers_layer, 'any', 'any')
 find_marker_gene('MOBP', markers_layer, 'any', 'up')
 find_marker_gene('MOBP', markers_layer, 'all', 'any')
@@ -1532,7 +1330,7 @@ find_marker_gene('MOBP', markers_layer, 'all', 'up')
 mat <- assays(sce_layer)$logcounts
 
 ## Build a group model
-mod <- with(colData(sce_layer), model.matrix(~ 0 + layer_guess))
+mod <- with(colData(sce_layer), model.matrix( ~ 0 + layer_guess))
 colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
@@ -1602,7 +1400,7 @@ layer_idx <- splitit(sce_layer$layer_guess)
 eb0_list <- lapply(layer_idx, function(x) {
     res <- rep(0, ncol(sce_layer))
     res[x] <- 1
-    m <- model.matrix(~ res)
+    m <- model.matrix( ~ res)
     eBayes(
         lmFit(
             mat,
@@ -1639,58 +1437,10 @@ tstats0_contrasts <- sapply(eb0_list, function(x) {
 
 ## Save for later
 save(eb0_list, file = 'rda/eb0_list.Rdata')
-save(eb_contrasts, file = 'rda/eb_constrasts.Rdata')
+save(eb_contrasts, file = 'rda/eb_contrasts.Rdata')
 
 
-
-
-## Write a function for extracting the data
-sig_genes_extract <- function(tstats, pvals, n = 10) {
-    stopifnot(identical(dim(tstats), dim(pvals)))
-    sig_genes <- apply(tstats, 2, function(x) {
-        rowData(sce_layer)$gene_name[order(x, decreasing = TRUE)[1:10]]
-    })
-
-    sig_i <- apply(tstats, 2, function(x) {
-        order(x, decreasing = TRUE)[seq_len(n)]
-    })
-    sig_genes_tstats <-
-        sapply(seq_len(ncol(sig_i)), function(i) {
-            tstats[sig_i[, i], i]
-        })
-    sig_genes_pvals <-
-        sapply(seq_len(ncol(sig_i)), function(i) {
-            pvals[sig_i[, i], i]
-        })
-    sig_genes_fdr <-
-        sapply(seq_len(ncol(sig_i)), function(i) {
-            apply(pvals, 2, p.adjust, 'fdr')[sig_i[, i], i]
-        })
-    dimnames(sig_genes_fdr) <-
-        dimnames(sig_genes_tstats) <-
-        dimnames(sig_genes_pvals) <- dimnames(sig_genes)
-
-    ## Combine into a long format table
-    sig_genes_tab <- data.frame(
-        top = rep(seq_len(n), n = ncol(tstats)),
-        layer = rep(colnames(sig_genes), each = n),
-        gene = as.character(sig_genes),
-        tstat = as.numeric(sig_genes_tstats),
-        pval = as.numeric(sig_genes_pvals),
-        fdr = as.numeric(sig_genes_fdr),
-        gene_index = as.integer(sig_i),
-        stringsAsFactors = FALSE
-    )
-    sig_genes_tab$ensembl <-
-        rownames(sce_layer)[sig_genes_tab$gene_index]
-
-    ## Add gene marker labels
-    sig_genes_tab <-
-        cbind(sig_genes_tab, gene_ann(sig_genes_tab$gene))
-    rownames(sig_genes_tab) <- NULL
-    return(sig_genes_tab)
-}
-
+## Extract data
 sig_genes_layer0 <-
     sig_genes_extract(tstats0_contrasts, pvals0_contrasts)
 
@@ -1719,7 +1469,7 @@ sig_genes_summary(sig_genes_layer)
 sig_genes_layer_rev <-
     sig_genes_extract(-1 * tstats_contrasts, pvals_contrasts)
 sig_genes_layer_rev$layer <-
-    rep(apply(layer_combs[c(2, 1),], 2, paste, collapse = '-'), each = 10)
+    rep(apply(layer_combs[c(2, 1), ], 2, paste, collapse = '-'), each = 10)
 sig_genes_summary(sig_genes_layer_rev)
 # KM_Zeng       BM      RNAscope
 # FALSE:78   FALSE:90   FALSE:51
@@ -1820,7 +1570,7 @@ for (i in seq_len(nrow(sig_genes))) {
     # i <- 1
     message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
     boxplot(
-        mat[sig_genes$gene_index[i], ] ~ sce_layer$layer_guess,
+        mat[sig_genes$gene_index[i],] ~ sce_layer$layer_guess,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -1841,7 +1591,7 @@ for (i in seq_len(nrow(sig_genes))) {
         cex = 1.5
     )
     points(
-        mat[sig_genes$gene_index[i], ] ~ jitter(as.integer(sce_layer$layer_guess)),
+        mat[sig_genes$gene_index[i],] ~ jitter(as.integer(sce_layer$layer_guess)),
         pch = 21,
         bg = Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess)],
         cex = 1.5
@@ -1862,3 +1612,108 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
+# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+#  setting  value
+#  version  R version 3.6.1 Patched (2019-10-31 r77350)
+#  os       CentOS Linux 7 (Core)
+#  system   x86_64, linux-gnu
+#  ui       X11
+#  language (EN)
+#  collate  en_US.UTF-8
+#  ctype    en_US.UTF-8
+#  tz       US/Eastern
+#  date     2020-01-24
+#
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+#  package              * version   date       lib source
+#  assertthat             0.2.1     2019-03-21 [2] CRAN (R 3.6.1)
+#  backports              1.1.5     2019-10-02 [1] CRAN (R 3.6.1)
+#  beeswarm               0.2.3     2016-04-25 [2] CRAN (R 3.6.1)
+#  Biobase              * 2.46.0    2019-10-29 [2] Bioconductor
+#  BiocGenerics         * 0.32.0    2019-10-29 [1] Bioconductor
+#  BiocNeighbors          1.4.1     2019-11-01 [2] Bioconductor
+#  BiocParallel         * 1.20.1    2019-12-21 [1] Bioconductor
+#  BiocSingular           1.2.0     2019-10-29 [2] Bioconductor
+#  bitops                 1.0-6     2013-08-17 [2] CRAN (R 3.6.1)
+#  cellranger             1.1.0     2016-07-27 [1] CRAN (R 3.6.1)
+#  cli                    2.0.0     2019-12-09 [1] CRAN (R 3.6.1)
+#  cluster              * 2.1.0     2019-06-19 [3] CRAN (R 3.6.1)
+#  colorout             * 1.2-2     2019-10-31 [1] Github (jalvesaq/colorout@641ed38)
+#  colorspace             1.4-1     2019-03-18 [2] CRAN (R 3.6.1)
+#  cowplot              * 1.0.0     2019-07-11 [1] CRAN (R 3.6.1)
+#  crayon                 1.3.4     2017-09-16 [1] CRAN (R 3.6.1)
+#  DelayedArray         * 0.12.0    2019-10-29 [2] Bioconductor
+#  DelayedMatrixStats     1.8.0     2019-10-29 [2] Bioconductor
+#  digest                 0.6.23    2019-11-23 [1] CRAN (R 3.6.1)
+#  dplyr                  0.8.3     2019-07-04 [1] CRAN (R 3.6.1)
+#  dqrng                  0.2.1     2019-05-17 [1] CRAN (R 3.6.1)
+#  edgeR                  3.28.0    2019-10-29 [1] Bioconductor
+#  fansi                  0.4.0     2018-10-05 [1] CRAN (R 3.6.1)
+#  GenomeInfoDb         * 1.22.0    2019-10-29 [1] Bioconductor
+#  GenomeInfoDbData       1.2.2     2019-10-28 [2] Bioconductor
+#  GenomicRanges        * 1.38.0    2019-10-29 [1] Bioconductor
+#  ggbeeswarm             0.6.0     2017-08-07 [2] CRAN (R 3.6.1)
+#  ggplot2              * 3.2.1     2019-08-10 [1] CRAN (R 3.6.1)
+#  glue                   1.3.1     2019-03-12 [1] CRAN (R 3.6.1)
+#  googledrive            1.0.0     2019-08-19 [1] CRAN (R 3.6.1)
+#  gridExtra              2.3       2017-09-09 [2] CRAN (R 3.6.1)
+#  gtable                 0.3.0     2019-03-25 [2] CRAN (R 3.6.1)
+#  here                 * 0.1       2017-05-28 [1] CRAN (R 3.6.1)
+#  htmltools              0.4.0     2019-10-04 [1] CRAN (R 3.6.1)
+#  htmlwidgets            1.5.1     2019-10-08 [1] CRAN (R 3.6.1)
+#  httpuv                 1.5.2     2019-09-11 [1] CRAN (R 3.6.1)
+#  igraph                 1.2.4.1   2019-04-22 [2] CRAN (R 3.6.1)
+#  IRanges              * 2.20.1    2019-11-20 [1] Bioconductor
+#  irlba                  2.3.3     2019-02-05 [1] CRAN (R 3.6.1)
+#  jaffelab             * 0.99.29   2019-11-04 [1] Github (LieberInstitute/jaffelab@a7d87cb)
+#  jsonlite               1.6       2018-12-07 [2] CRAN (R 3.6.1)
+#  later                  1.0.0     2019-10-04 [1] CRAN (R 3.6.1)
+#  lattice                0.20-38   2018-11-04 [3] CRAN (R 3.6.1)
+#  lazyeval               0.2.2     2019-03-15 [2] CRAN (R 3.6.1)
+#  limma                * 3.42.0    2019-10-29 [1] Bioconductor
+#  locfit                 1.5-9.1   2013-04-20 [2] CRAN (R 3.6.1)
+#  magrittr               1.5       2014-11-22 [1] CRAN (R 3.6.1)
+#  Matrix                 1.2-17    2019-03-22 [3] CRAN (R 3.6.1)
+#  matrixStats          * 0.55.0    2019-09-07 [1] CRAN (R 3.6.1)
+#  munsell                0.5.0     2018-06-12 [2] CRAN (R 3.6.1)
+#  pheatmap             * 1.0.12    2019-01-04 [2] CRAN (R 3.6.1)
+#  pillar                 1.4.3     2019-12-20 [1] CRAN (R 3.6.1)
+#  pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 3.6.1)
+#  png                    0.1-7     2013-12-03 [2] CRAN (R 3.6.1)
+#  Polychrome           * 1.2.3     2019-08-01 [1] CRAN (R 3.6.1)
+#  promises               1.1.0     2019-10-04 [1] CRAN (R 3.6.1)
+#  purrr                  0.3.3     2019-10-18 [2] CRAN (R 3.6.1)
+#  R6                     2.4.0     2019-02-14 [2] CRAN (R 3.6.1)
+#  rafalib              * 1.0.0     2015-08-09 [1] CRAN (R 3.6.1)
+#  RColorBrewer           1.1-2     2014-12-07 [2] CRAN (R 3.6.1)
+#  Rcpp                   1.0.3     2019-11-08 [1] CRAN (R 3.6.1)
+#  RCurl                  1.95-4.12 2019-03-04 [2] CRAN (R 3.6.1)
+#  readxl               * 1.3.1     2019-03-13 [2] CRAN (R 3.6.1)
+#  rlang                  0.4.2     2019-11-23 [1] CRAN (R 3.6.1)
+#  rmote                * 0.3.4     2019-10-31 [1] Github (cloudyr/rmote@fbce611)
+#  rprojroot              1.3-2     2018-01-03 [2] CRAN (R 3.6.1)
+#  rsvd                   1.0.2     2019-07-29 [1] CRAN (R 3.6.1)
+#  S4Vectors            * 0.24.1    2019-12-01 [1] Bioconductor
+#  scales                 1.0.0     2018-08-09 [2] CRAN (R 3.6.1)
+#  scater               * 1.14.3    2019-11-07 [2] Bioconductor
+#  scatterplot3d          0.3-41    2018-03-14 [1] CRAN (R 3.6.1)
+#  scran                * 1.14.5    2019-11-19 [1] Bioconductor
+#  segmented              1.0-0     2019-06-17 [2] CRAN (R 3.6.1)
+#  servr                  0.15      2019-08-07 [1] CRAN (R 3.6.1)
+#  sessioninfo          * 1.1.1     2018-11-05 [1] CRAN (R 3.6.1)
+#  SingleCellExperiment * 1.8.0     2019-10-29 [2] Bioconductor
+#  statmod                1.4.32    2019-05-29 [2] CRAN (R 3.6.1)
+#  SummarizedExperiment * 1.16.1    2019-12-19 [1] Bioconductor
+#  tibble                 2.1.3     2019-06-06 [1] CRAN (R 3.6.1)
+#  tidyselect             0.2.5     2018-10-11 [2] CRAN (R 3.6.1)
+#  vipor                  0.4.5     2017-03-22 [2] CRAN (R 3.6.1)
+#  viridis                0.5.1     2018-03-29 [2] CRAN (R 3.6.1)
+#  viridisLite          * 0.3.0     2018-02-01 [2] CRAN (R 3.6.1)
+#  withr                  2.1.2     2018-03-15 [2] CRAN (R 3.6.1)
+#  xfun                   0.11      2019-11-12 [1] CRAN (R 3.6.1)
+#  XVector                0.26.0    2019-10-29 [1] Bioconductor
+#  zlibbioc               1.32.0    2019-10-29 [2] Bioconductor
+#
+# [1] /users/lcollado/R/3.6.x
+# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/site-library
+# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/library
