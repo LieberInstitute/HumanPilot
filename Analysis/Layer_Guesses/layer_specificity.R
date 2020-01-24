@@ -19,6 +19,10 @@ load(here(
     'Human_DLPFC_Visium_processedData_sce_scran.Rdata'
 ))
 
+## For plotting
+source(here('Analysis', 'spatialLIBD_global_plot_code.R'))
+genes <- paste0(rowData(sce)$gene_name, '; ', rowData(sce)$gene_id)
+
 ## Load layer guesses
 load(here('Analysis', 'Layer_Guesses',
     'layer_guess_tab.Rdata'))
@@ -58,20 +62,21 @@ dim(sce)
 sce$layer_guess[sce$layer_guess == 'Layer 2/3'] <- 'Layer 3'
 
 ## Make it into a factor with WM as the reference
+## and remove spaces
 sce$layer_guess <-
-    factor(sce$layer_guess, levels = c('WM', paste('Layer', 1:6)))
+    factor(gsub(' ', '', sce$layer_guess), levels = c('WM', paste0('Layer', 1:6)))
 
 ## Check again
 with(colData(sce), addmargins(table(layer_guess, sample_name, useNA = 'ifany')))
 #            sample_name
 # layer_guess 151507 151508 151509 151510 151669 151670 151671 151672 151673 151674 151675 151676   Sum
 #     WM         354    200    166    184    230    209    449    399    513    625    652    533  4514
-#     Layer 1    817    866   1189   1180      0      0      0      0    273    380    328    289  5322
-#     Layer 2    305    295    602    650      0      0      0      0    253    224    275    254  2858
-#     Layer 3   1215   1385   1884   1774   2141   2175   1918   1575    989    924    771    836 17587
-#     Layer 4    369    373    369    318    364    211    245    304    218    247    275    254  3547
-#     Layer 5    675    737    363    310    510    581    721    728    673    621    732    649  7300
-#     Layer 6    486    525    215    179    391    308    760    882    692    614    533    616  6201
+#     Layer1    817    866   1189   1180      0      0      0      0    273    380    328    289  5322
+#     Layer2    305    295    602    650      0      0      0      0    253    224    275    254  2858
+#     Layer3   1215   1385   1884   1774   2141   2175   1918   1575    989    924    771    836 17587
+#     Layer4    369    373    369    318    364    211    245    304    218    247    275    254  3547
+#     Layer5    675    737    363    310    510    581    721    728    673    621    732    649  7300
+#     Layer6    486    525    215    179    391    308    760    882    692    614    533    616  6201
 #     Sum       4221   4381   4788   4595   3636   3484   4093   3888   3611   3635   3566   3431 47329
 
 ## Split spots by layer and image
@@ -209,7 +214,7 @@ dev.off()
 rm(x)
 
 ## Drop mitochondrial genes
-sce_layer <- sce_layer[-ix_mito,]
+sce_layer <- sce_layer[-ix_mito, ]
 
 
 ## Find which genes to drop due to low expression values
@@ -399,7 +404,7 @@ selected_genes <-
     which(per.feat$detected > 5 & sce_layer_avg_logcounts > 0.05)
 length(selected_genes)
 # [1] 22331
-sce_layer <- sce_layer[selected_genes, ]
+sce_layer <- sce_layer[selected_genes,]
 dim(sce_layer)
 # [1] 22331    76
 
@@ -410,7 +415,7 @@ sce_layer_sfac <-
         colData = layer_df,
         rowData = rowData(sce)
     ),
-        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,][selected_genes, ]
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito, ][selected_genes,]
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
@@ -510,13 +515,38 @@ sce_layer <-
 
 
 pdf('pdf/reduced_dim_PCA.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer,
+    dimred = 'PCA',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'sample_name')
-plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'subject_position')
-plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'subject')
-plotReducedDim(sce_layer, dimred = 'PCA', colour_by = 'position')
+plotReducedDim(
+    sce_layer,
+    dimred = 'PCA',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'PCA',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'PCA',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'PCA',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 
 ## Just to compare the PCA on the data using library size factors
@@ -526,13 +556,38 @@ sce_layer_sfac <-
         subset_row = top.hvgs,
         ncomponents = 20)
 pdf('pdf/reduced_dim_PCA_sfact.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer_sfac,
+    dimred = 'PCA',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'sample_name')
-plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'subject_position')
-plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'subject')
-plotReducedDim(sce_layer_sfac, dimred = 'PCA', colour_by = 'position')
+plotReducedDim(
+    sce_layer_sfac,
+    dimred = 'PCA',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer_sfac,
+    dimred = 'PCA',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer_sfac,
+    dimred = 'PCA',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer_sfac,
+    dimred = 'PCA',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 ## Comparing the two, it seems to me that the default library size reduces the
 ## layer differences but makes more sense in the PCA plot:
@@ -544,43 +599,143 @@ dev.off()
 
 
 pdf('pdf/reduced_dim_TSNE_perplexity5.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity5',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'sample_name')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'subject_position')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'subject')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity5', colour_by = 'position')
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity5',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity5',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity5',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity5',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 
 pdf('pdf/reduced_dim_TSNE_perplexity15.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity15',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'sample_name')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'subject_position')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'subject')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity15', colour_by = 'position')
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity15',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity15',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity15',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity15',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 
 pdf('pdf/reduced_dim_TSNE_perplexity20.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity20',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'sample_name')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'subject_position')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'subject')
-plotReducedDim(sce_layer, dimred = 'TSNE_perplexity20', colour_by = 'position')
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity20',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity20',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity20',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'TSNE_perplexity20',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 
 pdf('pdf/reduced_dim_UMAP_neighbors15.pdf', useDingbats = FALSE)
-plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'layer_guess') +
+plotReducedDim(
+    sce_layer,
+    dimred = 'UMAP_neighbors15',
+    colour_by = 'layer_guess',
+    theme_size = 20
+) +
     ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
         name = 'Layer')
-plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'sample_name')
-plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'subject_position')
-plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'subject')
-plotReducedDim(sce_layer, dimred = 'UMAP_neighbors15', colour_by = 'position')
+plotReducedDim(
+    sce_layer,
+    dimred = 'UMAP_neighbors15',
+    colour_by = 'sample_name',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'UMAP_neighbors15',
+    colour_by = 'subject_position',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'UMAP_neighbors15',
+    colour_by = 'subject',
+    theme_size = 20
+)
+plotReducedDim(
+    sce_layer,
+    dimred = 'UMAP_neighbors15',
+    colour_by = 'position',
+    theme_size = 20
+)
 dev.off()
 
 ## Across PCA, TSNE and UMAP the WM for samples 151669 and 151670
@@ -890,7 +1045,7 @@ clust.kmeans <- kmeans(reducedDim(sce_layer, "PCA"), centers = 7)
 save(clust.kmeans, file = 'rda/clust.kmeans.Rdata')
 table(sort_clusters(clust.kmeans$cluster))
 #  1  2  3  4  5  6  7
-# 25 20 12  8  7  3  1
+# 22 16 14  9  7  4  4
 
 addmargins(table(
     sort_clusters(clust.kmeans$cluster),
@@ -900,54 +1055,54 @@ addmargins(table(
 # , ,  = Br5292
 #
 #
-#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
-#   1    0       0       0       0       0       4       3   7
-#   2    0       0       4       4       0       0       0   8
-#   3    0       0       0       0       4       0       0   4
-#   4    0       4       0       0       0       0       0   4
-#   5    3       0       0       0       0       0       0   3
-#   6    1       0       0       0       0       0       0   1
-#   7    0       0       0       0       0       0       1   1
-#   Sum  4       4       4       4       4       4       4  28
+#       WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6 Sum
+#   1    0      0      0      4      4      0      0   8
+#   2    0      4      4      0      0      0      0   8
+#   3    0      0      0      0      0      4      0   4
+#   4    0      0      0      0      0      0      3   3
+#   5    3      0      0      0      0      0      0   3
+#   6    0      0      0      0      0      0      0   0
+#   7    1      0      0      0      0      0      1   2
+#   Sum  4      4      4      4      4      4      4  28
 #
 # , ,  = Br5595
 #
 #
-#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
-#   1    2       0       0       0       0       4       4  10
-#   2    0       0       0       4       0       0       0   4
-#   3    0       0       0       0       4       0       0   4
-#   4    0       0       0       0       0       0       0   0
-#   5    0       0       0       0       0       0       0   0
-#   6    2       0       0       0       0       0       0   2
-#   7    0       0       0       0       0       0       0   0
-#   Sum  4       0       0       4       4       4       4  20
+#       WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6 Sum
+#   1    0      0      0      4      2      0      0   6
+#   2    0      0      0      0      0      0      0   0
+#   3    0      0      0      0      2      4      0   6
+#   4    2      0      0      0      0      0      4   6
+#   5    0      0      0      0      0      0      0   0
+#   6    0      0      0      0      0      0      0   0
+#   7    2      0      0      0      0      0      0   2
+#   Sum  4      0      0      4      4      4      4  20
 #
 # , ,  = Br8100
 #
 #
-#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
-#   1    0       0       0       0       0       4       4   8
-#   2    0       0       4       4       0       0       0   8
-#   3    0       0       0       0       4       0       0   4
-#   4    0       4       0       0       0       0       0   4
-#   5    4       0       0       0       0       0       0   4
-#   6    0       0       0       0       0       0       0   0
-#   7    0       0       0       0       0       0       0   0
-#   Sum  4       4       4       4       4       4       4  28
+#       WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6 Sum
+#   1    0      0      0      4      4      0      0   8
+#   2    0      4      4      0      0      0      0   8
+#   3    0      0      0      0      0      4      0   4
+#   4    0      0      0      0      0      0      0   0
+#   5    4      0      0      0      0      0      0   4
+#   6    0      0      0      0      0      0      4   4
+#   7    0      0      0      0      0      0      0   0
+#   Sum  4      4      4      4      4      4      4  28
 #
 # , ,  = Sum
 #
 #
-#       WM Layer 1 Layer 2 Layer 3 Layer 4 Layer 5 Layer 6 Sum
-#   1    2       0       0       0       0      12      11  25
-#   2    0       0       8      12       0       0       0  20
-#   3    0       0       0       0      12       0       0  12
-#   4    0       8       0       0       0       0       0   8
-#   5    7       0       0       0       0       0       0   7
-#   6    3       0       0       0       0       0       0   3
-#   7    0       0       0       0       0       0       1   1
-#   Sum 12       8       8      12      12      12      12  76
+#       WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6 Sum
+#   1    0      0      0     12     10      0      0  22
+#   2    0      8      8      0      0      0      0  16
+#   3    0      0      0      0      2     12      0  14
+#   4    2      0      0      0      0      0      7   9
+#   5    7      0      0      0      0      0      0   7
+#   6    0      0      0      0      0      0      4   4
+#   7    3      0      0      0      0      0      1   4
+#   Sum 12      8      8     12     12     12     12  76
 
 set.seed(20200122)
 gaps <- clusGap(reducedDim(sce_layer, "PCA"), kmeans, K.max = 20)
@@ -960,14 +1115,14 @@ ncells <- tabulate(sort_clusters(clust.kmeans$cluster))
 tab <- data.frame(wcss = clust.kmeans$withinss, ncells = ncells)
 tab$rms <- sqrt(tab$wcss / tab$ncells)
 tab
-#        wcss ncells      rms
-# 1  5505.886     25 14.84033
-# 2  4691.834     20 15.31639
-# 3  2310.057     12 13.87461
-# 4 11830.172      8 38.45480
-# 5  3151.878      7 21.21952
-# 6  6504.841      3 46.56480
-# 7     0.000      1  0.00000
+#         wcss ncells       rms
+# 1  2501.3521     22 10.662918
+# 2  4071.9149     16 15.952890
+# 3  5505.8851     14 19.831225
+# 4   246.5383      9  5.233846
+# 5  9272.5498      7 36.395741
+# 6 10386.1113      4 50.956136
+# 7  5770.5179      4 37.981963
 
 pdf('pdf/kmeans_gaps.pdf', useDingbats = FALSE)
 plot(gaps$Tab[, "gap"], xlab = "Number of clusters", ylab = "Gap statistic")
@@ -990,7 +1145,7 @@ colData(sce_layer)$c_k7_k7 <- clust_k7_k7
 colData(sce_layer)$c_k20_k7 <- clust_k20_k7
 colData(sce_layer)$kmeans_k7 <- sort_clusters(clust.kmeans$cluster)
 
-save(sce_layer, file = 'rda/sce_layer.Rdata')
+save(sce_layer, top.hvgs, file = 'rda/sce_layer.Rdata')
 ## For mapping back to the original sce object
 save(layerIndexes, file = 'rda/layerIndexes.Rdata')
 ## For subsetting again the genes if necessary
@@ -1028,17 +1183,13 @@ markers_layer <- lapply(c('any', 'all'), function(pval) {
             direction = direc,
             block = sce_layer$subject_position,
             gene.names = rowData(sce_layer)$gene_name,
-            full.stats = TRUE
+            full.stats = FALSE ## Setting this to TRUE messes up the plotting code right now
         )
     })
     names(res_direc) <- directions
     return(res_direc)
 })
 names(markers_layer) <- c('any', 'all')
-# 2020-01-23 14:12:06 finding markers for p-val any and any direction
-# 2020-01-23 14:12:13 finding markers for p-val any and up direction
-# 2020-01-23 14:12:19 finding markers for p-val all and any direction
-# 2020-01-23 14:12:26 finding markers for p-val all and up direction
 save(markers_layer, file = 'rda/markers_layer.Rdata')
 
 
@@ -1062,17 +1213,13 @@ markers_layer_wilcox <- lapply(c('any', 'all'), function(pval) {
             block = sce_layer$subject_position,
             gene.names = rowData(sce_layer)$gene_name,
             test.type = 'wilcox',
-            full.stats = TRUE
+            full.stats = FALSE
         )
     })
     names(res_direc) <- directions
     return(res_direc)
 })
 names(markers_layer_wilcox) <- c('any', 'all')
-# 2020-01-23 14:13:02 finding markers for p-val any and any direction
-# 2020-01-23 14:13:07 finding markers for p-val any and up direction
-# 2020-01-23 14:13:12 finding markers for p-val all and any direction
-# 2020-01-23 14:13:16 finding markers for p-val all and up direction
 save(markers_layer_wilcox, file = 'rda/markers_layer_wilcox.Rdata')
 
 
@@ -1095,22 +1242,29 @@ genes_km_raw <-
     read_xlsx(here('Analysis', 'KRM_Layer_Markers.xlsx'))
 genes_bm_raw <-
     read_xlsx(here('cortical layer marker gene list_1.xlsx'))
-
+genes_RNAscope_raw <-
+    read_xlsx(here('Analysis', 'RNAscope_Probe_List_December2018.xlsx'),
+        sheet = 'Human Probes')
 
 ## Build gene annotation data.frame for heatmap
 gene_ann <- function(x) {
     m_km <- match(tolower(x), tolower(genes_km_raw$Gene))
     m_bm <- match(tolower(x), tolower(genes_bm_raw$Gene))
+    m_RNAscope <-
+        match(tolower(x), tolower(genes_RNAscope_raw[['Gene Symbol']]))
     res <-
-        data.frame(KM_Zeng = factor(!is.na(m_km), levels = c('FALSE', 'TRUE')),
-            BM = factor(!is.na(m_bm), levels = c('FALSE', 'TRUE')))
+        data.frame(
+            KM_Zeng = factor(!is.na(m_km), levels = c('FALSE', 'TRUE')),
+            BM = factor(!is.na(m_bm), levels = c('FALSE', 'TRUE')),
+            RNAscope = factor(!is.na(m_RNAscope), levels = c('FALSE', 'TRUE'))
+        )
     rownames(res) <- make.unique(x)
     return(res)
 }
 summary(gene_ann(rowData(sce_layer)$gene_name))
-#  KM_Zeng          BM
-# FALSE:22255   FALSE:22275
-# TRUE :   76   TRUE :   56
+#  KM_Zeng          BM         RNAscope
+# FALSE:22255   FALSE:22275   FALSE:18594
+# TRUE :   76   TRUE :   56   TRUE : 3737
 nrow(genes_km_raw)
 # [1] 81
 nrow(genes_bm_raw)
@@ -1118,9 +1272,9 @@ nrow(genes_bm_raw)
 ## So 5 and 9 genes are not here to begin with
 
 summary(gene_ann(rowData(sce_original)$gene_name))
-#  KM_Zeng          BM
-# FALSE:33461   FALSE:33481
-# TRUE :   77   TRUE :   57
+#  KM_Zeng          BM         RNAscope
+# FALSE:33461   FALSE:33481   FALSE:29453
+# TRUE :   77   TRUE :   57   TRUE : 4085
 ## But only 1 of each wasn't in the original data
 
 ## Find which are these genes:
@@ -1155,12 +1309,16 @@ rowData(sce_original)$gene_name[grep('rik', tolower(rowData(sce_original)$gene_n
 ann_colors <-
     list(
         BM = c(
-            'FALSE' = RColorBrewer::brewer.pal(4, 'Dark2')[1],
-            'TRUE' = RColorBrewer::brewer.pal(4, 'Dark2')[2]
+            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[1],
+            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[2]
         ),
         KM_Zeng = c(
-            'FALSE' = RColorBrewer::brewer.pal(4, 'Dark2')[3],
-            'TRUE' = RColorBrewer::brewer.pal(4, 'Dark2')[4]
+            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[3],
+            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[4]
+        ),
+        RNAscope = c(
+            'FALSE' = RColorBrewer::brewer.pal(6, 'Dark2')[5],
+            'TRUE' = RColorBrewer::brewer.pal(6, 'Dark2')[6]
         )
     )
 
@@ -1174,7 +1332,7 @@ plot_markers_logfc <-
             interesting <- x[[chosen]]
             if (pval.type == 'any') {
                 best.set <-
-                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
+                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
             } else {
                 best.set <- head(interesting, 30) ## for pval.type == 'all'
             }
@@ -1211,7 +1369,7 @@ plot_markers_expr <-
             interesting <- x[[chosen]]
             if (pval.type == 'any') {
                 best.set <-
-                    interesting[interesting$Top <= 6,] ## for pval.type = 'any'
+                    interesting[interesting$Top <= 6, ] ## for pval.type = 'any'
             } else {
                 best.set <- head(interesting, 30) ## for pval.type == 'all'
             }
@@ -1306,14 +1464,14 @@ plot_markers_loop(
     markers_layer,
     'markers_t-test_expr',
     plot_markers_expr,
-    h = 16,
+    h = 17,
     color = viridis::viridis(101)
 )
 plot_markers_loop(
     markers_layer,
     'markers_t-test_expr_centered',
     plot_markers_expr,
-    h = 16,
+    h = 17,
     center = TRUE,
     zlim = c(-2, 2)
 )
@@ -1331,14 +1489,14 @@ plot_markers_loop(
     markers_layer_wilcox,
     'markers_wilcox_expr',
     plot_markers_expr,
-    h = 16,
+    h = 17,
     color = viridis::viridis(101)
 )
 plot_markers_loop(
     markers_layer_wilcox,
     'markers_wilcox_expr_centered',
     plot_markers_expr,
-    h = 16,
+    h = 17,
     center = TRUE,
     zlim = c(-2, 2)
 )
@@ -1351,7 +1509,7 @@ find_marker_gene <-
         direc = 'any',
         layer = 1) {
         m <- match(x, rownames(markers[[pval]][[direc]][[layer]]))
-        res <- markers[[pval]][[direc]][[layer]][m,]
+        res <- markers[[pval]][[direc]][[layer]][m, ]
         res$rownum <- m
         return(res)
     }
@@ -1361,10 +1519,21 @@ find_marker_gene('MOBP', markers_layer, 'all', 'any')
 find_marker_gene('MOBP', markers_layer, 'all', 'up')
 
 
-## Direct limma approach
+
+
+
+
+
+###### Direct limma approach ####
+#################################
+
+
+## Extract the data
 mat <- assays(sce_layer)$logcounts
-mod <- with(colData(sce_layer), model.matrix( ~ layer_guess))
-colnames(mod) <- gsub('layer_guess| ', '', colnames(mod))
+
+## Build a group model
+mod <- with(colData(sce_layer), model.matrix(~ 0 + layer_guess))
+colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
     duplicateCorrelation(mat, mod, block = sce_layer$subject_position)
@@ -1376,85 +1545,64 @@ fit <-
         correlation = corfit$consensus.correlation
     )
 eb <- eBayes(fit)
-top <-
-    topTable(eb,
-        coef = 2:ncol(mod),
-        n = nrow(mat),
-        sort.by = 'none')
-top$gene_name <- rowData(sce_layer)$gene_name
-
-pdf('temp.pdf')
-hist(top$adj.P.Val)
-dev.off()
-
-summary(-log10(top$adj.P.Val))
-#    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
-# 0.00037  0.37211  1.17321  3.08097  3.82736 32.63100
 
 
-
-
-layer_combs <- combn(colnames(mod)[-1], 2)
-
+## Define the contrasts for each layer vs the rest (excluding WM comparisons since we have that one already)
+layer_combs <- combn(colnames(mod), 2)
 layer_contrasts <- apply(layer_combs, 2, function(x) {
     z <- paste(x, collapse = '-')
-    print(z)
-    print(parse(text = z))
-    makeContrasts(eval(as.name(z)), levels = mod)
+    makeContrasts(contrasts = z, levels = mod)
 })
-
-
-layer_contrasts <- matrix(0, ncol = 15, nrow = 7)
-layer_i_comb <- combn(6, 2)
-for (i in seq_len(ncol(layer_i_comb))) {
-    x <- layer_i_comb[, i]
-    layer_contrasts[x[1] + 1, i] <- 1
-    layer_contrasts[x[2] + 1, i] <- -1
-}
 rownames(layer_contrasts) <- colnames(mod)
 colnames(layer_contrasts) <-
     apply(layer_combs, 2, paste, collapse = '-')
-
 eb_contrasts <- eBayes(contrasts.fit(fit, layer_contrasts))
 
 
-x <- eb$p.value[, -1]
-colnames(x) <- paste0(colnames(x), '-WM')
-pvals_contrasts <- cbind(eb_contrasts$p.value, x)
+## Extract the p-values and add the WM comparisons too
+pvals_contrasts <- eb_contrasts$p.value
 
 ## Fing the sig ones
-colSums(apply(pvals_contrasts, 2, p.adjust, 'fdr') < 0.05)
-# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
-#          3686          3566          4677          4638          4255           377          2284          2305
-# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
-#          2447           327           942          1752           292          1745           515          5667
-#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
-#          7992          8500          8458          7979          6686
+data.frame(
+    'FDRsig' = colSums(apply(pvals_contrasts, 2, p.adjust, 'fdr') < 0.05),
+    'Pval10-6sig' = colSums(pvals_contrasts < 1e-6),
+    'Pval10-8sig' = colSums(pvals_contrasts < 1e-8)
+)
+#               FDRsig Pval10.6sig Pval10.8sig
+# WM-Layer1       5667        1291         766
+# WM-Layer2       7992        2529        1652
+# WM-Layer3       8500        2875        1986
+# WM-Layer4       8458        2874        1944
+# WM-Layer5       7979        2653        1752
+# WM-Layer6       6686        1922        1210
+# Layer1-Layer2   3686         486         185
+# Layer1-Layer3   3566         641         267
+# Layer1-Layer4   4677         940         512
+# Layer1-Layer5   4638        1090         599
+# Layer1-Layer6   4255         893         459
+# Layer2-Layer3    377          70          24
+# Layer2-Layer4   2284         415         213
+# Layer2-Layer5   2305         508         275
+# Layer2-Layer6   2447         467         256
+# Layer3-Layer4    327          60          24
+# Layer3-Layer5    942         224         124
+# Layer3-Layer6   1752         334         192
+# Layer4-Layer5    292          67          35
+# Layer4-Layer6   1745         246         140
+# Layer5-Layer6    515         103          44
 
 
-colSums(pvals_contrasts  < 1e-6)
-# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
-#           486           641           940          1090           893            70           415           508
-# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
-#           467            60           224           334            67           246           103          1291
-#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
-#          2529          2875          2874          2653          1922
-colSums(pvals_contrasts  < 1e-8)
-# Layer1-Layer2 Layer1-Layer3 Layer1-Layer4 Layer1-Layer5 Layer1-Layer6 Layer2-Layer3 Layer2-Layer4 Layer2-Layer5
-#           185           267           512           599           459            24           213           275
-# Layer2-Layer6 Layer3-Layer4 Layer3-Layer5 Layer3-Layer6 Layer4-Layer5 Layer4-Layer6 Layer5-Layer6     Layer1-WM
-#           256            24           124           192            35           140            44           766
-#     Layer2-WM     Layer3-WM     Layer4-WM     Layer5-WM     Layer6-WM
-#          1652          1986          1944          1752          1210
 
 
+
+
+## Next for each layer test that layer vs the rest
 layer_idx <- splitit(sce_layer$layer_guess)
 
 eb0_list <- lapply(layer_idx, function(x) {
     res <- rep(0, ncol(sce_layer))
     res[x] <- 1
-    m <- model.matrix( ~ res)
-
+    m <- model.matrix(~ res)
     eBayes(
         lmFit(
             mat,
@@ -1464,64 +1612,248 @@ eb0_list <- lapply(layer_idx, function(x) {
         )
     )
 })
-names(eb0_list) <- gsub(' ', '', names(eb0_list))
 
+## Extract the p-values
 pvals0_contrasts <- sapply(eb0_list, function(x) {
     x$p.value[, 2, drop = FALSE]
 })
 
-colSums(apply(pvals0_contrasts, 2, p.adjust, 'fdr') < 0.05)
-# WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
-#  9124   3033   1562    183    740    643    379
+data.frame(
+    'FDRsig' = colSums(apply(pvals0_contrasts, 2, p.adjust, 'fdr') < 0.05),
+    'Pval10-6sig' = colSums(pvals0_contrasts < 1e-6),
+    'Pval10-8sig' = colSums(pvals0_contrasts < 1e-8)
+)
+#        FDRsig Pval10.6sig Pval10.8sig
+# WM       9124        3039        2021
+# Layer1   3033         368         170
+# Layer2   1562         128          28
+# Layer3    183           9           3
+# Layer4    740          29          10
+# Layer5    643          64          27
+# Layer6    379          71          27
 
-
-colSums(pvals0_contrasts  < 1e-6)
-#   WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
-# 3039    368    128      9     29     64     71
-colSums(pvals0_contrasts  < 1e-8)
-#  WM Layer1 Layer2 Layer3 Layer4 Layer5 Layer6
-# 2021    170     28      3     10     27     27
-
+## Extract the tstats
 tstats0_contrasts <- sapply(eb0_list, function(x) {
     x$t[, 2, drop = FALSE]
 })
 
-
-layer0_sig_genes <- apply(tstats0_contrasts, 2, function(x) {
-    rowData(sce_layer)$gene_name[order(x, decreasing = TRUE)[1:10]]
-})
-#       WM        Layer1      Layer2     Layer3      Layer4      Layer5    Layer6
-#  [1,] "NDRG1"   "MT1G"      "DACT1"    "CARTPT"    "VAMP1"     "PCP4"    "ISLR"
-#  [2,] "PTP4A2"  "VIM"       "MPL"      "BAIAP3"    "GUCA1C"    "CAMK2D"  "NR4A2"
-#  [3,] "AQP1"    "FABP7"     "STXBP6"   "ADCYAP1"   "NEFH"      "SMYD2"   "MCTP2"
-#  [4,] "PAQR6"   "LINC00052" "SIPA1L1"  "LINC01007" "LINC01827" "TRABD2A" "DACH1"
-#  [5,] "ANP32B"  "MT1F"      "MAN1A1"   "CNGB1"     "SCN1B"     "TMSB10"  "NTNG2"
-#  [6,] "JAM3"    "MYL9"      "DDX54"    "SPON2"     "NGB"       "HTR2C"   "SMIM32"
-#  [7,] "PHLDB1"  "F3"        "CAMK2N1"  "FREM3"     "PVALB"     "VAT1L"   "OPRK1"
-#  [8,] "PMP22"   "CDC42EP4"  "SERPINE2" "CA10"      "TPBG"      "RHO"     "MMD"
-#  [9,] "MTUS1"   "ATP1A2"    "PAX2"     "SNX3"      "SLC5A12"   "PID1"    "KRT17"
-# [10,] "PLEKHG3" "SOX9"      "GNAL"     "FAM84A"    "NEFM"      "KIF17"   "THEMIS"
+## Save for later
+save(eb0_list, file = 'rda/eb0_list.Rdata')
+save(eb_contrasts, file = 'rda/eb_constrasts.Rdata')
 
 
-## Check MOBP
-which(rowData(sce_layer)$gene_name == 'MOBP')
-# [1] 3978
-tstats0_contrasts[3978,]
-#         WM     Layer1     Layer2     Layer3     Layer4     Layer5     Layer6
-# 13.4424968 -1.7046759 -3.2331275 -3.3204295 -1.4682195 -0.4631963  1.6300541
 
 
-layer0_sig_i <- apply(tstats0_contrasts, 2, function(x) {
-    order(x, decreasing = TRUE)[1:10]
-})
-layer0_sig_i
+## Write a function for extracting the data
+sig_genes_extract <- function(tstats, pvals, n = 10) {
+    stopifnot(identical(dim(tstats), dim(pvals)))
+    sig_genes <- apply(tstats, 2, function(x) {
+        rowData(sce_layer)$gene_name[order(x, decreasing = TRUE)[1:10]]
+    })
 
-mapply(function(i, pval) {
-    print(length(i))
-    print(length(pval))
-}, layer0_sig_i, pvals0_contrasts, SIMPLIFY = FALSE)
+    sig_i <- apply(tstats, 2, function(x) {
+        order(x, decreasing = TRUE)[seq_len(n)]
+    })
+    sig_genes_tstats <-
+        sapply(seq_len(ncol(sig_i)), function(i) {
+            tstats[sig_i[, i], i]
+        })
+    sig_genes_pvals <-
+        sapply(seq_len(ncol(sig_i)), function(i) {
+            pvals[sig_i[, i], i]
+        })
+    sig_genes_fdr <-
+        sapply(seq_len(ncol(sig_i)), function(i) {
+            apply(pvals, 2, p.adjust, 'fdr')[sig_i[, i], i]
+        })
+    dimnames(sig_genes_fdr) <-
+        dimnames(sig_genes_tstats) <-
+        dimnames(sig_genes_pvals) <- dimnames(sig_genes)
+
+    ## Combine into a long format table
+    sig_genes_tab <- data.frame(
+        top = rep(seq_len(n), n = ncol(tstats)),
+        layer = rep(colnames(sig_genes), each = n),
+        gene = as.character(sig_genes),
+        tstat = as.numeric(sig_genes_tstats),
+        pval = as.numeric(sig_genes_pvals),
+        fdr = as.numeric(sig_genes_fdr),
+        gene_index = as.integer(sig_i),
+        stringsAsFactors = FALSE
+    )
+    sig_genes_tab$ensembl <-
+        rownames(sce_layer)[sig_genes_tab$gene_index]
+
+    ## Add gene marker labels
+    sig_genes_tab <-
+        cbind(sig_genes_tab, gene_ann(sig_genes_tab$gene))
+    rownames(sig_genes_tab) <- NULL
+    return(sig_genes_tab)
+}
+
+sig_genes_layer0 <-
+    sig_genes_extract(tstats0_contrasts, pvals0_contrasts)
+
+sig_genes_summary <- function(x) {
+    summary(x[!duplicated(x$ensembl), c('KM_Zeng', 'BM', 'RNAscope')])
+}
+
+sig_genes_summary(sig_genes_layer0)
+#  KM_Zeng       BM      RNAscope
+# FALSE:62   FALSE:66   FALSE:35
+# TRUE : 8   TRUE : 4   TRUE :35
 
 
+
+## Now extract the data for the paired comparisons
+tstats_contrasts <- eb_contrasts$t
+sig_genes_layer <-
+    sig_genes_extract(tstats_contrasts, pvals_contrasts)
+sig_genes_summary(sig_genes_layer)
+#  KM_Zeng       BM      RNAscope
+# FALSE:80   FALSE:84   FALSE:44
+# TRUE :11   TRUE : 7   TRUE :47
+
+
+## likely best to extract
+sig_genes_layer_rev <-
+    sig_genes_extract(-1 * tstats_contrasts, pvals_contrasts)
+sig_genes_layer_rev$layer <-
+    rep(apply(layer_combs[c(2, 1),], 2, paste, collapse = '-'), each = 10)
+sig_genes_summary(sig_genes_layer_rev)
+# KM_Zeng       BM      RNAscope
+# FALSE:78   FALSE:90   FALSE:51
+# TRUE :24   TRUE :12   TRUE :51
+
+sig_genes <- rbind(
+    cbind(sig_genes_layer0, test = 'layer_vs_rest'),
+    cbind(sig_genes_layer, test = 'paired_layers'),
+    cbind(sig_genes_layer_rev, test = 'paired_layers')
+)
+sig_genes_summary(sig_genes)
+#  KM_Zeng        BM       RNAscope
+# FALSE:170   FALSE:185   FALSE:100
+# TRUE : 28   TRUE : 13   TRUE : 98
+
+sig_genes_unique <- splitit(sig_genes$ensembl)
+length(sig_genes_unique)
+# [1] 198
+
+sig_genes <- DataFrame(sig_genes)
+sig_genes$in_rows <-
+    IntegerList(sig_genes_unique)[sig_genes$ensembl]
+sig_genes$results <-
+    CharacterList(sapply(sig_genes$in_rows, function(x)
+        paste0(sig_genes$layer[x], '_top', sig_genes$top[x])))
+
+
+sig_genes_df <- sig_genes
+## Fix for writing to csv
+sig_genes_df$in_rows <-
+    sapply(sig_genes_df$in_rows, paste0, collapse = ';')
+sig_genes_df$results <-
+    sapply(sig_genes_df$results, paste0, collapse = ';')
+write.csv(sig_genes_df,
+    file = 'sig_genes.csv',
+    quote = FALSE,
+    row.names = FALSE)
+
+## Save lists
+save(sig_genes,
+    sig_genes_layer0,
+    sig_genes_layer,
+    sig_genes_layer_rev,
+    file = 'rda/layer_sig_genes.Rdata')
+
+
+## Make gene grid plots
+pdf_dir <- 'pdf/gene_grid/sig_genes'
+dir.create(pdf_dir, showWarnings = FALSE, recursive = TRUE)
+
+
+## Only make the plots for the unique ones
+## Takes about 1 - 1.5 hours
+for (i in match(names(sig_genes_unique), sig_genes$ensembl)) {
+    # i <- 1
+    message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
+    sce_image_grid_gene(
+        sce_original,
+        geneid = paste0(sig_genes$gene[i], '; ', sig_genes$ensembl[i]),
+        pdf_file = file.path(pdf_dir,
+            paste0(
+                sig_genes$gene[i],
+                '_',
+                gsub('top', 'r', gsub('Layer', 'L', sig_genes_df$results[i])),
+                '.pdf'
+            )),
+        ... = gsub('top', 'r', gsub('Layer', 'L', sig_genes_df$results[i]))
+    )
+}
+
+## Make heatmaps
+rownames(sig_genes_df) <- sig_genes_df$gene
+
+pdf('pdf/markers_layer_expr.pdf',
+    useDingbats = FALSE,
+    height = 17)
+xx <- plot_markers_expr(
+    split(sig_genes_df, sig_genes$layer),
+    pval.type = 'all',
+    color = viridis::viridis(101)
+)
+dev.off()
+
+pdf('pdf/markers_layer_expr_centered.pdf',
+    useDingbats = FALSE,
+    height = 17)
+xx <- plot_markers_expr(
+    split(sig_genes_df, sig_genes$layer),
+    pval.type = 'all',
+    center = TRUE,
+    zlim = c(-2, 2)
+)
+dev.off()
+
+## Make boxplots
+pdf('pdf/markers_layer_boxplots.pdf', useDingbats = FALSE)
+for (i in seq_len(nrow(sig_genes))) {
+    # i <- 1
+    message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
+    boxplot(
+        mat[sig_genes$gene_index[i], ] ~ sce_layer$layer_guess,
+        xlab = 'Layer',
+        ylab = 'logcounts',
+        main = paste(
+            sig_genes$gene[i],
+            sig_genes$ensembl[i],
+            sig_genes$layer[i],
+            '\n',
+
+            'tstat',
+            formatC(sig_genes$tstat[i], format = "e", digits = 2),
+            'p',
+            formatC(sig_genes$pval[i], format = "e", digits = 2),
+
+            '\n',
+            gsub('top', 'r', gsub('Layer', 'L', sig_genes_df$results[i]))
+        ),
+        outline = FALSE,
+        cex = 1.5
+    )
+    points(
+        mat[sig_genes$gene_index[i], ] ~ jitter(as.integer(sce_layer$layer_guess)),
+        pch = 21,
+        bg = Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess)],
+        cex = 1.5
+    )
+    # legend(
+    #     "top",
+    #     levels(sce_layer$layer_guess),
+    #     col =  Polychrome::palette36.colors(7),
+    #     lwd = 2
+    # )
+}
+dev.off()
 
 
 ## Reproducibility information
