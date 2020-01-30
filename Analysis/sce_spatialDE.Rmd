@@ -55,7 +55,7 @@ if(!dir.exists(here("sample_data", "by_sample_id"))){
     
     # create individual sample folders
     samp_ids <- names(table(colData(sce)$sample_name))
-    for(samp in samp_ids[-1]){
+    for(samp in samp_ids){
         ix <- colData(sce)$sample_name == samp
         samp_name_counts <- paste("sample", samp, "counts.csv", sep = "_")
         samp_name_meta <- paste("sample", samp, "meta.csv", sep = "_")
@@ -128,7 +128,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import datetime
+from datetime import datetime
 
 mpl.rcParams['axes.spines.right'] = False
 mpl.rcParams['axes.spines.top'] = False
@@ -211,12 +211,7 @@ df = pd.DataFrame({'counts':samp_counts, 'meta':samp_meta, 'out':samp_output})
 for index, row in df.iterrows():
     print(row['counts'], row['meta'], row['out'])
 
-
-x = df.head(n=1).to_numpy()[0]
-counts = pd.read_csv(x[0], index_col=0) # load counts
-sample_info = pd.read_csv(x[1], index_col=0) # load meta data with spatial coordinates
-
-# loop over all twelve samples and save output
+# loop over all twelve samples (random subset of 1500 spots) and save output
 for index, row in df.iterrows():
     counts = pd.read_csv(row['counts'], index_col=0) # load counts
     counts = counts.T[counts.sum(axis=0) >= 5].T  # Filter practically unobserved genes
@@ -229,7 +224,8 @@ for index, row in df.iterrows():
     results = SpatialDE.run(X, sample_resid_expr)
     results.to_csv(row['out']) # Save spatial results
 
-
 ```
 
+For running `spatialDE` on all spots in all twelve samples, 
+see `Analysis/sce_spatialDE.py` and `Analysis/sce_spatialDE.sh`. 
 
