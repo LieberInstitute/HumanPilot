@@ -9,3 +9,5 @@ Analysis/Comparison_SpatialDE_genes_pooled.html
 Analysis/Clustering_PCA_UMAP_SpatialDE_spatial_cache/
 Analysis/Clustering_PCA_UMAP_SpatialDE_spatial_files/
 Analysis/Clustering_PCA_UMAP_SpatialDE_spatial.html
+Analysis/SpatialDE_subsampling_comparison_cache/
+Analysis/SpatialDE_subsampling_comparison_files/
