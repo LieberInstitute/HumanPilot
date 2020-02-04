@@ -10,7 +10,6 @@ library('jaffelab')
 load("rda/eb_contrasts.Rdata")
 load("rda/eb0_list.Rdata")
 
-
 ## Extract the p-values
 pvals0_contrasts <- sapply(eb0_list, function(x) {
     x$p.value[, 2, drop = FALSE]
@@ -124,6 +123,8 @@ bs1_geneList = with(outGene,
 	list(bs1_SCZup = ensemblID[logFC > 0 & adj.P.Val < 0.1],
 		bs1_SCZdown = ensemblID[logFC < 0 & adj.P.Val < 0.1]))
 
+##############################
+### Sestan DS Neuron 2017? ###
 
 ###############
 ### combine ###

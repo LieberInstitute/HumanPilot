@@ -40,7 +40,7 @@ load("rda/velmeshev_pseudobulked.Rdata")
 mat <- assays(sce_pseudobulk)$logcounts
 
 ## filter 
-gIndex = rowMeans(mat) > 0.1
+gIndex = rowMeans(mat) > 0.2
 mat_filter = mat[gIndex,]
 
 #####################
@@ -74,6 +74,7 @@ eb0_list_cell <- lapply(cell_idx, function(x) {
 })
 save(eb0_list_cell, file = "rda/velmeshev_pseudobulked_specific_Ts.Rdata")
 
+##########
 ## Extract the p-values
 load("rda/velmeshev_pseudobulked_specific_Ts.Rdata")
 
