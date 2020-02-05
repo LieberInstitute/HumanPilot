@@ -62,7 +62,7 @@ stopifnot(identical(tabs[[1]]$layer, tabs[[2]]$layer[m]))
 ## Combine individual slides and check vs merged
 merged <- tabs[[which(names(tabs) == merged_name)]]
 combined <- do.call(rbind, tabs[-which(names(tabs) == merged_name)])
-combined <- combined[!duplicated(combined), ]
+combined <- combined[!duplicated(combined),]
 rownames(combined) <- NULL
 
 identical(combined, merged) # FALSE =(
@@ -97,7 +97,7 @@ check_guesses <- function(path, merged_name) {
     merged <- tabs[[which(names(tabs) == merged_name)]]
     combined <-
         do.call(rbind, tabs[-which(names(tabs) == merged_name)])
-    combined <- combined[!duplicated(combined), ]
+    combined <- combined[!duplicated(combined),]
     rownames(combined) <- NULL
     
     ## Re-order

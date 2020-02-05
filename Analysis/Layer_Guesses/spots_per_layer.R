@@ -25,7 +25,7 @@ tab <-
 tab$key <- paste0(tab$sample_name,
     '_',
     tab$spot_name)
-    
+
 tab2 <-
     read.csv(
         dir(
@@ -52,7 +52,8 @@ stopifnot(!any(tab2$key %in% tab$key))
 ## Save for other work
 layer_guess_tab <- rbind(tab, tab2)
 rownames(layer_guess_tab) <- NULL
-save(layer_guess_tab, file = here('Analysis', 'Layer_Guesses', 'layer_guess_tab.Rdata'))
+save(layer_guess_tab,
+    file = here('Analysis', 'Layer_Guesses', 'layer_guess_tab.Rdata'))
 
 ## Find which ones are missing:
 m <- match(sce$key, layer_guess_tab$key)
@@ -60,7 +61,7 @@ options(width = 100)
 addmargins(table(sce$sample_name[is.na(m)]))
 # 151507 151508 151509 151510 151669 151670 151671 151672 151673 151674 151675 151676    Sum
 #      5      3      1     39     25     14     17    127     28     38     26     29    352
-     
+
 ## Spots per layer
 with(layer_guess_tab, tapply(layer, sample_name, table))
 
@@ -162,9 +163,9 @@ group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = me
 
 layer_guess_tab$cell_count = sce$cell_count[match(layer_guess_tab$key, sce$key)]
 
-group_by(layer_guess_tab, layer) %>% 
-	summarize(prop0 = mean(cell_count == 0),
-		prop1 = mean(cell_count == 1))
+group_by(layer_guess_tab, layer) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1))
 # # A tibble: 8 x 3
 #   layer      prop0  prop1
 #   <chr>      <dbl>  <dbl>
@@ -177,9 +178,9 @@ group_by(layer_guess_tab, layer) %>%
 # 7 Layer 6   0.0484 0.128
 # 8 WM        0.0385 0.0594
 
-group_by(layer_guess_tab, sample_name) %>% 
-	summarize(prop0 = mean(cell_count == 0),
-		prop1 = mean(cell_count == 1))
+group_by(layer_guess_tab, sample_name) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1))
 # # A tibble: 12 x 3
 #    sample_name  prop0  prop1
 #          <int>  <dbl>  <dbl>
@@ -196,9 +197,9 @@ group_by(layer_guess_tab, sample_name) %>%
 # 11      151675 0.0645 0.160
 # 12      151676 0.0851 0.187
 
-group_by(layer_guess_tab, layer, sample_name) %>% 
-	summarize(prop0 = mean(cell_count == 0),
-		prop1 = mean(cell_count == 1))
+group_by(layer_guess_tab, layer, sample_name) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1))
 # # A tibble: 76 x 4
 # # Groups:   layer [8]
 #    layer   sample_name prop0 prop1
@@ -214,7 +215,7 @@ group_by(layer_guess_tab, layer, sample_name) %>%
 #  9 Layer 2      151507 0.364 0.305
 # 10 Layer 2      151508 0.163 0.224
 # # … with 66 more rows
-		
+
 ## Next by subject
 group_by(as.data.frame(colData(sce)), subject) %>% summarize(mean_cells = mean(cell_count))
 # # A tibble: 3 x 2

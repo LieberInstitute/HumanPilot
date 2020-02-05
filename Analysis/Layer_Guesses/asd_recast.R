@@ -9,9 +9,9 @@ library(lattice)
 library(RColorBrewer)
 
 ## read in data
-pheno = read.delim("velmeshev/meta.tsv",row.names=1)
+pheno = read.delim("velmeshev/meta.tsv", row.names = 1)
 dat = read10xCounts("velmeshev/")
-pheno = pheno[dat$Barcode,]
+pheno = pheno[dat$Barcode, ]
 colData(dat) = DataFrame(pheno)
 
 ## get pseudobulk
@@ -19,11 +19,11 @@ dat$PseudoSample = paste0(dat$sample, ":", dat$cluster)
 
 cIndexes = splitit(dat$PseudoSample)
 umiComb <- sapply(cIndexes, function(ii)
-        rowSums(assays(dat)$counts[, ii, drop = FALSE]))
-		
-phenoComb = colData(dat)[!duplicated(dat$PseudoSample),c(1:11,16)]
+    rowSums(assays(dat)$counts[, ii, drop = FALSE]))
+
+phenoComb = colData(dat)[!duplicated(dat$PseudoSample), c(1:11, 16)]
 rownames(phenoComb) = phenoComb$PseudoSample
-phenoComb = phenoComb[colnames(umiComb),]
+phenoComb = phenoComb[colnames(umiComb), ]
 phenoComb = DataFrame(phenoComb)
 
 sce_pseudobulk <-
@@ -41,19 +41,19 @@ load("rda/velmeshev_pseudobulked.Rdata")
 
 mat <- assays(sce_pseudobulk)$logcounts
 
-## filter 
+## filter
 gIndex = rowMeans(mat) > 0.2
-mat_filter = mat[gIndex,]
+mat_filter = mat[gIndex, ]
 
 #####################
 ## Build a group model
-mod <- with(colData(sce_pseudobulk), 
-		model.matrix( ~ 0 + cluster + region + age + sex + diagnosis))
+mod <- with(colData(sce_pseudobulk),
+    model.matrix(~ 0 + cluster + region + age + sex + diagnosis))
 colnames(mod) <- gsub('cluster', '', colnames(mod))
 
 ## get duplicate correlation
-corfit <- duplicateCorrelation(mat_filter, mod, 
-	block = sce_pseudobulk$individual)
+corfit <- duplicateCorrelation(mat_filter, mod,
+    block = sce_pseudobulk$individual)
 save(corfit, file = "rda/velmeshev_pseudobulked_dupCor.Rdata")
 
 ## Next for each layer test that layer vs the rest
@@ -62,9 +62,9 @@ cell_idx <- splitit(sce_pseudobulk$cluster)
 eb0_list_cell <- lapply(cell_idx, function(x) {
     res <- rep(0, ncol(sce_pseudobulk))
     res[x] <- 1
-    m <- with(colData(sce_pseudobulk), 
-		model.matrix( ~ res + 
-			region + age + sex + diagnosis))
+    m <- with(colData(sce_pseudobulk),
+        model.matrix(~ res +
+                region + age + sex + diagnosis))
     eBayes(
         lmFit(
             mat_filter,
@@ -89,15 +89,18 @@ t0_contrasts_cell <- sapply(eb0_list_cell, function(x) {
     x$t[, 2, drop = FALSE]
 })
 rownames(t0_contrasts_cell) = rownames(mat_filter)
-fdrs0_contrasts_cell = apply(pvals0_contrasts_cell, 2, p.adjust, 'fdr') 
+fdrs0_contrasts_cell = apply(pvals0_contrasts_cell, 2, p.adjust, 'fdr')
 
 data.frame(
-    'FDRsig' = colSums(fdrs0_contrasts_cell< 0.05 & t0_contrasts_cell > 0),
-    'Pval10-6sig' = colSums(pvals0_contrasts_cell < 1e-6 & t0_contrasts_cell > 0),
-    'Pval10-8sig' = colSums(pvals0_contrasts_cell < 1e-8 & t0_contrasts_cell > 0)
+    'FDRsig' = colSums(fdrs0_contrasts_cell < 0.05 &
+            t0_contrasts_cell > 0),
+    'Pval10-6sig' = colSums(pvals0_contrasts_cell < 1e-6 &
+            t0_contrasts_cell > 0),
+    'Pval10-8sig' = colSums(pvals0_contrasts_cell < 1e-8 &
+            t0_contrasts_cell > 0)
 )
 
-                 # FDRsig Pval10.6sig Pval10.8sig
+# FDRsig Pval10.6sig Pval10.8sig
 # AST-FB             3948        1800        1413
 # AST-PP             5048        2272        1760
 # Endothelial        3188        1781        1529
@@ -142,34 +145,44 @@ rownames(t0_contrasts) = rownames(eb_contrasts)
 
 mm = match(rownames(pvals0_contrasts), rownames(pvals0_contrasts_cell))
 
-pvals0_contrasts = pvals0_contrasts[!is.na(mm),]
-t0_contrasts = t0_contrasts[!is.na(mm),]
-fdrs0_contrasts = fdrs0_contrasts[!is.na(mm),]
+pvals0_contrasts = pvals0_contrasts[!is.na(mm), ]
+t0_contrasts = t0_contrasts[!is.na(mm), ]
+fdrs0_contrasts = fdrs0_contrasts[!is.na(mm), ]
 
-pvals0_contrasts_cell = pvals0_contrasts_cell[mm[!is.na(mm)],]
-t0_contrasts_cell = t0_contrasts_cell[mm[!is.na(mm)],]
-fdrs0_contrasts_cell = fdrs0_contrasts_cell[mm[!is.na(mm)],]
+pvals0_contrasts_cell = pvals0_contrasts_cell[mm[!is.na(mm)], ]
+t0_contrasts_cell = t0_contrasts_cell[mm[!is.na(mm)], ]
+fdrs0_contrasts_cell = fdrs0_contrasts_cell[mm[!is.na(mm)], ]
 
-cor_t = cor(t0_contrasts_cell,t0_contrasts)
-signif(cor_t,2)
+cor_t = cor(t0_contrasts_cell, t0_contrasts)
+signif(cor_t, 2)
 
 ### just layer specific genes from ones left
-layer_specific_indices = mapply(function(t,p) {
-	oo = order(t, decreasing=TRUE)[1:100]
-	}, as.data.frame(t0_contrasts), as.data.frame(pvals0_contrasts))
+layer_specific_indices = mapply(function(t, p) {
+    oo = order(t, decreasing = TRUE)[1:100]
+},
+    as.data.frame(t0_contrasts),
+    as.data.frame(pvals0_contrasts))
 layer_ind = unique(as.numeric(layer_specific_indices))
 
-cor_t_layer = cor(t0_contrasts_cell[layer_ind,],
-	t0_contrasts[layer_ind,])
-signif(cor_t_layer,3)
+cor_t_layer = cor(t0_contrasts_cell[layer_ind, ],
+    t0_contrasts[layer_ind, ])
+signif(cor_t_layer, 3)
 
 ### heatmap
-theSeq = seq(-.81,.81,by=0.01)					
-my.col <- colorRampPalette(brewer.pal(7,"PRGn"))(length(theSeq))
+theSeq = seq(-.81, .81, by = 0.01)
+my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
-cor_t_layer_toPlot = cor_t_layer[,c(1,7:2)]
-pdf("pdf/snRNAseq_overlap_heatmap.pdf",width=8)
-print(levelplot(cor_t_layer_toPlot, aspect = "fill", at = theSeq,
-	col.regions = my.col, ylab = "", xlab = "",
-	scales=list(x=list(rot=90,cex=1.5), y=list(cex=1.5))))
+cor_t_layer_toPlot = cor_t_layer[, c(1, 7:2)]
+pdf("pdf/snRNAseq_overlap_heatmap.pdf", width = 8)
+print(
+    levelplot(
+        cor_t_layer_toPlot,
+        aspect = "fill",
+        at = theSeq,
+        col.regions = my.col,
+        ylab = "",
+        xlab = "",
+        scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
+    )
+)
 dev.off()
