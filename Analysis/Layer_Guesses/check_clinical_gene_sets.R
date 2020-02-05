@@ -5,6 +5,8 @@ library('sessioninfo')
 library('parallel')
 library('jaffelab')
 
+library(lattice)
+
 ###################
 ## load modeling outputs
 load("rda/eb_contrasts.Rdata")
@@ -174,6 +176,30 @@ pMat < 0.001
 options(width=100)
 signif(-log10(pMat)[c(7:9, 4:6),],3)
 
+################
+## make plots ##
+################
+
+theSeq = seq(0,12,by=0.1)					
+my.col <- colorRampPalette(c("white","red"))(length(theSeq))
+
+## overall
+negPmat = -log10(pMat)
+negPmat[negPmat > 12] = 12
+
+## ASD
+negPmat_ASD = negPmat[c(7:9, 4:6, 24:25),]
+rownames(negPmat_ASD)[7:8] = c("DE_ASD_Up","DE_ASD_Down")
+
+negPmat_ASD = as.matrix(negPmat_ASD)
+negPmat_ASD = negPmat_ASD[,c(2:7,1)]
+negPmat_ASD = negPmat_ASD[nrow(negPmat_ASD):1,]
+
+pdf("pdf/ASD_risk_gene_heatmap.pdf",width=8)
+print(levelplot(t(negPmat_ASD), aspect = "fill", at = theSeq,
+	col.regions = my.col, ylab = "", xlab = "",
+	scales=list(x=list(rot=90,cex=1.5), y=list(cex=1.5))))
+dev.off()
 
 enrichTab_harm = enrichTab[enrichTab$Group == "Harmonizome",]
 fdrTab_harm = apply(enrichTab_harm[,grep("Pval", colnames(enrichTab_harm))], 2, p.adjust, "fdr")

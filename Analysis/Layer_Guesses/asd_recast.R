@@ -5,6 +5,8 @@ library(Seurat)
 library(scater)
 library(DropletUtils)
 library(limma)
+library(lattice)
+library(RColorBrewer)
 
 ## read in data
 pheno = read.delim("velmeshev/meta.tsv",row.names=1)
@@ -160,3 +162,14 @@ layer_ind = unique(as.numeric(layer_specific_indices))
 cor_t_layer = cor(t0_contrasts_cell[layer_ind,],
 	t0_contrasts[layer_ind,])
 signif(cor_t_layer,3)
+
+### heatmap
+theSeq = seq(-.81,.81,by=0.01)					
+my.col <- colorRampPalette(brewer.pal(7,"PRGn"))(length(theSeq))
+
+cor_t_layer_toPlot = cor_t_layer[,c(1,7:2)]
+pdf("pdf/snRNAseq_overlap_heatmap.pdf",width=8)
+print(levelplot(cor_t_layer_toPlot, aspect = "fill", at = theSeq,
+	col.regions = my.col, ylab = "", xlab = "",
+	scales=list(x=list(rot=90,cex=1.5), y=list(cex=1.5))))
+dev.off()

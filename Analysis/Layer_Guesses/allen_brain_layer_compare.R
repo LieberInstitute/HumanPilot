@@ -5,34 +5,79 @@ library(Seurat)
 library(scater)
 library(DropletUtils)
 library(limma)
-library(scratch.io)
+library(scrattch.io)
 options(stringsAsFactors = FALSE)
+library(org.Hs.eg.db)
+library(GenomicFeatures)
+library(vroom)
+library(Matrix)
 
 ## location of data on cluster
+## data via: https://portal.brain-map.org/atlases-and-data/rnaseq
+## and  https://celltypes.brain-map.org/api/v2/well_known/694416044
+
 path = "/dcl01/ajaffe/data/lab/singleCell/allen_human/data/"
 
-## read in data
-pheno = read.csv(paste0(path, "sample_annotations.csv"),as.is=TRUE)
+## annotation via: //celltypes.brain-map.org/api/v2/well_known/694416044
+gene_map = read.csv(paste0(path, "human_MTG_2018-06-14_genes-rows.csv"),as.is=TRUE)
+## add ensembl
+ens = select(org.Hs.eg.db, columns = c("ENSEMBL", "ENTREZID"),
+	keys = as.character(unique(gene_map$entrez_id)))
+gene_map$ensemblID = ens$ENSEMBL[match(gene_map$entrez_id, ens$ENTREZID)]
 
+##############################
+##### smaller MTG 16000 ######
+##############################
 
-tome        <- paste0(path, "transcrip.tome")
-exons       <- read_tome_dgCMatrix(tome,"data/t_exon")    # (or data/exon)
-introns     <- read_tome_dgCMatrix(tome,"data/t_intron")  # (or data/intron)
-sample_name <- read_tome_sample_names(tome)  
-gene_name   <- read_tome_gene_names(tome)
+pheno_mtg = read.csv(paste0(path, "human_MTG_2018-06-14_samples-columns.csv"),
+	as.is=TRUE,row.names=1)
 
-dat = read10xCounts("velmeshev/")
-pheno = pheno[dat$Barcode,]
-colData(dat) = DataFrame(pheno)
+## indicate postmortem vs neurosurgery
+pheno_mtg$postmortem = ifelse(pheno_mtg$donor %in% c("H16.03.004", "H16.06.002", "H16.06.008", "H16.06.009"), 0, 1)
 
-## get pseudobulk
-dat$PseudoSample = paste0(dat$sample, ":", dat$cluster)
+## cell types
+pheno_mtg$CellType = ifelse(pheno_mtg$facs_sort_criteria == "NeuN-negative", "Glial", "Neuronal")
 
-cIndexes = splitit(dat$PseudoSample)
-umiComb <- sapply(cIndexes, function(ii)
-        rowSums(assays(dat)$counts[, ii, drop = FALSE]))
+## pseudobulking
+pheno_mtg$PseudoSample = with(pheno_mtg, paste(donor, brain_subregion,CellType, sep=":"))
+
+## read in genomics data
+exons_mtg = vroom(paste0(path, "human_MTG_2018-06-14_exon-matrix.csv"), delim = ",")
+colnames(exons_mtg)[1] = "Gene_ID"
+introns_mtg = vroom(paste0(path, "human_MTG_2018-06-14_intron-matrix.csv"), delim = ",")
+colnames(introns_mtg)[1] = "Gene_ID"
+
+exons_mtg = as.data.frame(exons_mtg)
+rownames(exons_mtg) = exons_mtg$Gene_ID
+exons_mtg$Gene_ID = NULL
+introns_mtg = as.data.frame(introns_mtg)
+rownames(introns_mtg) = introns_mtg$Gene_ID
+introns_mtg$Gene_ID = NULL
+
+## make sparse
+introns_mtg = Matrix(as.matrix(introns_mtg),sparse=TRUE)
+exons_mtg = Matrix(as.matrix(exons_mtg),sparse=TRUE)
+
+## combine
+total_mtg = introns_mtg + exons_mtg
+identical(colnames(total_mtg), rownames(pheno_mtg))
+## convert
+sce <-   SingleCellExperiment(
+			list(counts = total_mtg),
+			colData = pheno_mtg)
 		
-phenoComb = colData(dat)[!duplicated(dat$PseudoSample),c(1:11,16)]
+rowData(sce) = gene_map[match(rownames(sce),gene_map$entrez_id),]
+
+save(sce, file = "rda/allen_snRNAseq_sce_MTG.Rdata")
+
+#############
+## split and combine
+cIndexes = splitit(sce$PseudoSample)
+umiComb <- sapply(cIndexes, function(ii)
+        rowSums(assays(sce)$counts[, ii, drop = FALSE]))
+		
+phenoComb = colData(sce)[!duplicated(sce$PseudoSample),c(4:9,34:36)]
+				
 rownames(phenoComb) = phenoComb$PseudoSample
 phenoComb = phenoComb[colnames(umiComb),]
 phenoComb = DataFrame(phenoComb)
@@ -41,91 +86,79 @@ sce_pseudobulk <-
     logNormCounts(SingleCellExperiment(
         list(counts = umiComb),
         colData = phenoComb,
-        rowData = rowData(dat)
+        rowData = rowData(sce)
     ))
-save(sce_pseudobulk, file = "rda/velmeshev_pseudobulked.Rdata")
+	
+save(sce_pseudobulk, file = "rda/allen_snRNAseq_sce_MTG_pseudobulked.Rdata")
 
-###############################
-##### get mean expression  ####
+###############
+## analysis ###
+###############
 
-load("rda/velmeshev_pseudobulked.Rdata")
 
+## drop surgical
+sce_pseudobulk = sce_pseudobulk[,sce_pseudobulk$postmortem == 1]
 mat <- assays(sce_pseudobulk)$logcounts
 
-## filter 
-gIndex = rowMeans(mat) > 0.2
-mat_filter = mat[gIndex,]
-
-#####################
-## Build a group model
+## model
 mod <- with(colData(sce_pseudobulk), 
-		model.matrix( ~ 0 + cluster + region + age + sex + diagnosis))
-colnames(mod) <- gsub('cluster', '', colnames(mod))
+		model.matrix( ~ 0 + brain_subregion + CellType))
+colnames(mod) <- gsub('brain_subregion', '', colnames(mod))
+colnames(mod) <- gsub('CellType', '', colnames(mod))
 
 ## get duplicate correlation
-corfit <- duplicateCorrelation(mat_filter, mod, 
-	block = sce_pseudobulk$individual)
-save(corfit, file = "rda/velmeshev_pseudobulked_dupCor.Rdata")
+corfit <- duplicateCorrelation(mat, mod, block = sce_pseudobulk$donor)
+save(corfit, file = "rda/allen_snRNAseq_MTG_pseudobulked_dupCor.Rdata")
 
 ## Next for each layer test that layer vs the rest
-cell_idx <- splitit(sce_pseudobulk$cluster)
+layer_idx <- splitit(sce_pseudobulk$brain_subregion)
 
-eb0_list_cell <- lapply(cell_idx, function(x) {
+eb0_list_layer <- lapply(layer_idx, function(x) {
     res <- rep(0, ncol(sce_pseudobulk))
     res[x] <- 1
     m <- with(colData(sce_pseudobulk), 
-		model.matrix( ~ res + 
-			region + age + sex + diagnosis))
+		model.matrix( ~ res + CellType))
+		
     eBayes(
         lmFit(
-            mat_filter,
+            mat,
             design = m,
-            block = sce_pseudobulk$individual,
+            block = sce_pseudobulk$external_donor_name_label,
             correlation = corfit$consensus.correlation
         )
     )
 })
-save(eb0_list_cell, file = "rda/velmeshev_pseudobulked_specific_Ts.Rdata")
+save(eb0_list_layer, file = "rda/allen_snRNAseq_MTG_pseudobulked_specific_Ts.Rdata")
 
 ##########
 ## Extract the p-values
-load("rda/velmeshev_pseudobulked_specific_Ts.Rdata")
+load("rda/allen_snRNAseq_MTG_pseudobulked_specific_Ts.Rdata")
 
-pvals0_contrasts_cell <- sapply(eb0_list_cell, function(x) {
+pvals0_contrasts_layer <- sapply(eb0_list_layer, function(x) {
     x$p.value[, 2, drop = FALSE]
 })
-rownames(pvals0_contrasts_cell) = rownames(mat_filter)
+rownames(pvals0_contrasts_layer) = rownames(mat)
 
-t0_contrasts_cell <- sapply(eb0_list_cell, function(x) {
+t0_contrasts_layer <- sapply(eb0_list_layer, function(x) {
     x$t[, 2, drop = FALSE]
 })
-rownames(t0_contrasts_cell) = rownames(mat_filter)
-fdrs0_contrasts_cell = apply(pvals0_contrasts_cell, 2, p.adjust, 'fdr') 
+rownames(t0_contrasts_layer) = rownames(mat)
+fdrs0_contrasts_layer = apply(pvals0_contrasts_layer, 2, p.adjust, 'fdr') 
 
 data.frame(
-    'FDRsig' = colSums(fdrs0_contrasts_cell< 0.05 & t0_contrasts_cell > 0),
-    'Pval10-6sig' = colSums(pvals0_contrasts_cell < 1e-6 & t0_contrasts_cell > 0),
-    'Pval10-8sig' = colSums(pvals0_contrasts_cell < 1e-8 & t0_contrasts_cell > 0)
+    'FDRsig' = colSums(fdrs0_contrasts_layer< 0.05 & t0_contrasts_layer > 0),
+    'Pval10-6sig' = colSums(pvals0_contrasts_layer < 1e-6 & t0_contrasts_layer > 0),
+    'Pval10-8sig' = colSums(pvals0_contrasts_layer < 1e-8 & t0_contrasts_layer > 0)
 )
+   # FDRsig Pval10.6sig Pval10.8sig
+# L1      4           2           0
+# L2      0           0           0
+# L3      0           0           0
+# L4      0           0           0
+# L5      1           1           0
+# L6      5           3           0
 
-                 # FDRsig Pval10.6sig Pval10.8sig
-# AST-FB             3948        1800        1413
-# AST-PP             5048        2272        1760
-# Endothelial        3188        1781        1529
-# IN-PV              7488        1422         854
-# IN-SST             3659         851         583
-# IN-SV2C            4668         988         660
-# IN-VIP             7614        1463         946
-# L2/3              10950        2435        1374
-# L4                 7348        1266         755
-# L5/6               5369        1301         816
-# L5/6-CC            7877        1300         688
-# Microglia          2200        1250        1068
-# Neu-mat            1896         397         218
-# Neu-NRGN-I         3376        1302         957
-# Neu-NRGN-II        4138        1922        1421
-# Oligodendrocytes   4187        1893        1515
-# OPC                5812        2001        1468
+
 ############################
 ### correlate to layer?? ###
 ############################
@@ -151,17 +184,17 @@ rownames(t0_contrasts) = rownames(eb_contrasts)
 ############
 # line up ##
 
-mm = match(rownames(pvals0_contrasts), rownames(pvals0_contrasts_cell))
+mm = match(rownames(pvals0_contrasts), rowData(sce_pseudobulk)$ensemblID)
 
 pvals0_contrasts = pvals0_contrasts[!is.na(mm),]
 t0_contrasts = t0_contrasts[!is.na(mm),]
 fdrs0_contrasts = fdrs0_contrasts[!is.na(mm),]
 
-pvals0_contrasts_cell = pvals0_contrasts_cell[mm[!is.na(mm)],]
-t0_contrasts_cell = t0_contrasts_cell[mm[!is.na(mm)],]
-fdrs0_contrasts_cell = fdrs0_contrasts_cell[mm[!is.na(mm)],]
+pvals0_contrasts_layer = pvals0_contrasts_layer[mm[!is.na(mm)],]
+t0_contrasts_layer = t0_contrasts_layer[mm[!is.na(mm)],]
+fdrs0_contrasts_layer = fdrs0_contrasts_layer[mm[!is.na(mm)],]
 
-cor_t = cor(t0_contrasts_cell,t0_contrasts)
+cor_t = cor(t0_contrasts_layer,t0_contrasts)
 signif(cor_t,2)
 
 ### just layer specific genes from ones left
@@ -170,6 +203,84 @@ layer_specific_indices = mapply(function(t,p) {
 	}, as.data.frame(t0_contrasts), as.data.frame(pvals0_contrasts))
 layer_ind = unique(as.numeric(layer_specific_indices))
 
-cor_t_layer = cor(t0_contrasts_cell[layer_ind,],
+cor_t_layer = cor(t0_contrasts_layer[layer_ind,],
 	t0_contrasts[layer_ind,])
-signif(cor_t_layer,3)
+signif(cor_t_layer,2)
+
+
+##############################
+#### larger 50000 sample #####
+##############################
+
+## read in genomic data
+tome = paste0(path, "transcrip.tome")
+exons = read_tome_dgCMatrix(tome,"data/t_exon")    # (or data/exon)
+introns = read_tome_dgCMatrix(tome,"data/t_intron")  # (or data/intron)
+total = exons + introns # combine counts
+## get annotation info
+sample_name = read_tome_sample_names(tome)  
+colnames(total) = sample_name
+gene_name = read_tome_gene_names(tome)
+rownames(total) = gene_name
+
+## read in more complete pheno data
+pheno = read.csv(paste0(path, "sample_annotations.csv"),
+	as.is=TRUE, row.names=1)
+pheno = DataFrame(pheno[colnames(total),])
+
+## convert
+sce <-   SingleCellExperiment(
+        list(counts = total),colData = pheno)
+
+rowData(sce) = gene_map[rownames(sce),]
+
+## remove "exclude" cells
+sce = sce[,sce$class_label != "Exclude"]
+## save sce
+save(sce, file = "rda/allen_snRNAseq_sce.Rdata")
+
+## ## get pseudobulk
+sce$BroadLayer = substr(sce$cortical_layer_label,1,2)
+sce$SubjRegion = paste0(sce$region_label, "_", sce$external_donor_name_label)
+sce$SubjRegionLayer = paste0(sce$SubjRegion, "_", sce$BroadLayer)
+
+## broad class
+sce$PseudoSample = sce$SubjRegionLayer
+
+
+## split and combine
+cIndexes = splitit(sce$PseudoSample)
+umiComb <- sapply(cIndexes, function(ii)
+        rowSums(assays(sce)$counts[, ii, drop = FALSE]))
+		
+phenoComb = colData(sce)[!duplicated(sce$PseudoSample),
+				c(5:6, 11:21, 34:39 )]
+				
+rownames(phenoComb) = phenoComb$PseudoSample
+phenoComb = phenoComb[colnames(umiComb),]
+phenoComb = DataFrame(phenoComb)
+
+sce_pseudobulk <-
+    logNormCounts(SingleCellExperiment(
+        list(counts = umiComb),
+        colData = phenoComb,
+        rowData = rowData(sce)
+    ))
+	
+sce_pseudobulk$Layer_Class = paste0(sce_pseudobulk$cortical_layer_label, ":",
+		sce_pseudobulk$class_label)
+
+save(sce_pseudobulk, file = "rda/allen_scRNAseq_pseudobulked.Rdata")
+
+###############################
+##### get mean expression  ####
+
+load("rda/allen_scRNAseq_pseudobulked.Rdata")
+mat <- assays(sce_pseudobulk)$logcounts
+
+## filter 
+gIndex = rowMeans(mat) > 1
+mat_filter = mat[gIndex,]
+
+#####################
+## Build a group model
