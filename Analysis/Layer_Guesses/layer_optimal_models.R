@@ -34,6 +34,7 @@ genes_bm_mat[['WM']] <- 0
 genes_query <- data.frame(
     symbol = c(genes_km_raw$Gene, genes_bm_raw$Gene),
     list = rep(c('KM', 'BM'), c(nrow(genes_km_raw), nrow(genes_bm_raw))),
+    species = c(genes_km_raw$Species, '')
     stringsAsFactors = FALSE
 )
 genes_query$m <-
@@ -252,6 +253,11 @@ tapply(marker_genes_summary$fdr, sign(marker_genes_summary$t_stat), function(x)
 #
 # FALSE  TRUE
 #    30    75
+
+
+## Save for later
+save(eb_markers_list, file = 'rda/eb_markers_list.Rdata')
+save(marker_genes, marker_genes_summary, file = 'rda/marker_genes_summary.Rdata')
 
 
 ## Reproducibility information
