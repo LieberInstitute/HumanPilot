@@ -34,13 +34,20 @@ genes_bm_mat[['WM']] <- 0
 genes_query <- data.frame(
     symbol = c(genes_km_raw$Gene, genes_bm_raw$Gene),
     list = rep(c('KM', 'BM'), c(nrow(genes_km_raw), nrow(genes_bm_raw))),
-    species = c(genes_km_raw$Species, '')
+    species = c(genes_km_raw$Species, rep('MH', nrow(genes_bm_raw))),
     stringsAsFactors = FALSE
 )
 genes_query$m <-
     match(tolower(genes_query$symbol), tolower(rowData(sce_layer)$gene_name))
 genes_query$gene_name <- rowData(sce_layer)$gene_name[genes_query$m]
 genes_query$ensembl <- rownames(sce_layer)[genes_query$m]
+
+## Note one of the KM species entry is NA
+genes_km_raw[which(is.na(genes_km_raw$Species)), ]
+# # A tibble: 1 x 11
+#   Paper Gene    `1`   `2`   `3`   `4`   `5`   `6`  `6b`    WM Species
+#   <chr> <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>
+# 1 Zeng  Pdyn      0     0     0     1     0     0     0     0 NA
 
 ## Combine the matrices into one
 genes_query_mat <- rbind(genes_km_mat, genes_bm_mat)
@@ -87,11 +94,11 @@ dups_drop <-
             marker_genes$gene_info$list == 'BM'
     )
 marker_genes$gene_info[dups_drop, ]
-#     symbol list     m gene_name         ensembl               models
-# 84    RELN   BM  8638      RELN ENSG00000189056               Layer1
-# 93    RorB   BM 10825      RORB ENSG00000198963               Layer4
-# 101   cux2   BM 14444      CUX2 ENSG00000111249 Layer2+Layer3+Layer4
-# 137  Foxp2   BM  8689     FOXP2 ENSG00000128573
+#     symbol list species     m gene_name         ensembl               models
+# 84    RELN   BM      MH  8638      RELN ENSG00000189056               Layer1
+# 93    RorB   BM      MH 10825      RORB ENSG00000198963               Layer4
+# 101   cux2   BM      MH 14444      CUX2 ENSG00000111249 Layer2+Layer3+Layer4
+# 137  Foxp2   BM      MH  8689     FOXP2 ENSG00000128573               Layer6
 marker_genes <- lapply(marker_genes, function(x) {
     x[-dups_drop, ]
 })
@@ -109,6 +116,9 @@ corfit <-
     duplicateCorrelation(mat, mod, block = sce_layer$subject_position)
 #######
 
+## What is the estimated block correlation?
+corfit$consensus.correlation
+# [1] 0.07771005
 
 ## Process each marker gene (use the full gene matrix to get global stats)
 ## takes about 3 min to run
@@ -130,38 +140,20 @@ eb_markers_list <-
         )
     })
 
-
+## Extract p-values, FDR, t-stat, logFC
 pvals_markers <- sapply(eb_markers_list, function(x) {
     x$p.value[, 2, drop = FALSE]
 })
-
 fdr_markers <- apply(pvals_markers, 2, p.adjust, 'fdr')
-
-
-data.frame(
-    'FDRsig' = colSums(apply(pvals0_contrasts, 2, p.adjust, 'fdr') < 0.05),
-    'Pval10-6sig' = colSums(pvals0_contrasts < 1e-6),
-    'Pval10-8sig' = colSums(pvals0_contrasts < 1e-8)
-)
-
-colSums(
-    data.frame(
-        'FDRsig' = p.adjust(pvals_markers, 'fdr') < 0.05,
-        'Pval10-6sig' = pvals_markers < 1e-6,
-        'Pval10-8sig' = pvals_markers < 1e-8
-    )
-)
-# FDRsig Pval10.6sig Pval10.8sig
-#     87          50          36
-length(pvals_markers)
-# [1] 130
-
 tstats_markers <- sapply(eb_markers_list, function(x) {
     x$t[, 2, drop = FALSE]
 })
+logFC_markers <- sapply(eb_markers_list, function(x) {
+    x$coefficients[, 2, drop = FALSE]
+})
 
 
-## Create a summary
+## Create a summary table
 marker_genes_summary <- cbind(marker_genes[[1]], marker_genes[[2]])
 
 ## Function to extract the relevant info
@@ -174,10 +166,7 @@ marker_extract <- function(m) {
 marker_genes_summary$p_value <- marker_extract(pvals_markers)
 marker_genes_summary$fdr <- marker_extract(fdr_markers)
 marker_genes_summary$t_stat <- marker_extract(tstats_markers)
-marker_genes_summary$log_fc <-
-    marker_extract(sapply(eb_markers_list, function(x) {
-        x$coefficients[, 2, drop = FALSE]
-    }))
+marker_genes_summary$log_fc <- marker_extract(logFC_markers)
 
 ## Get the ranks in decreasing order, so it's:
 # x <- c(-3, 4, 5, 1)
@@ -199,60 +188,69 @@ stopifnot(identical(marker_genes_summary$rank,
 
 
 ## t-stats should ideally be positive, not all are
-table(sign(marker_genes_summary$t_stat))
-# -1   1
-#  21 105
+addmargins(table(sign(marker_genes_summary$t_stat), marker_genes_summary$species))
+#       H  MH Sum
+# -1    5  16  21
+# 1    16  88 104
+# Sum  21 104 125
 
 ## The ranks are much better for some results when the t-stat is positive
 tapply(marker_genes_summary$rank,
-    sign(marker_genes_summary$t_stat),
+    paste(sign(marker_genes_summary$t_stat), marker_genes_summary$species),
     summary)
-# $`-1`
+# $`-1 H`
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#    1027    4155    8605    9090   12397   21827
+#    1792    1977    4155    6862    8980   17405
 #
-# $`1`
+# $`-1 MH`
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#       1      31     318    3253    2753   21847
+#    1027    5618    9434    9786   12660   21827
+#
+# $`1 H`
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+#     6.0    25.5   495.5  2120.0  1896.5 12092.0
+#
+# $`1 MH`
+#     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+#     1.00    46.25   314.50  3487.25  3401.00 21847.00
+#
+# $`1 NA`
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+#     738     738     738     738     738     738
 
 ## 33 have p-value < 1e-8 for the positive t-stats
-tapply(marker_genes_summary$p_value, sign(marker_genes_summary$t_stat), function(x)
-    table(x < 1e-8))
-# $`-1`
-#
-# FALSE
-#    21
-#
-# $`1`
-#
-# FALSE  TRUE
-#    72    33
+addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
+    paste(sign(marker_genes_summary$t_stat), marker_genes_summary$species), function(x)
+    table(factor(x < 1e-8, levels = c('FALSE', 'TRUE'))))))
+#       FALSE TRUE Sum
+# -1 H      5    0   5
+# -1 MH    16    0  16
+# 1 H      12    4  16
+# 1 MH     59   29  88
+# 1 NA      1    0   1
+# Sum      93   33 126
 
 ## 47 have p-value < 1e-6 for the positive t-stats
-tapply(marker_genes_summary$p_value, sign(marker_genes_summary$t_stat), function(x)
-    table(x < 1e-6))
-# $`-1`
-#
-# FALSE
-#    21
-#
-# $`1`
-#
-# FALSE  TRUE
-#    58    47
+addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
+    paste(sign(marker_genes_summary$t_stat), marker_genes_summary$species), function(x)
+    table(factor(x < 1e-6, levels = c('FALSE', 'TRUE'))))))
+#       FALSE TRUE Sum
+# -1 H      5    0   5
+# -1 MH    16    0  16
+# 1 H       8    8  16
+# 1 MH     49   39  88
+# 1 NA      1    0   1
+# Sum      79   47 126
 
 ## 75 have FDR < 0.05 for the positive t-stats
-tapply(marker_genes_summary$fdr, sign(marker_genes_summary$t_stat), function(x)
-    table(x < 0.05))
-# $`-1`
-#
-# FALSE
-#    21
-#
-# $`1`
-#
-# FALSE  TRUE
-#    30    75
+addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
+    paste(sign(marker_genes_summary$fdr), marker_genes_summary$species), function(x)
+    table(factor(x < 0.05, levels = c('FALSE', 'TRUE'))))))
+#      FALSE TRUE Sum
+# 1 H      5   16  21
+# 1 MH    31   73 104
+# 1 NA     0    1   1
+# Sum     36   90 126
 
 
 ## Save for later
