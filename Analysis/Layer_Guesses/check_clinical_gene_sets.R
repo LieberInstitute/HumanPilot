@@ -4,8 +4,8 @@ library('limma')
 library('sessioninfo')
 library('parallel')
 library('jaffelab')
-
-library(lattice)
+library('janitor')
+library('lattice')
 
 ###################
 ## load modeling outputs
@@ -47,7 +47,7 @@ asd_exome_geneList = apply(asd_exome[,
     function(x)
         asd_exome$ensembl_gene_id[x == 1])
 names(asd_exome_geneList) = gsub("_", ".", names(asd_exome_geneList))
-names(asd_exome_geneList) = paste0("Satterstrom_",
+names(asd_exome_geneList) = paste0("Gene_Satterstrom_",
     names(asd_exome_geneList))
 
 ###############
@@ -57,36 +57,36 @@ names(asd_exome_geneList) = paste0("Satterstrom_",
 asd_sfari = read.csv("gene_sets/SFARI-Gene_genes_01-03-2020release_02-04-2020export.csv",
     as.is = TRUE)
 asd_sfari_geneList = list(
-    SFARI_all = asd_sfari$ensembl.id,
-    SFARI_high = asd_sfari$ensembl.id[asd_sfari$gene.score < 3],
-    SFARI_syndromic = asd_sfari$ensembl.id[asd_sfari$syndromic == 1]
+    Gene_SFARI_all = asd_sfari$ensembl.id,
+    Gene_SFARI_high = asd_sfari$ensembl.id[asd_sfari$gene.score < 3],
+    Gene_SFARI_syndromic = asd_sfari$ensembl.id[asd_sfari$syndromic == 1]
 )
 
-#################
-## harmonizome ##
-#################
-library(org.Hs.eg.db)
-library(GenomicFeatures)
+# #################
+# ## harmonizome ##
+# #################
+# library(org.Hs.eg.db)
+# library(GenomicFeatures)
 
-harmonizome = read.delim(
-    "gene_sets/Harmonizome_CTD Gene-Disease Associations Dataset.txt",
-    as.is = TRUE,
-    skip = 1
-)
-## add ensembl
-ens = select(org.Hs.eg.db,
-    columns = c("ENSEMBL", "ENTREZID"),
-    keys = as.character(unique(harmonizome$GeneID)))
-harmonizome$ensemblID = ens$ENSEMBL[match(harmonizome$GeneID, ens$ENTREZID)]
+# harmonizome = read.delim(
+    # "gene_sets/Harmonizome_CTD Gene-Disease Associations Dataset.txt",
+    # as.is = TRUE,
+    # skip = 1
+# )
+# ## add ensembl
+# ens = select(org.Hs.eg.db,
+    # columns = c("ENSEMBL", "ENTREZID"),
+    # keys = as.character(unique(harmonizome$GeneID)))
+# harmonizome$ensemblID = ens$ENSEMBL[match(harmonizome$GeneID, ens$ENTREZID)]
 
-## split by dx
-harmonizome_geneList = split(harmonizome$ensemblID, harmonizome$Disease)
+# ## split by dx
+# harmonizome_geneList = split(harmonizome$ensemblID, harmonizome$Disease)
 
-## filter by set size
-harmonizome_geneList = harmonizome_geneList[lengths(harmonizome_geneList) >= 100]
-names(harmonizome_geneList) = gsub(" ", ".", names(harmonizome_geneList))
-names(harmonizome_geneList) = paste0("Harmonizome_",
-    names(harmonizome_geneList))
+# ## filter by set size
+# harmonizome_geneList = harmonizome_geneList[lengths(harmonizome_geneList) >= 100]
+# names(harmonizome_geneList) = gsub(" ", ".", names(harmonizome_geneList))
+# names(harmonizome_geneList) = paste0("Harmonizome_",
+    # names(harmonizome_geneList))
 
 ####################
 ### birnbaum sets ##
@@ -102,7 +102,7 @@ birnbaum$ensemblID = ens2$ENSEMBL[match(birnbaum$`EntrezGene ID`, ens2$ENTREZID)
 birnbaum_geneList = split(birnbaum$ensemblID, birnbaum$`Gene Set`)
 names(birnbaum_geneList) = gsub(" ", ".", names(birnbaum_geneList))
 names(birnbaum_geneList) = gsub("-", ".", names(birnbaum_geneList))
-names(birnbaum_geneList) = paste0("Birnbaum_",
+names(birnbaum_geneList) = paste0("Gene_Birnbaum_",
     names(birnbaum_geneList))
 
 ######################
@@ -115,13 +115,13 @@ rownames(psychENCODE) = stats$ensembl_gene_id
 pe_geneList = with(
     psychENCODE,
     list(
-        pe_SCZup = ensembl_gene_id[SCZ.t.value > 0 & SCZ.fdr < 0.05],
-        pe_SCZdown = ensembl_gene_id[SCZ.t.value < 0 & SCZ.fdr < 0.05],
-        pe_ASDup = ensembl_gene_id[ASD.t.value > 0 & ASD.fdr < 0.05],
-        pe_ASDdown = ensembl_gene_id[ASD.t.value < 0 & ASD.fdr < 0.05],
-        pe_BDup = ensembl_gene_id[BD.t.value > 0 & BD.fdr < 0.05],
-        pe_BDdown = ensembl_gene_id[BD.t.value < 0 & BD.fdr < 0.05]
-    )
+        DE_PE_ASD.Up = ensembl_gene_id[ASD.t.value > 0 & ASD.fdr < 0.05],
+        DE_PE_ASD.Down = ensembl_gene_id[ASD.t.value < 0 & ASD.fdr < 0.05],
+        DE_PE_BD.Up = ensembl_gene_id[BD.t.value > 0 & BD.fdr < 0.05],
+        DE_PE_BD.Down = ensembl_gene_id[BD.t.value < 0 & BD.fdr < 0.05],
+		DE_PE_SCZ.Up = ensembl_gene_id[SCZ.t.value > 0 & SCZ.fdr < 0.05],
+        DE_PE_SCZ.Down = ensembl_gene_id[SCZ.t.value < 0 & SCZ.fdr < 0.05]
+		)
 )
 
 #################
@@ -134,22 +134,54 @@ load(
 )
 
 bs2_geneList = with(outGene,
-    list(bs2_SCZup = ensemblID[logFC > 0 & adj.P.Val < 0.05],
-        bs2_SCZdown = ensemblID[logFC < 0 & adj.P.Val < 0.05]))
+    list(DE_BS2_SCZ.Up = ensemblID[logFC > 0 & adj.P.Val < 0.05],
+        DE_BS2_SCZ.Down = ensemblID[logFC < 0 & adj.P.Val < 0.05]))
 
-
-## DLPFC polyA
-load(
-    "/dcl01/ajaffe/data/lab/qsva_brain/brainseq_phase1_qsv/rdas/dxStats_dlpfc_filtered_qSVA_BSP1_DLPFC.rda",
-    verbose = TRUE
-)
-
-bs1_geneList = with(outGene,
-    list(bs1_SCZup = ensemblID[logFC > 0 & adj.P.Val < 0.1],
-        bs1_SCZdown = ensemblID[logFC < 0 & adj.P.Val < 0.1]))
 
 ##############################
 ### Sestan DS Neuron 2017? ###
+
+ds = read_excel("gene_sets/1-s2.0-S0896627316000891-mmc4.xlsx",skip=2)
+ds = clean_names(ds)
+ds = as.data.frame(ds)
+ens3 = select(org.Hs.eg.db,
+    columns = c("ENSEMBL", "ENTREZID"),
+    keys = as.character(unique(ds$geneid)))
+ds$ensemblID = ens3$ENSEMBL[match(ds$geneid, ens3$ENTREZID)]
+ds$fold_difference_log2 = as.numeric(ds$fold_difference_log2)
+ds$p_value = readr::parse_number(ds$p_value)
+ds$qval = readr::parse_number(ds$qval)
+
+ds_geneList = list(DE_DS_DS.Up = ds$ensemblID[ds$fold_difference_log2 > 0 & ds$qval < 0.05],
+        DE_DS_DS.Down = ds$ensemblID[ds$fold_difference_log2 < 0 & ds$qval < 0.05])
+
+#############################
+## various TWAS sets ########
+#############################
+
+## brainseq 2
+load("/dcl01/ajaffe/data/lab/dg_hippo_paPEr/rdas/tt_objects_gene.Rdata")
+tt_dlpfc=  as.data.frame(tt[tt$region == "DLPFC",])
+tt_dlpfc$ensemblID = ss(tt_dlpfc$geneid, "\\.")
+
+## PE 
+twas_sczd = as.data.frame(read_excel("gene_sets/aat8127_Table_S4.xlsx", sheet = "SCZ.TWAS"))
+twas_sczd$TWAS.FDR = p.adjust(twas_sczd$TWAS.P, "fdr")
+twas_asd = as.data.frame(read_excel("gene_sets/aat8127_Table_S4.xlsx", sheet = "ASD.TWAS"))
+twas_asd$TWAS.FDR = p.adjust(twas_asd$TWAS.P, "fdr")
+twas_bpdscz = as.data.frame(read_excel("gene_sets/aat8127_Table_S4.xlsx", sheet = "BD.SCZ"))
+twas_bpdscz$TWAS.FDR = p.adjust(twas_bpdscz$TWAS.P, "fdr")
+
+twas_geneList = list(TWAS_BS2_SCZ.Up = tt_dlpfc$ensemblID[tt_dlpfc$TWAS.Z > 0 & tt_dlpfc$TWAS.FDR < 0.05],
+			TWAS_BS2_SCZ.Down = tt_dlpfc$ensemblID[tt_dlpfc$TWAS.Z < 0 & tt_dlpfc$TWAS.FDR < 0.05],
+			TWAS_PE_SCZ.Up = twas_sczd$GeneID[twas_sczd$TWAS.Z > 0 & twas_sczd$TWAS.FDR < 0.05],
+			TWAS_PE_SCZ.Down = twas_sczd$GeneID[twas_sczd$TWAS.Z < 0 & twas_sczd$TWAS.FDR < 0.05],
+			TWAS_PE_ASD.Up = twas_asd$GeneID[twas_asd$TWAS.Z > 0 & twas_asd$TWAS.FDR < 0.05],
+			TWAS_PE_ASD.Down = twas_asd$GeneID[twas_asd$TWAS.Z < 0 & twas_asd$TWAS.FDR < 0.05],
+			TWAS_PE_SCZBD.Up = twas_bpdscz$ID[twas_bpdscz$TWAS.Z > 0 & twas_bpdscz$TWAS.FDR < 0.05],
+			TWAS_PE_SCZBD.Down = twas_bpdscz$ID[twas_bpdscz$TWAS.Z < 0 & twas_bpdscz$TWAS.FDR < 0.05])
+
+
 
 ###############
 ### combine ###
@@ -157,12 +189,13 @@ bs1_geneList = with(outGene,
 
 ## gene list ##
 geneList = c(
-    asd_exome_geneList,
-    asd_sfari_geneList,
     birnbaum_geneList,
-    bs2_geneList,
+	asd_sfari_geneList,
+	asd_exome_geneList,
     pe_geneList,
-    harmonizome_geneList
+    bs2_geneList,
+    ds_geneList,
+	twas_geneList
 )
 
 ## filter for those present in spatial data
@@ -190,33 +223,18 @@ for (i in seq(along = eb0_list)) {
 enrichTab = do.call("cbind", enrich_stat_list)
 
 #  name
-enrichTab$Group = rep(
-    c(
-        "Satterstrom",
-        "SFARI",
-        "Birnbaum",
-        "BrainSeq2",
-        "psychENCODE",
-        "Harmonizome"
-    ),
-    times = c(
-        length(asd_exome_geneList),
-        length(asd_sfari_geneList),
-        length(birnbaum_geneList),
-        length(bs2_geneList),
-        length(pe_geneList),
-        length(harmonizome_geneList)
-    )
-)
-enrichTab$SetID = rownames(enrichTab)
-enrichTab$ID = ss(rownames(enrichTab) , "_", 2)
+enrichTab$Type = ss(rownames(enrichTab), "_", 1)
+enrichTab$Group = ss(rownames(enrichTab), "_", 2)
+enrichTab$Set = ss(rownames(enrichTab), "_", 2)
 
-enrichTab_noHarm = enrichTab[enrichTab$Group != "Harmonizome", ]
-pMat = enrichTab_noHarm[, grep("Pval", colnames(enrichTab_noHarm))]
+## lookat enrichment
+pMat = enrichTab[, grep("Pval", colnames(enrichTab))]
 colnames(pMat) = ss(colnames(pMat), "\\.")
 pMat < 0.05 / nrow(pMat)
 pMat < 0.001
+round(-log10(pMat),1)
 
+signif(-log10(pMat[grep("Sestan", rownames(pMat)),]),2)
 options(width = 100)
 signif(-log10(pMat)[c(7:9, 4:6), ], 3)
 
@@ -243,7 +261,7 @@ pdf("pdf/ASD_risk_gene_heatmap.pdf", width = 8)
 print(
     levelplot(
         t(negPmat_ASD),
-        aspect = "fill",
+        asPEct = "fill",
         at = theSeq,
         col.regions = my.col,
         ylab = "",
