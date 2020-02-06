@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 
 # SpatialDE subsampling comparison
 
-Comparison of gene lists generated from Stephanie's SpatialDE runs with and without subsampling on the number of spots. (The version with subsampling used subsampling to 1500 spots per sample for faster runtime.)
+Comparison of gene lists generated from Stephanie Hicks's SpatialDE runs with and without subsampling on the number of spots. (The version with subsampling used subsampling to 1500 spots per sample for faster runtime.)
 
 
 ## Load data
@@ -43,15 +43,8 @@ spatialDE_files_sub <- list.files(
     "../../data/SpatialDE/spatialDE_subsampled", pattern = "\\.csv$", full.names = TRUE
 )
 
-spatialDE_results_all <- list()
-spatialDE_results_sub <- list()
-
-for (i in seq_along(spatialDE_files_all)) {
-    spatialDE_results_all[[i]] <- read_csv(spatialDE_files_all[i])
-}
-for (i in seq_along(spatialDE_files_sub)) {
-    spatialDE_results_sub[[i]] <- read_csv(spatialDE_files_sub[i])
-}
+spatialDE_results_all <- lapply(spatialDE_files_all, read_csv)
+spatialDE_results_sub <- lapply(spatialDE_files_sub, read_csv)
 
 sample_names_all <- gsub("_spatialDE.*$", "", gsub("^.*/", "", spatialDE_files_all))
 sample_names_sub <- gsub("_spatialDE.*$", "", gsub("^.*/", "", spatialDE_files_sub))
@@ -71,7 +64,6 @@ Compare the following:
 
 - total number of genes per sample
 - number of significant genes per sample (q-values < 0.05)
-- number of genes per sample with q-values = 0
 
 ```{r}
 # check numbers of genes
@@ -83,10 +75,6 @@ sapply(spatialDE_results_sub, nrow)
 # number of significant genes per sample (q-values < 0.05)
 sapply(spatialDE_results_all, function(d) table(d$qval < 0.05))
 sapply(spatialDE_results_sub, function(d) table(d$qval < 0.05))
-
-# number of genes per sample with q-values = 0
-sapply(spatialDE_results_all, function(d) table(d$qval == 0))
-sapply(spatialDE_results_sub, function(d) table(d$qval == 0))
 ```
 
 
@@ -99,14 +87,6 @@ spatialDE_sig_all <- lapply(spatialDE_results_all, function(d) {
 })
 spatialDE_sig_sub <- lapply(spatialDE_results_sub, function(d) {
     filter(d, qval < 0.05)$g
-})
-
-# genes per sample with q-values = 0
-spatialDE_zero_all <- lapply(spatialDE_results_all, function(d) {
-    filter(d, qval == 0)$g
-})
-spatialDE_zero_sub <- lapply(spatialDE_results_sub, function(d) {
-    filter(d, qval == 0)$g
 })
 ```
 
@@ -129,49 +109,53 @@ length(unique(gene_names))
 length(unique(unlist(spatialDE_sig_all)))
 length(unique(unlist(spatialDE_sig_sub)))
 
-length(unique(unlist(spatialDE_zero_all)))
-length(unique(unlist(spatialDE_zero_sub)))
-
 stopifnot(all(unique(unlist(spatialDE_sig_all)) %in% unique(names(gene_names))))
 table(unique(unlist(spatialDE_sig_all)) %in% unique(names(gene_names)))
 stopifnot(all(unique(unlist(spatialDE_sig_sub)) %in% unique(names(gene_names))))
 table(unique(unlist(spatialDE_sig_sub)) %in% unique(names(gene_names)))
 
-stopifnot(all(unique(unlist(spatialDE_zero_all)) %in% unique(names(gene_names))))
-table(unique(unlist(spatialDE_zero_all)) %in% unique(names(gene_names)))
-stopifnot(all(unique(unlist(spatialDE_zero_sub)) %in% unique(names(gene_names))))
-table(unique(unlist(spatialDE_zero_sub)) %in% unique(names(gene_names)))
-
 # convert gene symbols to gene names
 spatialDE_sig_all <- lapply(spatialDE_sig_all, function(d) {
-    unname(gene_names[d])
+    data.frame(gene_symbol = d, gene_name = gene_names[d])
 })
 spatialDE_sig_sub <- lapply(spatialDE_sig_sub, function(d) {
-    unname(gene_names[d])
-})
-
-spatialDE_zero_all <- lapply(spatialDE_zero_all, function(d) {
-    unname(gene_names[d])
-})
-spatialDE_zero_sub <- lapply(spatialDE_zero_sub, function(d) {
-    unname(gene_names[d])
+    data.frame(gene_symbol = d, gene_name = gene_names[d])
 })
 ```
 
 
 ```{r}
+# save spreadsheets
+for (i in seq_along(sample_names)) {
+    write_csv(
+        as.data.frame(spatialDE_sig_all[[i]]), 
+        paste0("../outputs/genes/SpatialDE_genes_sig_all_", gsub("sample_", "", sample_names[i]), ".csv")
+    )
+    write_csv(
+        as.data.frame(spatialDE_sig_sub[[i]]), 
+        paste0("../outputs/genes/SpatialDE_genes_sig_sub_", gsub("sample_", "", sample_names[i]), ".csv")
+    )
+}
+```
+
+
+```{r}
 # pooled gene lists
-spatialDE_sig_all_pool <- sort(unique(unlist(spatialDE_sig_all)))
-spatialDE_sig_sub_pool <- sort(unique(unlist(spatialDE_sig_sub)))
+spatialDE_sig_all_pool <- unique(do.call("rbind", spatialDE_sig_all))
+spatialDE_sig_sub_pool <- unique(do.call("rbind", spatialDE_sig_sub))
 
-spatialDE_zero_all_pool <- sort(unique(unlist(spatialDE_zero_all)))
-spatialDE_zero_sub_pool <- sort(unique(unlist(spatialDE_zero_sub)))
+nrow(spatialDE_sig_all_pool)
+nrow(spatialDE_sig_sub_pool)
 
-length(spatialDE_sig_all_pool)
-length(spatialDE_sig_sub_pool)
-
-length(spatialDE_zero_all_pool)
-length(spatialDE_zero_sub_pool)
+# save spreadsheets
+write_csv(
+    as.data.frame(spatialDE_sig_all_pool), 
+    "../outputs/genes/SpatialDE_genes_sig_all_pooled.csv"
+)
+write_csv(
+    as.data.frame(spatialDE_sig_sub_pool), 
+    "../outputs/genes/SpatialDE_genes_sig_sub_pooled.csv"
+)
 ```
 
 
@@ -180,13 +164,9 @@ length(spatialDE_zero_sub_pool)
 Plot the following:
 
 - sample vs. sample: all spots, significant genes (q-values < 0.05)
-- sample vs. sample: all spots, genes with q-values = 0
 - sample vs. sample: subsampled spots, significant genes (q-values < 0.05)
-- sample vs. sample: subsampled spots, genes with q-values = 0
 - each sample (all spots vs. subsampling): significant genes (q-values < 0.05)
-- each sample (all spots vs. subsampling): genes with q-values = 0
 - pooled lists: significant genes (q-values < 0.05)
-- pooled lists: genes with q-values = 0
 
 ```{r, fig.width = 12, fig.height = 10}
 # UpSetR plots
@@ -196,9 +176,9 @@ Plot the following:
 # -----------------
 
 # all spots, significant genes (q-values < 0.05)
-#pdf("../plots/intersections/upset_SpatialDE_all_sig.pdf", width = 12, height = 10)
+#pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_all_sig.pdf", width = 12, height = 10)
 upset(
-    fromList(spatialDE_sig_all), 
+    fromList(lapply(spatialDE_sig_all, function(d) as.character(d[, "gene_symbol"]))), 
     nsets = length(spatialDE_sig_all), 
     nintersects = NA, 
     order.by = "degree", 
@@ -209,24 +189,10 @@ upset(
 )
 #dev.off()
 
-# all spots, genes with q-values = 0
-#pdf("../plots/intersections/upset_SpatialDE_all_zero.pdf", width = 12, height = 10)
-upset(
-    fromList(spatialDE_zero_all), 
-    nsets = length(spatialDE_zero_all), 
-    nintersects = NA, 
-    order.by = "degree", 
-    decreasing = TRUE, 
-    sets = rev(sample_names), 
-    keep.order = TRUE, 
-    mainbar.y.label = "SpatialDE intersections: all spots, genes with q-values = 0"
-)
-#dev.off()
-
 # subsampled spots, significant genes (q-values < 0.05)
-#pdf("../plots/intersections/upset_SpatialDE_sub_sig.pdf", width = 12, height = 10)
+#pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_sub_sig.pdf", width = 12, height = 10)
 upset(
-    fromList(spatialDE_sig_sub), 
+    fromList(lapply(spatialDE_sig_sub, function(d) as.character(d[, "gene_symbol"]))), 
     nsets = length(spatialDE_sig_sub), 
     nintersects = NA, 
     order.by = "degree", 
@@ -234,20 +200,6 @@ upset(
     sets = rev(sample_names), 
     keep.order = TRUE, 
     mainbar.y.label = "SpatialDE intersections: subsampled spots, significant genes (q-values < 0.05)"
-)
-#dev.off()
-
-# subsampled spots, genes with q-values = 0
-#pdf("../plots/intersections/upset_SpatialDE_sub_zero.pdf", width = 12, height = 10)
-upset(
-    fromList(spatialDE_zero_sub), 
-    nsets = length(spatialDE_zero_sub), 
-    nintersects = NA, 
-    order.by = "degree", 
-    decreasing = TRUE, 
-    sets = rev(sample_names), 
-    keep.order = TRUE, 
-    mainbar.y.label = "SpatialDE intersections: subsampled spots, genes with q-values = 0"
 )
 #dev.off()
 ```
@@ -262,25 +214,12 @@ upset(
 
 # significant genes (q-values < 0.05)
 for (i in 1:length(sample_names)) {
-    fn <- paste0("../plots/intersections/upset_SpatialDE_subsampling_comparison_", gsub("sample_", "", sample_names[i]), "_sig.pdf")
+    fn <- paste0("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_subsampling_comparison_", 
+                 gsub("sample_", "", sample_names[i]), "_sig.pdf")
     #pdf(fn, width = 4, height = 4)
     print(upset(
-        fromList(list(all_spots = spatialDE_sig_all[[i]], subsampled = spatialDE_sig_sub[[i]])), 
-        order.by = "degree", 
-        decreasing = TRUE, 
-        sets = rev(c("all_spots", "subsampled")), 
-        keep.order = TRUE, 
-        mainbar.y.label = sample_names[i]
-    ))
-    #dev.off()
-}
-
-# genes with q-values = 0
-for (i in 1:length(sample_names)) {
-    fn <- paste0("../plots/intersections/upset_SpatialDE_subsampling_comparison_", gsub("sample_", "", sample_names[i]), "_zero.pdf")
-    #pdf(fn, width = 4, height = 4)
-    print(upset(
-        fromList(list(all_spots = spatialDE_zero_all[[i]], subsampled = spatialDE_zero_sub[[i]])), 
+        fromList(list(all_spots = as.character(spatialDE_sig_all[[i]][, "gene_symbol"]), 
+                      subsampled = as.character(spatialDE_sig_sub[[i]][, "gene_symbol"]))), 
         order.by = "degree", 
         decreasing = TRUE, 
         sets = rev(c("all_spots", "subsampled")), 
@@ -300,26 +239,15 @@ for (i in 1:length(sample_names)) {
 # ------------
 
 # pooled samples, significant genes (q-values < 0.05)
-#pdf("../plots/intersections/upset_SpatialDE_pooled_sig.pdf", width = 5, height = 6)
+#pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_pooled_sig.pdf", width = 5, height = 6)
 upset(
-    fromList(list(all_spots = spatialDE_sig_all_pool, subsampled = spatialDE_sig_sub_pool)), 
+    fromList(list(all_spots = as.character(spatialDE_sig_all_pool[, "gene_symbol"]), 
+                  subsampled = as.character(spatialDE_sig_sub_pool[, "gene_symbol"]))), 
     order.by = "degree", 
     decreasing = TRUE, 
     sets = rev(c("all_spots", "subsampled")), 
     keep.order = TRUE, 
     mainbar.y.label = "SpatialDE intersections: pooled samples, significant genes (q-values < 0.05)"
-)
-#dev.off()
-
-# pooled samples, genes with q-values = 0
-#pdf("../plots/intersections/upset_SpatialDE_pooled_zero.pdf", width = 5, height = 6)
-upset(
-    fromList(list(all_spots = spatialDE_zero_all_pool, subsampled = spatialDE_zero_sub_pool)), 
-    order.by = "degree", 
-    decreasing = TRUE, 
-    sets = rev(c("all_spots", "subsampled")), 
-    keep.order = TRUE, 
-    mainbar.y.label = "SpatialDE intersections: pooled samples, genes with q-values = 0"
 )
 #dev.off()
 ```
