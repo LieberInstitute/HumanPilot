@@ -221,7 +221,7 @@ dev.off()
 rm(x)
 
 ## Drop mitochondrial genes
-sce_layer <- sce_layer[-ix_mito,]
+sce_layer <- sce_layer[-ix_mito, ]
 
 
 ## Find which genes to drop due to low expression values
@@ -402,7 +402,7 @@ selected_genes <-
     which(per.feat$detected > 5 & sce_layer_avg_logcounts > 0.05)
 length(selected_genes)
 # [1] 22331
-sce_layer <- sce_layer[selected_genes, ]
+sce_layer <- sce_layer[selected_genes,]
 dim(sce_layer)
 # [1] 22331    76
 
@@ -413,7 +413,7 @@ sce_layer_sfac <-
         colData = layer_df,
         rowData = rowData(sce)
     ),
-        size_factors = umiComb_sample_size_fac_layer)[-ix_mito,][selected_genes, ]
+        size_factors = umiComb_sample_size_fac_layer)[-ix_mito, ][selected_genes,]
 
 ## From scater's vignette at
 ## http://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html#34_variable-level_qc
@@ -1330,7 +1330,7 @@ find_marker_gene('MOBP', markers_layer, 'all', 'up')
 mat <- assays(sce_layer)$logcounts
 
 ## Build a group model
-mod <- with(colData(sce_layer), model.matrix( ~ 0 + layer_guess))
+mod <- with(colData(sce_layer), model.matrix(~ 0 + layer_guess))
 colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
@@ -1400,7 +1400,7 @@ layer_idx <- splitit(sce_layer$layer_guess)
 eb0_list <- lapply(layer_idx, function(x) {
     res <- rep(0, ncol(sce_layer))
     res[x] <- 1
-    m <- model.matrix( ~ res)
+    m <- model.matrix(~ res)
     eBayes(
         lmFit(
             mat,
@@ -1469,7 +1469,7 @@ sig_genes_summary(sig_genes_layer)
 sig_genes_layer_rev <-
     sig_genes_extract(-1 * tstats_contrasts, pvals_contrasts)
 sig_genes_layer_rev$layer <-
-    rep(apply(layer_combs[c(2, 1), ], 2, paste, collapse = '-'), each = 10)
+    rep(apply(layer_combs[c(2, 1),], 2, paste, collapse = '-'), each = 10)
 sig_genes_summary(sig_genes_layer_rev)
 # KM_Zeng       BM      RNAscope
 # FALSE:78   FALSE:90   FALSE:51
@@ -1565,14 +1565,15 @@ xx <- plot_markers_expr(
 dev.off()
 
 ## Make boxplots
-layer_guess_reordered <-  factor(sce_layer$layer_guess, levels = c(paste0('Layer', 1:6), 'WM'))
+layer_guess_reordered <-
+    factor(sce_layer$layer_guess, levels = c(paste0('Layer', 1:6), 'WM'))
 pdf('pdf/markers_layer_boxplots.pdf', useDingbats = FALSE)
 set.seed(20200206)
 for (i in seq_len(nrow(sig_genes))) {
     # i <- 1
     message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
     boxplot(
-        mat[sig_genes$gene_index[i],] ~ layer_guess_reordered,
+        mat[sig_genes$gene_index[i], ] ~ layer_guess_reordered,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -1593,7 +1594,7 @@ for (i in seq_len(nrow(sig_genes))) {
         cex = 1.5
     )
     points(
-        mat[sig_genes$gene_index[i],] ~ jitter(as.integer(layer_guess_reordered)),
+        mat[sig_genes$gene_index[i], ] ~ jitter(as.integer(layer_guess_reordered)),
         pch = 21,
         bg = Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess)],
         cex = 1.5
