@@ -6,6 +6,8 @@ library('parallel')
 library('jaffelab')
 library('janitor')
 library('lattice')
+library(org.Hs.eg.db)
+library(GenomicFeatures)
 
 ###################
 ## load modeling outputs
@@ -32,8 +34,8 @@ rownames(t0_contrasts) = rownames(eb_contrasts)
 ##################################
 ## Satterstrom et al, Cell 2020 ##
 ##################################
-asd_exome = read_excel("gene_sets/1-s2.0-S0092867419313984-mmc2.xlsx", sheet =
-        2)
+asd_exome = read_excel("gene_sets/1-s2.0-S0092867419313984-mmc2.xlsx", 
+	sheet = 2)
 asd_exome = as.data.frame(asd_exome)
 
 ## get ensembl IDs
@@ -65,8 +67,6 @@ asd_sfari_geneList = list(
 # #################
 # ## harmonizome ##
 # #################
-# library(org.Hs.eg.db)
-# library(GenomicFeatures)
 
 # harmonizome = read.delim(
     # "gene_sets/Harmonizome_CTD Gene-Disease Associations Dataset.txt",
@@ -104,13 +104,13 @@ names(birnbaum_geneList) = gsub(" ", ".", names(birnbaum_geneList))
 names(birnbaum_geneList) = gsub("-", ".", names(birnbaum_geneList))
 names(birnbaum_geneList) = paste0("Gene_Birnbaum_",
     names(birnbaum_geneList))
+birnbaum_geneList = birnbaum_geneList[rev(seq(along=birnbaum_geneList))]
 
 ######################
 ## psychENCODE DEGs ##
 ######################
 
 psychENCODE = as.data.frame(read_excel("gene_sets/aat8127_Table_S1.xlsx", sheet = "DGE"))
-rownames(psychENCODE) = stats$ensembl_gene_id
 
 pe_geneList = with(
     psychENCODE,
@@ -160,7 +160,7 @@ ds_geneList = list(DE_DS_DS.Up = ds$ensemblID[ds$fold_difference_log2 > 0 & ds$q
 #############################
 
 ## brainseq 2
-load("/dcl01/ajaffe/data/lab/dg_hippo_paPEr/rdas/tt_objects_gene.Rdata")
+load("/dcl01/ajaffe/data/lab/dg_hippo_paper/rdas/tt_objects_gene.Rdata")
 tt_dlpfc=  as.data.frame(tt[tt$region == "DLPFC",])
 tt_dlpfc$ensemblID = ss(tt_dlpfc$geneid, "\\.")
 
@@ -211,7 +211,7 @@ for (i in seq(along = eb0_list)) {
     enrichList = mclapply(geneList_present, function(g) {
         tt = table(Set = factor(names(layer) %in% g, c(FALSE, TRUE)),
             Layer = factor(layer, c(FALSE, TRUE)))
-        fisher.test(tt, alternative = "greater")
+        fisher.test(tt)
     }, mc.cores = 8)
     o = data.frame(
         OR = sapply(enrichList, "[[", "estimate"),
@@ -224,29 +224,115 @@ enrichTab = do.call("cbind", enrich_stat_list)
 
 #  name
 enrichTab$Type = ss(rownames(enrichTab), "_", 1)
+enrichTab$Type[enrichTab$Group == "Birnbaum"] = "Birnbaum"
+enrichTab$Type[enrichTab$Type == "Gene"] = "ASD"
 enrichTab$Group = ss(rownames(enrichTab), "_", 2)
-enrichTab$Set = ss(rownames(enrichTab), "_", 2)
+enrichTab$Set = ss(rownames(enrichTab), "_", 3)
+enrichTab$ID = rownames(enrichTab)
 
 ## lookat enrichment
 pMat = enrichTab[, grep("Pval", colnames(enrichTab))]
+orMat = enrichTab[, grep("OR", colnames(enrichTab))]
 colnames(pMat) = ss(colnames(pMat), "\\.")
+colnames(orMat) = ss(colnames(orMat), "\\.")
 pMat < 0.05 / nrow(pMat)
 pMat < 0.001
 round(-log10(pMat),1)
 
 signif(-log10(pMat[grep("Sestan", rownames(pMat)),]),2)
 options(width = 100)
-signif(-log10(pMat)[c(7:9, 4:6), ], 3)
 
 ################
 ## make plots ##
 ################
+library(ggplot2)
+
+## make long
+enrichLong = reshape2::melt(enrichTab[,c(1,3,5,7,9,11,13,15:18)],id.vars = 8:11)
+colnames(enrichLong)[5:6] = c("Layer", "OR")
+enrichLong_P = reshape2::melt(enrichTab[,c(2,4,6,8,10,12,14,15:18)],id.vars = 8:11)
+identical(enrichLong$ID, enrichLong_P$ID)
+enrichLong$P = enrichLong_P$value
+enrichLong$Layer = ss(as.character(enrichLong$Layer), "\\.")
+enrichLong$ID = factor(enrichLong$ID, levels=rev(rownames(enrichTab)))
+enrichLong$Set = factor(enrichLong$Set, levels=unique(rev(enrichTab$Set)))
+
+## overall ##
+enrichLong$P_thresh = enrichLong$P
+enrichLong$P_thresh[enrichLong$P_thresh < 2.2e-16] = 2.2e-16
+
+#### overall ###
+pdf("pdf/clinical_gene_sets_all_dotplot.pdf",h=9.5,w=7.5)
+print(
+	ggplot(enrichLong, aes(x=Layer, y=ID, size=OR, color=-log10(P_thresh))) +
+		geom_point() + scale_color_continuous(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle("Clinical Gene Enrichment") + 
+			theme_dark() + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
+			scale_size(range=c(1, 10))  
+)
+dev.off()		
+
+#### ASD focus ###
+enrichLong_typeList = split(enrichLong, enrichLong$Type)
+enrichLong_typeList = lapply(enrichLong_typeList, function(x) {
+	x$ID = paste0(x$Group, ":", x$Set)
+	x$ID = factor(x$ID, unique(rev(paste0(enrichTab$Group, ":", enrichTab$Set))))
+	return(x)
+})
+
+pdf("pdf/clinical_gene_sets_byType_dotplot.pdf",h=6,w=7.5)
+for(i in seq(along=enrichLong_typeList)) {
+	print(
+		ggplot(enrichLong_typeList[[i]], aes(x=Layer, y=ID, size=OR, color=-log10(P_thresh))) +
+			geom_point() + scale_color_continuous(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle(paste(names(enrichLong_typeList)[i],
+				"Enrichment")) + 
+			theme_dark() + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			scale_size(range=c(1, 10))
+		)
+}		
+dev.off()
+
+enrichLong_groupList = split(enrichLong, paste(enrichLong$Type, enrichLong$Group))
+names(enrichLong_groupList)[3] = "Birnbaum Gene"
+
+pdf("pdf/clinical_gene_sets_byGroup_dotplot.pdf",h=6,w=7.5)
+for(i in seq(along=enrichLong_groupList)) {
+	print(
+		ggplot(enrichLong_groupList[[i]],
+			aes(x=Layer, y=Set, size=OR, color=-log10(P_thresh))) +
+			geom_point() + scale_color_continuous(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle(paste(names(enrichLong_groupList)[i],
+				"Enrichment")) + 
+			theme_dark() + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			scale_size(range=c(1, 10)) + guides(fill = "white") 
+		)
+}		
+dev.off()
+
+
+
+## ggplot2 style?
+negp_long = reshape2::melt(-log10(pMat))
 
 theSeq = seq(0, 12, by = 0.1)
 my.col <- colorRampPalette(c("white", "red"))(length(theSeq))
 
 ## overall
-negPmat = -log10(pMat)
+
 negPmat[negPmat > 12] = 12
 
 ## ASD

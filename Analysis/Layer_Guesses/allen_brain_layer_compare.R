@@ -11,6 +11,8 @@ library(org.Hs.eg.db)
 library(GenomicFeatures)
 library(vroom)
 library(Matrix)
+library(lattice)
+library(RColorBrewer)
 
 ## location of data on cluster
 ## data via: https://portal.brain-map.org/atlases-and-data/rnaseq
@@ -223,6 +225,25 @@ layer_ind = unique(as.numeric(layer_specific_indices))
 cor_t_layer = cor(t0_contrasts_layer[layer_ind, ],
     t0_contrasts[layer_ind, ])
 signif(cor_t_layer, 2)
+
+
+### heatmap
+theSeq = seq(-.81, .81, by = 0.01)
+my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
+
+pdf("pdf/allen_brain_layer_overlap_heatmap.pdf", width = 8)
+print(
+    levelplot(
+        cor_t_layer,
+        aspect = "fill",
+        at = theSeq,
+        col.regions = my.col,
+        ylab = "Spatial",
+        xlab = "Allen Brain",
+        scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
+    )
+)
+dev.off()
 
 
 ##############################
