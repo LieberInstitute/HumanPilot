@@ -1565,12 +1565,14 @@ xx <- plot_markers_expr(
 dev.off()
 
 ## Make boxplots
+layer_guess_reordered <-  factor(sce_layer$layer_guess, levels = c(paste0('Layer', 1:6), 'WM'))
 pdf('pdf/markers_layer_boxplots.pdf', useDingbats = FALSE)
+set.seed(20200206)
 for (i in seq_len(nrow(sig_genes))) {
     # i <- 1
     message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
     boxplot(
-        mat[sig_genes$gene_index[i],] ~ sce_layer$layer_guess,
+        mat[sig_genes$gene_index[i],] ~ layer_guess_reordered,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -1591,7 +1593,7 @@ for (i in seq_len(nrow(sig_genes))) {
         cex = 1.5
     )
     points(
-        mat[sig_genes$gene_index[i],] ~ jitter(as.integer(sce_layer$layer_guess)),
+        mat[sig_genes$gene_index[i],] ~ jitter(as.integer(layer_guess_reordered)),
         pch = 21,
         bg = Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess)],
         cex = 1.5

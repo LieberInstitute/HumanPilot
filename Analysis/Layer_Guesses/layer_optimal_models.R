@@ -42,13 +42,6 @@ genes_query$m <-
 genes_query$gene_name <- rowData(sce_layer)$gene_name[genes_query$m]
 genes_query$ensembl <- rownames(sce_layer)[genes_query$m]
 
-## Note one of the KM species entry is NA
-genes_km_raw[which(is.na(genes_km_raw$Species)), ]
-# # A tibble: 1 x 11
-#   Paper Gene    `1`   `2`   `3`   `4`   `5`   `6`  `6b`    WM Species
-#   <chr> <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>
-# 1 Zeng  Pdyn      0     0     0     1     0     0     0     0 NA
-
 ## Combine the matrices into one
 genes_query_mat <- rbind(genes_km_mat, genes_bm_mat)
 
@@ -157,9 +150,9 @@ logFC_markers <- sapply(eb_markers_list, function(x) {
 marker_genes_summary <- cbind(marker_genes[[1]], marker_genes[[2]])
 
 ## Function to extract the relevant info
-marker_extract <- function(m) {
-    sapply(seq_along(marker_genes_summary$m), function(i) {
-        m[marker_genes_summary$m[i], i]
+marker_extract <- function(m, j = marker_genes_summary$m) {
+    sapply(seq_along(j), function(i) {
+        m[j[i], i]
     })
 }
 
@@ -186,13 +179,12 @@ stopifnot(identical(marker_genes_summary$rank,
         -abs(tstats_markers), 2, rank
     ))))
 
-
 ## t-stats should ideally be positive, not all are
 addmargins(table(sign(marker_genes_summary$t_stat), marker_genes_summary$species))
 #       H  MH Sum
 # -1    5  16  21
-# 1    16  88 104
-# Sum  21 104 125
+# 1    17  88 105
+# Sum  22 104 126
 
 ## The ranks are much better for some results when the t-stat is positive
 tapply(marker_genes_summary$rank,
@@ -208,15 +200,11 @@ tapply(marker_genes_summary$rank,
 #
 # $`1 H`
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#     6.0    25.5   495.5  2120.0  1896.5 12092.0
+#       6      29     738    2039    1883   12092
 #
 # $`1 MH`
 #     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
 #     1.00    46.25   314.50  3487.25  3401.00 21847.00
-#
-# $`1 NA`
-#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#     738     738     738     738     738     738
 
 ## 33 have p-value < 1e-8 for the positive t-stats
 addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
@@ -225,9 +213,8 @@ addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
 #       FALSE TRUE Sum
 # -1 H      5    0   5
 # -1 MH    16    0  16
-# 1 H      12    4  16
+# 1 H      13    4  17
 # 1 MH     59   29  88
-# 1 NA      1    0   1
 # Sum      93   33 126
 
 ## 47 have p-value < 1e-6 for the positive t-stats
@@ -237,25 +224,97 @@ addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
 #       FALSE TRUE Sum
 # -1 H      5    0   5
 # -1 MH    16    0  16
-# 1 H       8    8  16
+# 1 H       9    8  17
 # 1 MH     49   39  88
-# 1 NA      1    0   1
 # Sum      79   47 126
 
 ## 75 have FDR < 0.05 for the positive t-stats
-addmargins(do.call(rbind, tapply(marker_genes_summary$p_value,
-    paste(sign(marker_genes_summary$fdr), marker_genes_summary$species), function(x)
+addmargins(do.call(rbind, tapply(marker_genes_summary$fdr,
+    paste(sign(marker_genes_summary$t_stat), marker_genes_summary$species), function(x)
     table(factor(x < 0.05, levels = c('FALSE', 'TRUE'))))))
-#      FALSE TRUE Sum
-# 1 H      5   16  21
-# 1 MH    31   73 104
-# 1 NA     0    1   1
-# Sum     36   90 126
+#       FALSE TRUE Sum
+# -1 H      5    0   5
+# -1 MH    16    0  16
+# 1 H       5   12  17
+# 1 MH     25   63  88
+# Sum      51   75 126
 
+## Add mean expr
+marker_genes_summary$mean_expr <- rowMeans(mat[marker_genes_summary$m, ])
+
+
+## Find the best gene for each model
+marker_genes_summary$best_gene_m <- apply(log10(pvals_markers), 2, function(x) { which(rank(x) == 1)})
+marker_genes_summary$best_gene_name <- rowData(sce_layer)$gene_name[marker_genes_summary$best_gene_m]
+marker_genes_summary$best_gene_ensembl <- rownames(sce_layer)[marker_genes_summary$best_gene_m]
+marker_genes_summary$best_gene_p_value <- marker_extract(pvals_markers, marker_genes_summary$best_gene_m)
+marker_genes_summary$best_gene_fdr <- marker_extract(fdr_markers, marker_genes_summary$best_gene_m)
+marker_genes_summary$best_gene_t_stat <- marker_extract(tstats_markers, marker_genes_summary$best_gene_m)
+marker_genes_summary$best_gene_log_fc <- marker_extract(logFC_markers, marker_genes_summary$best_gene_m)
+marker_genes_summary$best_gene_mean_expr <- rowMeans(mat[marker_genes_summary$best_gene_m, ])
+
+## Re-order by p-value
+marker_genes <- lapply(marker_genes, function(x) {
+    x[order(marker_genes_summary$p_value), ]
+})
+marker_genes_summary <- marker_genes_summary[order(marker_genes_summary$p_value), ]
 
 ## Save for later
 save(eb_markers_list, file = 'rda/eb_markers_list.Rdata')
 save(marker_genes, marker_genes_summary, file = 'rda/marker_genes_summary.Rdata')
+
+write.csv(marker_genes_summary,
+    file = 'marker_genes_summary.csv',
+    quote = FALSE,
+    row.names = FALSE)
+
+
+## Make boxplots
+layer_guess_reordered <-  factor(sce_layer$layer_guess, levels = c(paste0('Layer', 1:6), 'WM'))
+pdf('pdf/markers_gene_optimal_boxplots.pdf', useDingbats = FALSE)
+set.seed(20200206)
+for (i in seq_len(nrow(marker_genes_summary))) {
+    # i <- 1
+    message(paste(Sys.time(), 'making the plot for', i, 'gene', marker_genes_summary$gene_name[i]))
+    curr_layers <- strsplit(marker_genes_summary$models[i], '\\+')[[1]]
+    boxplot(
+        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered,
+        xlab = 'Layer',
+        ylab = 'logcounts',
+        main = paste(
+            marker_genes_summary$gene_name[i],
+            marker_genes_summary$ensembl[i],
+            paste(ifelse(marker_genes_summary$species[i] == 'H', 'human', 'mouse'), 'marker'),
+            paste0('(', marker_genes_summary$list[i], ')'),
+            '\n',
+            paste(marker_genes_summary$models[i], 'vs others'),
+            '\n',
+            'tstat',
+            formatC(marker_genes_summary$t_stat[i], format = "e", digits = 2),
+            'p',
+            formatC(marker_genes_summary$p_val[i], format = "e", digits = 2),
+            'rank',
+            marker_genes_summary$rank[i]
+        ),
+        outline = FALSE,
+        cex = 1.5,
+        col = ifelse(levels(layer_guess_reordered) %in% curr_layers, 'skyblue', 'violet')
+    )
+    points(
+        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered)),
+        pch = 21,
+        bg = ifelse(layer_guess_reordered %in% curr_layers, 'dodgerblue4', 'darkviolet'),
+        cex = 1.5
+    )
+    # legend(
+    #     "top",
+    #     levels(sce_layer$layer_guess),
+    #     col =  Polychrome::palette36.colors(7),
+    #     lwd = 2
+    # )
+}
+dev.off()
+
 
 
 ## Reproducibility information
