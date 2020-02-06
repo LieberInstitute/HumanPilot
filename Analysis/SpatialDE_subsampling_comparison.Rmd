@@ -92,7 +92,7 @@ spatialDE_sig_sub <- lapply(spatialDE_results_sub, function(d) {
 
 
 ```{r}
-# convert gene symbols to gene names
+# convert gene IDs to gene names
 
 # load scran output file from Leo
 load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
@@ -114,12 +114,12 @@ table(unique(unlist(spatialDE_sig_all)) %in% unique(names(gene_names)))
 stopifnot(all(unique(unlist(spatialDE_sig_sub)) %in% unique(names(gene_names))))
 table(unique(unlist(spatialDE_sig_sub)) %in% unique(names(gene_names)))
 
-# convert gene symbols to gene names
+# convert gene IDs to gene names
 spatialDE_sig_all <- lapply(spatialDE_sig_all, function(d) {
-    data.frame(gene_symbol = d, gene_name = gene_names[d])
+    data.frame(gene_id = d, gene_name = gene_names[d])
 })
 spatialDE_sig_sub <- lapply(spatialDE_sig_sub, function(d) {
-    data.frame(gene_symbol = d, gene_name = gene_names[d])
+    data.frame(gene_id = d, gene_name = gene_names[d])
 })
 ```
 
@@ -178,7 +178,7 @@ Plot the following:
 # all spots, significant genes (q-values < 0.05)
 #pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_all_sig.pdf", width = 12, height = 10)
 upset(
-    fromList(lapply(spatialDE_sig_all, function(d) as.character(d[, "gene_symbol"]))), 
+    fromList(lapply(spatialDE_sig_all, function(d) as.character(d[, "gene_id"]))), 
     nsets = length(spatialDE_sig_all), 
     nintersects = NA, 
     order.by = "degree", 
@@ -192,7 +192,7 @@ upset(
 # subsampled spots, significant genes (q-values < 0.05)
 #pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_sub_sig.pdf", width = 12, height = 10)
 upset(
-    fromList(lapply(spatialDE_sig_sub, function(d) as.character(d[, "gene_symbol"]))), 
+    fromList(lapply(spatialDE_sig_sub, function(d) as.character(d[, "gene_id"]))), 
     nsets = length(spatialDE_sig_sub), 
     nintersects = NA, 
     order.by = "degree", 
@@ -218,8 +218,8 @@ for (i in 1:length(sample_names)) {
                  gsub("sample_", "", sample_names[i]), "_sig.pdf")
     #pdf(fn, width = 4, height = 4)
     print(upset(
-        fromList(list(all_spots = as.character(spatialDE_sig_all[[i]][, "gene_symbol"]), 
-                      subsampled = as.character(spatialDE_sig_sub[[i]][, "gene_symbol"]))), 
+        fromList(list(all_spots = as.character(spatialDE_sig_all[[i]][, "gene_id"]), 
+                      subsampled = as.character(spatialDE_sig_sub[[i]][, "gene_id"]))), 
         order.by = "degree", 
         decreasing = TRUE, 
         sets = rev(c("all_spots", "subsampled")), 
@@ -241,8 +241,8 @@ for (i in 1:length(sample_names)) {
 # pooled samples, significant genes (q-values < 0.05)
 #pdf("../plots/SpatialDE_subsampling_comparison/upset_SpatialDE_pooled_sig.pdf", width = 5, height = 6)
 upset(
-    fromList(list(all_spots = as.character(spatialDE_sig_all_pool[, "gene_symbol"]), 
-                  subsampled = as.character(spatialDE_sig_sub_pool[, "gene_symbol"]))), 
+    fromList(list(all_spots = as.character(spatialDE_sig_all_pool[, "gene_id"]), 
+                  subsampled = as.character(spatialDE_sig_sub_pool[, "gene_id"]))), 
     order.by = "degree", 
     decreasing = TRUE, 
     sets = rev(c("all_spots", "subsampled")), 
