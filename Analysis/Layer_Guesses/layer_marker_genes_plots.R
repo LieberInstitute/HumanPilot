@@ -175,10 +175,10 @@ for (j in samples_to_plot) {
         )
         
         p2 <- p[[1]] + scale_fill_gradientn(
-                colors = c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value = add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI)), limits = c(min_UMI, max_UMI)
+                colors = c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value = add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
             ) +
             scale_color_gradientn(
-                colors =  c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value =  add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI)), limits = c(min_UMI, max_UMI)
+                colors =  c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value =  add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
             )
         pdf(
             file.path(
@@ -186,7 +186,6 @@ for (j in samples_to_plot) {
                 j,
                 paste0(
                     sig_genes_sub$gene[i],
-                    'v35_',
                     gsub('top', 'r', gsub(
                         'Layer', 'L', sig_genes_df$results[i]
                     )),
