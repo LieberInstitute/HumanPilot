@@ -137,6 +137,7 @@ for (j in samples_to_plot) {
                 j,
                 paste0(
                     sig_genes_sub$gene[i],
+                    '_',
                     gsub('top', 'r', gsub(
                         'Layer', 'L', sig_genes_df$results[i]
                     )),
