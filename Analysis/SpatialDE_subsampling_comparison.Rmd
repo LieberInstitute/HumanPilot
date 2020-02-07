@@ -129,11 +129,13 @@ spatialDE_sig_sub <- lapply(spatialDE_sig_sub, function(d) {
 for (i in seq_along(sample_names)) {
     write_csv(
         as.data.frame(spatialDE_sig_all[[i]]), 
-        paste0("../outputs/genes/SpatialDE_genes_sig_all_", gsub("sample_", "", sample_names[i]), ".csv")
+        paste0("../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_all_", 
+               gsub("sample_", "", sample_names[i]), ".csv")
     )
     write_csv(
         as.data.frame(spatialDE_sig_sub[[i]]), 
-        paste0("../outputs/genes/SpatialDE_genes_sig_sub_", gsub("sample_", "", sample_names[i]), ".csv")
+        paste0("../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_sub_", 
+               gsub("sample_", "", sample_names[i]), ".csv")
     )
 }
 ```
@@ -150,11 +152,11 @@ nrow(spatialDE_sig_sub_pool)
 # save spreadsheets
 write_csv(
     as.data.frame(spatialDE_sig_all_pool), 
-    "../outputs/genes/SpatialDE_genes_sig_all_pooled.csv"
+    "../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_all_pooled.csv"
 )
 write_csv(
     as.data.frame(spatialDE_sig_sub_pool), 
-    "../outputs/genes/SpatialDE_genes_sig_sub_pooled.csv"
+    "../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_sub_pooled.csv"
 )
 ```
 

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Lukas Weber" />
 
-<meta name="date" content="2020-02-06" />
+<meta name="date" content="2020-02-07" />
 
 <title>SpatialDE subsampling comparison</title>
 
@@ -365,7 +365,7 @@ summary {
 
 <h1 class="title toc-ignore">SpatialDE subsampling comparison</h1>
 <h4 class="author">Lukas Weber</h4>
-<h4 class="date">2020-02-06</h4>
+<h4 class="date">2020-02-07</h4>
 
 </div>
 
@@ -526,11 +526,13 @@ spatialDE_sig_sub &lt;- lapply(spatialDE_sig_sub, function(d) {
 for (i in seq_along(sample_names)) {
     write_csv(
         as.data.frame(spatialDE_sig_all[[i]]), 
-        paste0(&quot;../outputs/genes/SpatialDE_genes_sig_all_&quot;, gsub(&quot;sample_&quot;, &quot;&quot;, sample_names[i]), &quot;.csv&quot;)
+        paste0(&quot;../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_all_&quot;, 
+               gsub(&quot;sample_&quot;, &quot;&quot;, sample_names[i]), &quot;.csv&quot;)
     )
     write_csv(
         as.data.frame(spatialDE_sig_sub[[i]]), 
-        paste0(&quot;../outputs/genes/SpatialDE_genes_sig_sub_&quot;, gsub(&quot;sample_&quot;, &quot;&quot;, sample_names[i]), &quot;.csv&quot;)
+        paste0(&quot;../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_sub_&quot;, 
+               gsub(&quot;sample_&quot;, &quot;&quot;, sample_names[i]), &quot;.csv&quot;)
     )
 }</code></pre>
 <pre class="r"><code># pooled gene lists
@@ -544,11 +546,11 @@ nrow(spatialDE_sig_all_pool)</code></pre>
 <pre class="r"><code># save spreadsheets
 write_csv(
     as.data.frame(spatialDE_sig_all_pool), 
-    &quot;../outputs/genes/SpatialDE_genes_sig_all_pooled.csv&quot;
+    &quot;../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_all_pooled.csv&quot;
 )
 write_csv(
     as.data.frame(spatialDE_sig_sub_pool), 
-    &quot;../outputs/genes/SpatialDE_genes_sig_sub_pooled.csv&quot;
+    &quot;../outputs/SpatialDE_subsampling_comparison/SpatialDE_genes_sig_sub_pooled.csv&quot;
 )</code></pre>
 </div>
 <div id="plots" class="section level2">
