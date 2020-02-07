@@ -1,13 +1,6 @@
 library('SingleCellExperiment')
 library('here')
 library('jaffelab')
-library('scater')
-library('scran')
-library('pheatmap')
-library('readxl')
-library('Polychrome')
-library('cluster')
-library('limma')
 library('sessioninfo')
 
 dir.create('pdf', showWarnings = FALSE)
@@ -22,13 +15,6 @@ load(here(
 ## For plotting
 source(here('Analysis', 'spatialLIBD_global_plot_code.R'))
 genes <- paste0(rowData(sce)$gene_name, '; ', rowData(sce)$gene_id)
-
-## Functions derived from this script, to make it easier to resume the work
-sce_layer_file <-
-    here('Analysis', 'Layer_Guesses', 'rda', 'sce_layer.Rdata')
-if (file.exists(sce_layer_file))
-    load(sce_layer_file, verbose = TRUE)
-source(here('Analysis', 'Layer_Guesses', 'layer_specificity_functions.R'))
 
 genes_to_plot <- c(
     'ATP1A2',
@@ -74,62 +60,7 @@ sig_genes_df$results <-
     sapply(sig_genes_df$results, paste0, collapse = ';')
 
 
-## Customize plotting code from
-# source(here('Analysis', 'spatialLIBD_global_plot_code.R'))
-sce_image_clus_gene_p <-
-    function(sce, d, sampleid, spatial, title) {
-        p <-
-            ggplot(d,
-                aes(
-                    x = imagecol,
-                    y = imagerow,
-                    fill = COUNT,
-                    color = COUNT,
-                    key =  key
-                ))
-        
-        if (spatial) {
-            p <-
-                p + geom_spatial(
-                    data = subset(metadata(sce)$image, sample == sampleid),
-                    aes(grob = grob),
-                    x = 0.5,
-                    y = 0.5
-                )
-        }
-        p <- p +
-            geom_point(shape = 21,
-                size = 1.25,
-                stroke = 0.25) +
-            # geom_point(size = 1.25, alpha = 0.25) +
-            coord_cartesian(expand = FALSE) +
-            scale_fill_gradientn(
-                colors = viridis(21)
-            ) +
-            scale_color_gradientn(
-                colors = viridis(21)
-            ) +
-            xlim(0, max(sce$width)) +
-            ylim(max(sce$height), 0) +
-            xlab("") + ylab("") +
-            labs(fill = "COUNT") +
-            ggtitle(title) +
-            theme_set(theme_bw(base_size = 10)) +
-            theme(
-                panel.grid.major = element_blank(),
-                panel.grid.minor = element_blank(),
-                panel.background = element_blank(),
-                axis.line = element_line(colour = "black"),
-                axis.text = element_blank(),
-                axis.ticks = element_blank()
-            )
-        return(p)
-    }
-
-
-
 ## Make gene grid plots
-## Takes about 1 - 1.5 hours
 pdf_dir <- 'pdf/gene_grid/RNAscope'
 dir.create(pdf_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -138,17 +69,24 @@ dir.create(pdf_dir, showWarnings = FALSE, recursive = TRUE)
 samples_to_plot <- tail(unique(sce$sample_name), 4)
 assayname <- 'logcounts'
 
+## From https://gist.githubusercontent.com/mages/5339689/raw/2aaa482dfbbecbfcb726525a3d81661f9d802a8e/add.alpha.R
+add.alpha <- function(col, alpha = 1) {
+    if (missing(col))
+        stop("Please provide a vector of colours.")
+    apply(sapply(col, col2rgb) / 255, 2,
+        function(x)
+            rgb(x[1], x[2], x[3], alpha = alpha))
+}
+
 for (j in samples_to_plot) {
     # j <-  samples_to_plot[1]
     dir.create(file.path(pdf_dir, j), showWarnings = FALSE)
     
     max_UMI <-
         max(assays(sce)[[assayname]][names(sig_genes_unique), sce$sample_name %in% j])
-    max_UMI
     x <-
         assays(sce)[[assayname]][names(sig_genes_unique), sce$sample_name %in% j]
     min_UMI <- min(as.vector(x)[as.vector(x) > 0])
-    min_UMI
     
     for (i in match(names(sig_genes_unique), sig_genes_sub$ensembl)) {
         # i <- 1
@@ -159,7 +97,11 @@ for (j in samples_to_plot) {
             'making the plot for',
             i,
             'gene',
-            sig_genes_sub$gene[i]
+            sig_genes_sub$gene[i],
+            'minUMI:',
+            min_UMI,
+            'maxUMI:',
+            max_UMI
         ))
         
         p <- sce_image_grid_gene(
@@ -200,3 +142,12 @@ for (j in samples_to_plot) {
         dev.off()
     }
 }
+
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
