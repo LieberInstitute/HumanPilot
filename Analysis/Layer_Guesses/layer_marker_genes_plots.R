@@ -49,7 +49,7 @@ sort(unique(sig_genes$gene[grep('ne', tolower(sig_genes$gene))]))
 stopifnot(all(genes_to_plot %in% sig_genes$gene))
 
 ## Prepare the data needed for making the plots
-sig_genes_sub <- sig_genes[match(genes_to_plot, sig_genes$gene), ]
+sig_genes_sub <- sig_genes[match(genes_to_plot, sig_genes$gene),]
 sig_genes_unique <- splitit(sig_genes_sub$ensembl)
 
 ## For the titles
@@ -92,17 +92,19 @@ for (j in samples_to_plot) {
         # i <- 1
         # i <- 15 ## PCP4
         # i <- 11 ## RORB
-        message(paste(
-            Sys.time(),
-            'making the plot for',
-            i,
-            'gene',
-            sig_genes_sub$gene[i],
-            'minUMI:',
-            min_UMI,
-            'maxUMI:',
-            max_UMI
-        ))
+        message(
+            paste(
+                Sys.time(),
+                'making the plot for',
+                i,
+                'gene',
+                sig_genes_sub$gene[i],
+                'minUMI:',
+                min_UMI,
+                'maxUMI:',
+                max_UMI
+            )
+        )
         
         p <- sce_image_grid_gene(
             sce[, sce$sample_name == j],
@@ -117,14 +119,19 @@ for (j in samples_to_plot) {
         )
         
         p2 <- p[[1]] + scale_fill_gradientn(
-                colors = c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value = add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
-            ) +
+            colors = c('aquamarine4', 'springgreen', 'goldenrod', 'red'),
+            na.value = add.alpha('black', 0.175),
+            name = assayname,
+            values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
+        ) +
             scale_color_gradientn(
-                colors =  c('aquamarine4', 'springgreen', 'goldenrod', 'red'), na.value =  add.alpha('black', 0.175), name = assayname, values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
+                colors =  c('aquamarine4', 'springgreen', 'goldenrod', 'red'),
+                na.value =  add.alpha('black', 0.175),
+                name = assayname,
+                values = scales::rescale(c(min_UMI, 2, 4, max_UMI))
             )
         pdf(
-            file.path(
-                pdf_dir,
+            file.path(pdf_dir,
                 j,
                 paste0(
                     sig_genes_sub$gene[i],
@@ -132,8 +139,7 @@ for (j in samples_to_plot) {
                         'Layer', 'L', sig_genes_df$results[i]
                     )),
                     '.pdf'
-                )
-            ),
+                )),
             useDingbats = FALSE,
             height = 8,
             width = 9
@@ -150,4 +156,3 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
-
