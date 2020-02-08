@@ -1,0 +1,572 @@
+---
+title: "Comparison SpatialDE genes"
+author: "Lukas Weber"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+# Comparison SpatialDE genes
+
+Comparison of top significant genes detected by SpatialDE (from script `sce_spatialDE.Rmd` from Stephanie Hicks) vs. our previous set of highly variable genes (HVGs).
+
+HVGs were calculated from all samples combined.
+
+SpatialDE genes were calculated from each sample individually, with random subsampling to 1500 spots per sample due to SpatialDE's slow runtime (SpatialDE does not scale well with number of spots).
+
+In this version of the analyses, we then pool the gene lists from each sample to create a combined list.
+
+```{r}
+suppressPackageStartupMessages({
+    library(SingleCellExperiment)
+    library(readr)
+    library(readxl)
+    library(dplyr)
+    library(reshape2)
+    library(ggplot2)
+    library(RColorBrewer)
+    library(scales)
+})
+```
+
+
+## Load data: HVGs
+
+Load original object containing HVGs.
+
+```{r}
+# load scran output file
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+
+# vector of top HVGs
+head(top.hvgs)
+```
+
+
+## Load data: SpatialDE
+
+```{r}
+# load spreadsheets containing SpatialDE results
+spatialDE_files <- list.files("../../data/spatialDE_results", 
+                              pattern = "\\.csv$", full.names = TRUE)
+
+spatialDE_results <- list()
+
+for (i in seq_along(spatialDE_files)) {
+    spatialDE_results[[i]] <- read_csv(spatialDE_files[i])
+}
+
+sample_names <- gsub("_spatialDE.*$", "", gsub("^.*/", "", spatialDE_files))
+
+names(spatialDE_results) <- sample_names
+```
+
+
+## Number of significant SpatialDE genes
+
+A large number of SpatialDE genes have p-values exactly equal to 0, which makes it difficult to rank genes.
+
+```{r, fig.width=6, fig.height=8}
+# number of genes per sample
+sapply(spatialDE_results, nrow)
+# number of SpatialDE genes per sample with q-value < 0.05
+sapply(spatialDE_results, function(d) table(d$qval < 0.05))
+# number of SpatialDE genes per sample with q-value = 0
+sapply(spatialDE_results, function(d) table(d$qval == 0))
+
+# select significant genes from SpatialDE
+spatialDE_sig <- lapply(spatialDE_results, function(d) {
+    d <- filter(d, qval < 0.05)
+})
+# select SpatialDE genes with q-values = 0
+spatialDE_zero <- lapply(spatialDE_results, function(d) {
+    d <- filter(d, qval == 0)
+})
+
+# histograms
+par(mfrow = c(4, 3))
+for (i in seq_along(spatialDE_sig)) {
+    hist(spatialDE_sig[[i]]$qval, 
+         main = names(spatialDE_sig)[i], 
+         xlab = "qval")
+}
+par(mfrow = c(1, 1))
+
+# gene names
+spatialDE_genes_all <- lapply(spatialDE_results, function(d) d$g)
+spatialDE_genes_sig <- lapply(spatialDE_sig, function(d) d$g)
+spatialDE_genes_zero <- lapply(spatialDE_zero, function(d) d$g)
+
+sapply(spatialDE_genes_all, length)
+sapply(spatialDE_genes_sig, length)
+sapply(spatialDE_genes_zero, length)
+
+# pooled lists of genes
+spatialDE_pool_all <- sort(unique(unlist(spatialDE_genes_all)))
+spatialDE_pool_sig <- sort(unique(unlist(spatialDE_genes_sig)))
+spatialDE_pool_zero <- sort(unique(unlist(spatialDE_genes_zero)))
+
+length(spatialDE_pool_all)
+length(spatialDE_pool_sig)
+length(spatialDE_pool_zero)
+
+head(spatialDE_pool_all)
+head(spatialDE_pool_sig)
+head(spatialDE_pool_zero)
+
+# convert gene symbols to gene names
+gene_names <- rowData(sce)$gene_name
+names(gene_names) <- rowData(sce)$gene_id
+
+spatialDE_pool_all_nm <- unname(gene_names[spatialDE_pool_all])
+spatialDE_pool_sig_nm <- unname(gene_names[spatialDE_pool_sig])
+spatialDE_pool_zero_nm <- unname(gene_names[spatialDE_pool_zero])
+
+head(spatialDE_pool_all_nm)
+head(spatialDE_pool_sig_nm)
+head(spatialDE_pool_zero_nm)
+```
+
+
+## Number of spots per sample
+
+Number of spots per sample.
+
+Note random subsampling to 1500 spots per sample was used to run SpatialDE.
+
+```{r}
+table(colData(sce)$sample_name)
+range(table(colData(sce)$sample_name))
+```
+
+
+## Comparison of gene lists
+
+Compare SpatialDE pooled lists vs. list of HVGs.
+
+* 4695 genes in pooled list of significant SpatialDE genes
+* 1796 genes in pooled list of SpatialDE genes with q-values = 0
+
+* 1942 genes in list of HVGs
+
+* 969 genes in both SpatialDE significant pooled list and list of HVGs
+* 319 genes in both SpatialDE q-value = 0 pooled list and list of HVGs
+
+```{r}
+# compare SpatialDE pooled list vs. HVGs
+head(top.hvgs)
+
+length(spatialDE_pool_sig)
+length(spatialDE_pool_zero)
+
+length(top.hvgs)
+
+sum(spatialDE_pool_sig %in% top.hvgs)
+sum(top.hvgs %in% spatialDE_pool_sig)
+
+sum(spatialDE_pool_zero %in% top.hvgs)
+sum(top.hvgs %in% spatialDE_pool_zero)
+```
+
+
+## Plots: SpatialDE
+
+Plots for each sample showing expression (UMI counts) of the top significant SpatialDE genes (pooled list of SpatialDE genes with q-values = 0).
+
+First do some additional filtering. The SpatialDE top significant genes include some genes with very low UMI counts, and also include some mitochondrial genes. Additional filtering here to: (i) remove genes with low UMI counts (e.g. using a threshold of 500 * n_samples UMIs across all samples combined), and (ii) remove mitochondrial genes (gene names starting with "MT-").
+
+Note: the filtering threshold removes a number of white matter marker genes. If these are of greater interest, could try lowering the threshold.
+
+Plots are shown for all genes from the pooled list of SpatialDE genes with q-values = 0, which also pass the additional filtering. Since the q-values are all exactly equal to 0, it is not possible to rank among these genes.
+
+```{r}
+# filtering: remove genes with low total UMI counts (across all samples and spots)
+n_umi_filt <- 500 * length(sample_names)
+n_umi_filt
+ix_high <- rowSums(counts(sce)) >= n_umi_filt
+# note: filters a large proportion of genes
+table(ix_high)
+
+# filtering: remove mitochondrial genes
+ix_mito <- grepl("^MT-", rowData(sce)$gene_name)
+table(ix_mito)
+rowData(sce)$gene_name[ix_mito]
+
+# filtering: pooled list of SpatialDE genes with q-values = 0
+ix_SpatialDE <- rowData(sce)$gene_id %in% spatialDE_pool_zero
+table(ix_SpatialDE)
+
+stopifnot(length(ix_high) == length(ix_mito))
+stopifnot(length(ix_high) == length(ix_SpatialDE))
+
+# final list of genes to keep
+ix_keep <- ix_high & !ix_mito & ix_SpatialDE
+table(ix_keep)
+
+sce_filt <- sce[ix_keep, ]
+
+# save gene list
+filename <- "../outputs/markers/SpatialDE_top_genes_filtered_pooled.csv"
+write_csv(as.data.frame(rowData(sce_filt)), filename)
+```
+
+
+```{r, fig.width=12, fig.height=15}
+# one set of plots per sample
+for (i in seq_along(sample_names)) {
+    
+    # select spots from this sample
+    ix <- colData(sce_filt)$sample_name == gsub("^sample_", "", sample_names[i])
+    table(ix)
+    sce_sub <- sce_filt[, ix]
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_sub)[, c("imagecol")], 
+        y_coord = -colData(sce_sub)[, c("imagerow")]
+    )
+    
+    # extract expression levels (UMI counts)
+    exprs_sub <- counts(sce_sub)
+    dim(exprs_sub)
+    # replace gene symbols with gene names
+    rownames(exprs_sub) <- rowData(sce_sub)$gene_name
+    
+    # match to spots and set up data frame for plotting
+    stopifnot(all(colData(sce_sub)$barcode == rownames(t(exprs_sub))))
+    stopifnot(length(colData(sce_sub)$barcode) == length(rownames(t(exprs_sub))))
+    
+    d_plot <- cbind(
+        barcode = colData(sce_sub)$barcode, 
+        xy_coords, 
+        as.data.frame(as.matrix(t(exprs_sub)))
+    )
+    
+    d_plot <- melt(
+        d_plot, 
+        id.vars = c("barcode", "x_coord", "y_coord"), 
+        variable.name = "gene_name", 
+        value.name = "UMIs"
+    )
+    
+    # re-order genes alphabetically
+    d_plot$gene_name <- as.factor(as.character(d_plot$gene_name))
+    # for consistent color scale across samples
+    max_UMI <- max(counts(sce_filt))
+    
+    # generate plots
+    print(
+        ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            facet_wrap(~ gene_name) + 
+            geom_point(size = 0.1, alpha = 0.25) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 10, 20, max_UMI))) + 
+            coord_fixed() + 
+            ggtitle(paste0("UMIs of top SpatialDE genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(strip.text.x = element_text(size = 5), 
+                  axis.text.x = element_text(size = 5), 
+                  axis.text.y = element_text(size = 5), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+    )
+    
+    filename <- paste0("../plots/markers/SpatialDE_top_genes_", gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 12, height = 15)
+}
+```
+
+
+## Compare with known marker genes
+
+Compare SpatialDE genes with list of known marker genes from Kristen Maynard.
+
+Marker genes are saved in spreadsheet `KRM_Layer_Markers.xlsx`.
+
+```{r}
+# load names of marker genes
+KRM_Layer_Markers <- read_xlsx("KRM_Layer_Markers.xlsx")
+KRM_Layer_Markers
+dim(KRM_Layer_Markers)
+
+marker_genes <- KRM_Layer_Markers$Gene
+length(marker_genes)
+
+# how many of these marker genes are in the SpatialDE list (all genes)
+# note: upper case / lower case
+sum(toupper(marker_genes) %in% toupper(spatialDE_pool_all_nm))
+sum(toupper(spatialDE_pool_all_nm) %in% toupper(marker_genes))
+in_spatialDE_pool_all <- toupper(marker_genes) %in% toupper(spatialDE_pool_all_nm)
+
+# how many of these marker genes are in the SpatialDE list (filtered; q-value < 0.05)
+sum(toupper(marker_genes) %in% toupper(spatialDE_pool_sig_nm))
+sum(toupper(spatialDE_pool_sig_nm) %in% toupper(marker_genes))
+in_spatialDE_pool_sig <- toupper(marker_genes) %in% toupper(spatialDE_pool_sig_nm)
+
+# how many of these marker genes are in the SpatialDE list (filtered; q-value < 0.05)
+sum(toupper(marker_genes) %in% toupper(spatialDE_pool_zero_nm))
+sum(toupper(spatialDE_pool_zero_nm) %in% toupper(marker_genes))
+in_spatialDE_pool_zero <- toupper(marker_genes) %in% toupper(spatialDE_pool_zero_nm)
+
+# how many of these marker genes are in the full list of genes from the 'sce' object
+sum(toupper(marker_genes) %in% toupper(rowData(sce)$gene_name))
+sum(toupper(rowData(sce)$gene_name) %in% toupper(marker_genes))
+in_sce <- toupper(marker_genes) %in% toupper(rowData(sce)$gene_name)
+
+stopifnot(length(marker_genes) == length(in_spatialDE_pool_all))
+stopifnot(length(marker_genes) == length(in_spatialDE_pool_sig))
+stopifnot(length(marker_genes) == length(in_spatialDE_pool_zero))
+stopifnot(length(marker_genes) == length(in_sce))
+
+# save spreadsheet
+KRM_Layer_Markers_overlap_SpatialDE <- cbind(
+    KRM_Layer_Markers, 
+    in_sce, 
+    in_spatialDE_pool_all, 
+    in_spatialDE_pool_sig, 
+    in_spatialDE_pool_zero
+)
+
+filename <- "../outputs/markers/KRM_Layer_Markers_overlap_SpatialDE.csv"
+write_csv(KRM_Layer_Markers_overlap_SpatialDE, filename)
+```
+
+
+## Counts: known marker genes
+
+Calculate number of UMIs per sample per marker gene for the list of 81 known marker genes.
+
+Note: only 77 of the 81 known marker genes are available in the 'sce' object.
+
+```{r}
+# get expression counts for available marker genes
+marker_genes_sce <- marker_genes[in_sce]
+head(marker_genes_sce)
+length(marker_genes_sce)
+
+exprs_markers <- counts(sce)[toupper(rowData(sce)$gene_name) %in% toupper(marker_genes_sce), ]
+rownames(exprs_markers) <- marker_genes_sce
+
+exprs_markers_tot <- data.frame(
+    gene_name = marker_genes_sce
+)
+
+# per sample
+for (i in seq_along(sample_names)) {
+    
+    # select spots from this sample (note: non-filtered)
+    ix <- colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])
+    table(ix)
+    exprs_sub <- exprs_markers[, ix]
+    
+    # total counts per marker gene
+    exprs_sub_tot <- data.frame(
+        rowSums(exprs_sub)
+    )
+    colnames(exprs_sub_tot) <- sample_names[i]
+    stopifnot(nrow(exprs_sub_tot) == nrow(exprs_markers_tot))
+    
+    exprs_markers_tot <- cbind(exprs_markers_tot, exprs_sub_tot)
+}
+
+# save spreadsheet
+filename <- "../outputs/markers/KRM_Layer_Markers_total_counts.csv"
+write_csv(exprs_markers_tot, filename)
+```
+
+
+## Plots: known marker genes (top 3)
+
+Compare to plots showing expression (UMI counts) of known marker genes.
+
+First showing only SNAP25, MOBP, and PCP4 (marker genes from Kristen Maynard's slide presentation).
+
+```{r, fig.width=9, fig.height=4}
+# choose marker genes and get expression levels (UMI counts)
+marker_genes_3 <- c("SNAP25", "MOBP", "PCP4")
+
+# also check if these are in SpatialDE lists
+sum(toupper(marker_genes_3) %in% toupper(spatialDE_pool_all_nm))
+sum(toupper(marker_genes_3) %in% toupper(spatialDE_pool_sig_nm))
+sum(toupper(marker_genes_3) %in% toupper(spatialDE_pool_zero_nm))
+
+# one set of plots per sample
+for (i in seq_along(sample_names)) {
+    
+    # select spots from this sample
+    ix <- colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])
+    table(ix)
+    sce_sub <- sce[, ix]
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_sub)[, c("imagecol")], 
+        y_coord = -colData(sce_sub)[, c("imagerow")]
+    )
+    
+    # extract expression levels (UMI counts) for these genes
+    ix_sub <- match(marker_genes_3, rowData(sce_sub)$gene_name)
+    exprs_sub <- counts(sce_sub)[ix_sub, , drop = FALSE]
+    rownames(exprs_sub) <- marker_genes_3
+    
+    d_plot <- cbind(
+        barcode = colData(sce_sub)$barcode, 
+        xy_coords, 
+        as.data.frame(as.matrix(t(exprs_sub)))
+    )
+    
+    d_plot <- melt(
+        d_plot, 
+        id.vars = c("barcode", "x_coord", "y_coord"), 
+        variable.name = "gene_name", 
+        value.name = "UMIs"
+    )
+    
+    # re-order genes alphabetically
+    d_plot$gene_name <- as.factor(as.character(d_plot$gene_name))
+    # consistent color scale
+    max_UMI <- max(counts(sce_filt))
+    
+    # generate plots
+    print(
+        ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            facet_wrap(~ gene_name) + 
+            geom_point(size = 0.6) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 10, 20, max_UMI))) + 
+            coord_fixed() + 
+            ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+    )
+    
+    filename <- paste0("../plots/markers/marker_genes_3_", gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 9, height = 4)
+}
+```
+
+
+## Plots: known marker genes (all)
+
+All 81 marker genes (from Kristen Maynard's spreadsheet).
+
+Note: many of these genes are markers for multiple layers.
+
+```{r, fig.width=8, fig.height=10}
+# choose marker genes and get expression levels (UMI counts)
+# note: upper case / lower case
+marker_genes_all <- toupper(marker_genes)
+length(marker_genes_all)
+
+# check how many of these are in 'sce' object
+sum(toupper(marker_genes_all) %in% toupper(rowData(sce)$gene_name))
+
+# one set of plots per sample
+for (i in seq_along(sample_names)) {
+    
+    # select spots from this sample
+    ix <- colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])
+    table(ix)
+    sce_sub <- sce[, ix]
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_sub)[, c("imagecol")], 
+        y_coord = -colData(sce_sub)[, c("imagerow")]
+    )
+    
+    # extract expression levels (UMI counts) for these genes
+    ix_sub <- match(marker_genes_all, rowData(sce_sub)$gene_name)
+    # remove NAs (missing genes)
+    which_na <- is.na(ix_sub)
+    ix_sub <- ix_sub[!which_na]
+    exprs_sub <- counts(sce_sub)[ix_sub, , drop = FALSE]
+    rownames(exprs_sub) <- marker_genes_all[!which_na]
+    dim(exprs_sub)
+    
+    d_plot <- cbind(
+        barcode = colData(sce_sub)$barcode, 
+        xy_coords, 
+        as.data.frame(as.matrix(t(exprs_sub)))
+    )
+    
+    d_plot <- melt(
+        d_plot, 
+        id.vars = c("barcode", "x_coord", "y_coord"), 
+        variable.name = "gene_name", 
+        value.name = "UMIs"
+    )
+    
+    # re-order genes alphabetically
+    d_plot$gene_name <- as.factor(as.character(d_plot$gene_name))
+    # consistent color scale
+    max_UMI <- max(counts(sce_filt))
+    
+    # generate plots
+    print(
+        ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            facet_wrap(~ gene_name) + 
+            geom_point(size = 0.1, alpha = 0.25) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 10, 20, max_UMI))) + 
+            coord_fixed() + 
+            ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(strip.text.x = element_text(size = 7), 
+                  axis.text.x = element_text(size = 7), 
+                  axis.text.y = element_text(size = 7), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+    )
+    
+    filename <- paste0("../plots/markers/marker_genes_all_", gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 8, height = 10)
+}
+```
+
+
+## Comments
+
+Some comments:
+
+- In this version of the analyses, lists of significant SpatialDE genes were calculated separately for each sample, and then pooled to create a combined list. This was then compared to the list of HVGs, where were calculated on data from all samples combined.
+
+- SpatialDE does not scale well with the number of spots, so we needed to subsample spots. We used a random subsample of 1500 spots per sample. By comparison, the total number of spots per sample ranged form 3460 to 4789.
+
+- SpatialDE returned p-values exactly equal to 0 for a large number of genes, so it is difficult to create a final ranking of SpatialDE genes.
+
+- The lists of significant SpatialDE genes included a number of genes with very low UMI counts, as well as some mitochondrial genes. To make the results more meaningful, we included additional filtering to: (i) remove genes with low UMI counts (e.g. using a threshold of 500 * n_samples UMIs across all samples combined), and (ii) remove mitochondrial genes (gene names starting with "MT-").
+
+- In total, we had 293 genes that passed the additional filtering and were in the pooled list of SpatialDE genes with q-values exactly equal to zero. These genes were used for the subsequent analyses.
+
+- Most of the SpatialDE genes did not overlap with the list of 81 known marker genes from Kristen Maynard: 11 genes were in both the list of 81 known marker genes and the list of 293 final SpatialDE genes; 77 genes were in both the list of 81 known marker genes and the full list of genes in the 'sce' object. Note also that many of the 81 known marker genes are markers for multiple layers. These lists are saved in the spreadsheet 'KRM_Layer_Markers_overlap_SpatialDE.csv'.
+
+- The known marker genes varied substantially in terms of total number of UMI counts per sample: see values saved in spreadsheet 'KRM_Layer_Markers_total_counts.csv'.
+
+- From a comparison of the plots in section "Plots: SpatialDE" with the manually labeled layer images from Kristen Maynard (files received 2019-12-19 and 2019-12-30), we will use the following subset of genes from the 293 SpatialDE genes for subsequent clustering analysis with UMAP and spatial dimensions:
+
+- Layer 1: CXCL14, GFAP, MALAT1
+- Layer 2: ARPP19, CAMK2N1, HOPX, HPCAL1, SERPINE2
+- Layer 3: CARTPT, CCK, ENC1
+- Layer 4: NEFH, NEFM, PCP4
+- Layer 5: ARPP19, CCK, DIRAS2
+- Layer 6: EEF1A1, FAU, FTL, RPL12
+- White matter: CNP, CRYAB, MOBP, TF
+
+combined list: ARPP19, CAMK2N1, CARTPT, CCK, CNP, CRYAB, CXCL14, DIRAS2, EEF1A1, ENC1, FAU, FTL, GFAP, HOPX, HPCAL1, MALAT1, MOBP, NEFH, NEFM, PCP4, RPL12, SERPINE2, TF
+
+Notes:
+- EEF1A1, FAU, FTL, RPL12 (layer 6 markers) are negative markers.
+- ARPP19 and CCK are markers for multiple layers. 
+- White matter has many more possible markers available.
+
+

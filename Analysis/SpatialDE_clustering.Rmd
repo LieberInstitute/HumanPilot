@@ -1,0 +1,458 @@
+---
+title: "SpatialDE clustering"
+author: "Lukas Weber"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 2
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+# SpatialDE clustering
+
+This script contains code for several versions of data-driven clustering to reproduce the DLPFC layer structure in our dataset, using various combinations of SpatialDE genes and spatial dimensions. Clustering results are evaluated using manually annotated layers from Kristen Maynard as ground truth.
+
+```{r, message = FALSE}
+library(SingleCellExperiment)
+library(scran)
+library(scater)
+library(readr)
+library(dplyr)
+library(uwot)
+library(mclust)
+library(ggplot2)
+library(RColorBrewer)
+```
+
+
+## Load data
+
+Load SingleCellExperiment object from Leo's analyses.
+
+```{r}
+# load scran output file
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+
+# sample names
+sample_names <- paste0("sample_", unique(colData(sce)$sample_name))
+sample_names
+```
+
+
+## Load SpatialDE genes
+
+Load lists of significant SpatialDE genes for each sample (output from previous script "SpatialDE_subsampling_comparison.Rmd").
+
+```{r}
+# load spreadsheets containing SpatialDE gene lists
+genes_SpatialDE_files <- list.files(
+    "../outputs/SpatialDE_subsampling_comparison", 
+    pattern = "^SpatialDE_genes_sig_all_[0-9]+\\.csv$", full.names = TRUE
+)
+genes_SpatialDE_files_pooled <- list.files(
+    "../outputs/SpatialDE_subsampling_comparison", 
+    pattern = "^SpatialDE_genes_sig_all_pooled\\.csv$", full.names = TRUE
+)
+
+genes_SpatialDE_files
+genes_SpatialDE_files_pooled
+
+genes_SpatialDE <- lapply(genes_SpatialDE_files, read_csv)
+
+genes_SpatialDE_pooled <- read_csv(genes_SpatialDE_files_pooled)
+
+stopifnot(all(sample_names == paste0("sample_", gsub("\\.csv$", "", gsub("^.*_", "", genes_SpatialDE_files)))))
+
+names(genes_SpatialDE) <- sample_names
+
+# number of genes
+sapply(genes_SpatialDE, nrow)
+nrow(genes_SpatialDE_pooled)
+```
+
+
+## Load ground truth
+
+Load ground truth cluster labels (manually annotated DLPFC layers from Kristen Maynard).
+
+```{r}
+# load KRM manual layer labels
+KRM_manual_layers_part1 <- read_csv("../../from_Slack/KRM_manual_layers/spatialLIBD_layerGuesses_2019-12-19 19_49_57_Merged.csv")
+KRM_manual_layers_part2 <- read_csv("../../from_Slack/KRM_manual_layers/spatialLIBD_layerGuesses_2019-12-30 17_35_40_Combined2.csv")
+
+KRM_manual_layers <- rbind(KRM_manual_layers_part1, KRM_manual_layers_part2)
+
+table(KRM_manual_layers$layer)
+table(KRM_manual_layers$sample_name, KRM_manual_layers$layer)
+
+# re-code "Layer 2/3" as "Layer 3" (for samples 151669, 151670, 151671, 151672)
+KRM_manual_layers$layer[KRM_manual_layers$layer == "Layer 2/3"] <- "Layer 3"
+
+KRM_manual_layers$layer <- gsub(" ", "_", KRM_manual_layers$layer)
+
+KRM_manual_layers
+table(KRM_manual_layers$layer)
+table(KRM_manual_layers$sample_name, KRM_manual_layers$layer)
+```
+
+
+## Clustering
+
+Run the following clustering analyses:
+
+- clustering on top 50 PCs on SpatialDE significant genes for each sample
+- clustering on top 50 PCs on SpatialDE significant genes pooled
+- clustering on top 50 PCs on HVGs
+
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled
+- clustering on top 10 UMAPs on top 50 PCs on HVGs
+
+- clustering on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
+- clustering on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
+- clustering on top 50 PCs on HVGs + 2 scaled spatial dimensions
+
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on top 50 PCs on HVGs + 2 scaled spatial dimensions
+
+
+Notes:
+
+- spatial dimensions are scaled to a range approximately comparable to the other dimensions; no z-scaling of spatial dimensions since these are physical coordinates
+
+- clustering is performed using Bioconductor graph-based clustering number of clusters equal to known number of ground truth layers
+
+```{r}
+# parameters
+n_umap <- 10
+max_spatial <- 1
+n_neighbors <- 10
+n_clus <- 7
+
+
+d_plot <- data.frame()
+
+
+# function to sort cluster labels by descending frequency (from Leo)
+sort_clusters <- function(clusters, map_subset = NULL) {
+    if (is.null(map_subset)) {
+        map_subset <- rep(TRUE, length(clusters))
+    }
+    map <- rank(length(clusters[map_subset]) - table(clusters[map_subset]), ties.method = "first")
+    res <- map[clusters]
+    factor(res)
+}
+
+
+# run once per sample
+for (i in seq_along(sample_names)) {
+    
+    # select spots from this sample
+    sce_sub <- sce[, colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
+    dim(sce_sub)
+    
+    
+    # ----------------------
+    # get spatial dimensions
+    # ----------------------
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_sub)[, c("imagecol")], 
+        y_coord = -colData(sce_sub)[, c("imagerow")]
+    )
+    
+    dims_spatial <- xy_coords
+    colnames(dims_spatial) <- c("spatial_x", "spatial_y")
+    rownames(dims_spatial) <- colnames(sce_sub)
+    dim(dims_spatial)
+    stopifnot(nrow(dims_spatial) == ncol(sce_sub))
+    
+    # scale spatial dimensions
+    apply(dims_spatial, 2, range)
+    dims_spatial <- apply(as.matrix(dims_spatial), 2, function(col) {
+        (col - min(col)) / (max(col) - min(col)) * (2 * max_spatial) - max_spatial
+    })
+    rownames(dims_spatial) <- colnames(sce_sub)
+    apply(dims_spatial, 2, range)
+    dim(dims_spatial)
+    stopifnot(nrow(dims_spatial) == ncol(sce_sub))
+    
+    
+    # -----------------------
+    # get ground truth labels
+    # -----------------------
+    
+    # note ground truth labels are not available for all spots
+    KRM_manual_layers_sub <- filter(KRM_manual_layers, sample_name == gsub("^sample_", "", sample_names[i]))
+    dim(KRM_manual_layers_sub)
+    
+    ground_truth_sub <- data.frame(
+        truth = rep(NA, ncol(sce_sub))
+    )
+    rownames(ground_truth_sub) <- colnames(sce_sub)
+    ground_truth_sub[KRM_manual_layers_sub$spot_name, "truth"] <- KRM_manual_layers_sub$layer
+    dim(ground_truth_sub)
+    stopifnot(nrow(ground_truth_sub) == ncol(sce_sub))
+    
+    
+    # ---------------------------------------------
+    # extract and calculate features (PCA and UMAP)
+    # ---------------------------------------------
+    
+    # extract top 50 PCs on HVGs
+    dims_HVG_PCA <- reducedDim(sce_sub, type = "PCA")
+    dim(dims_HVG_PCA)
+    stopifnot(nrow(dims_HVG_PCA) == ncol(sce_sub))
+    
+    
+    # run UMAP on top 50 PCs on HVGs
+    set.seed(1234)
+    out_umap_hvgs <- umap(dims_HVG_PCA, scale = TRUE, n_components = n_umap)
+    
+    dims_HVG_UMAP <- out_umap_hvgs
+    colnames(dims_HVG_UMAP) <- paste0("UMAP", seq_len(n_umap))
+    rownames(dims_HVG_UMAP) <- colnames(sce_sub)
+    dim(dims_HVG_UMAP)
+    stopifnot(nrow(dims_HVG_UMAP) == ncol(sce_sub))
+    
+    
+    # run PCA on SpatialDE significant genes (sample-specific)
+    logcounts_spatialde <- logcounts(sce_sub[genes_SpatialDE[[sample_names[i]]]$gene_id, ])
+    
+    # note scater::calculatePCA has random seed
+    set.seed(1234)
+    out_pca_spatialde <- calculatePCA(logcounts_spatialde, ncomponents = 50)
+    
+    dims_SpatialDE_PCA <- out_pca_spatialde
+    rownames(dims_SpatialDE_PCA) <- colnames(sce_sub)
+    dim(dims_SpatialDE_PCA)
+    stopifnot(nrow(dims_SpatialDE_PCA) == ncol(sce_sub))
+    
+    
+    # run UMAP on SpatialDE significant genes (sample-specific)
+    set.seed(1234)
+    out_umap_spatialde <- umap(dims_SpatialDE_PCA, scale = TRUE, n_components = n_umap)
+    
+    dims_SpatialDE_UMAP <- out_umap_spatialde
+    colnames(dims_SpatialDE_UMAP) <- paste0("UMAP", seq_len(n_umap))
+    rownames(dims_SpatialDE_UMAP) <- colnames(sce_sub)
+    dim(dims_SpatialDE_UMAP)
+    stopifnot(nrow(dims_SpatialDE_UMAP) == ncol(sce_sub))
+    
+    
+    # run PCA on SpatialDE significant genes (pooled)
+    logcounts_spatialde_pool <- logcounts(sce_sub[genes_SpatialDE_pooled$gene_id, ])
+    
+    # note scater::calculatePCA has random seed
+    set.seed(1234)
+    out_pca_spatialde_pool <- calculatePCA(logcounts_spatialde_pool, ncomponents = 50)
+    
+    dims_SpatialDE_pool_PCA <- out_pca_spatialde_pool
+    rownames(dims_SpatialDE_pool_PCA) <- colnames(sce_sub)
+    dim(dims_SpatialDE_pool_PCA)
+    stopifnot(nrow(dims_SpatialDE_pool_PCA) == ncol(sce_sub))
+    
+    
+    # run UMAP on SpatialDE significant genes (pooled)
+    set.seed(1234)
+    out_umap_spatialde_pool <- umap(dims_SpatialDE_pool_PCA, scale = TRUE, n_components = n_umap)
+    
+    dims_SpatialDE_pool_UMAP <- out_umap_spatialde_pool
+    colnames(dims_SpatialDE_pool_UMAP) <- paste0("UMAP", seq_len(n_umap))
+    rownames(dims_SpatialDE_pool_UMAP) <- colnames(sce_sub)
+    dim(dims_SpatialDE_pool_UMAP)
+    stopifnot(nrow(dims_SpatialDE_pool_UMAP) == ncol(sce_sub))
+    
+    
+    # ------------------------------------------------------
+    # run clustering and calculate Adjusted Rand Index (ARI)
+    # ------------------------------------------------------
+    
+    # using graph-based clustering (see Bioconductor OSCA book)
+    
+    # convenience function; note uses some external variables from above
+    run_clustering_and_calculate_ARI <- function(input, method) {
+        dims_clus <- input
+        
+        set.seed(1234)
+        g <- buildSNNGraph(t(dims_clus), k = n_neighbors, d = ncol(dims_clus))
+        g_walk <- igraph::cluster_walktrap(g)
+        clus <- igraph::cut_at(g_walk, n = n_clus)
+        clus <- sort_clusters(clus)
+        
+        table(clus)
+        stopifnot(length(clus) == nrow(dims_clus))
+        stopifnot(length(clus) == nrow(ground_truth_sub))
+        
+        truth <- ground_truth_sub$truth
+        table(clus, truth)
+        
+        out_ARI <- adjustedRandIndex(clus, truth)
+        
+        data.frame(
+            spot_name = as.character(rownames(dims_clus)), 
+            xy_coords, 
+            sample_name = as.character(sample_names[i]), 
+            method = as.character(method), 
+            cluster = as.numeric(clus), 
+            truth = as.character(truth), 
+            ARI = out_ARI, 
+            stringsAsFactors = FALSE
+        )
+    }
+    
+    
+    # run clustering for each method
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_HVG_PCA, method = "HVG_PCA")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_HVG_UMAP, method = "HVG_UMAP")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_SpatialDE_PCA, method = "SpatialDE_PCA")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_SpatialDE_UMAP, method = "SpatialDE_UMAP")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_SpatialDE_pool_PCA, method = "SpatialDE_pool_PCA")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        dims_SpatialDE_pool_UMAP, method = "SpatialDE_pool_UMAP")
+    )
+    
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_HVG_PCA, dims_spatial), method = "HVG_PCA_spatial")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_HVG_UMAP, dims_spatial), method = "HVG_UMAP_spatial")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_SpatialDE_PCA, dims_spatial), method = "SpatialDE_PCA_spatial")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_SpatialDE_UMAP, dims_spatial), method = "SpatialDE_UMAP_spatial")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_SpatialDE_pool_PCA, dims_spatial), method = "SpatialDE_pool_PCA_spatial")
+    )
+    d_plot <- rbind(d_plot, run_clustering_and_calculate_ARI(
+        cbind(dims_SpatialDE_pool_UMAP, dims_spatial), method = "SpatialDE_pool_UMAP_spatial")
+    )
+}
+
+
+# re-order method names for plotting
+method_names <- c(
+    "SpatialDE_PCA", "SpatialDE_pool_PCA", "HVG_PCA", 
+    "SpatialDE_UMAP", "SpatialDE_pool_UMAP", "HVG_UMAP", 
+    "SpatialDE_PCA_spatial", "SpatialDE_pool_PCA_spatial", "HVG_PCA_spatial", 
+    "SpatialDE_UMAP_spatial", "SpatialDE_pool_UMAP_spatial", "HVG_UMAP_spatial"
+)
+```
+
+
+## Plots: clustering
+
+```{r, fig.width = 12.5, fig.height = 5.5}
+# separate plots for each sample
+for (i in seq_along(sample_names)) {
+    
+    d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
+    
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_names)
+    d_plot_sub$cluster <- as.factor(d_plot_sub$cluster)
+    d_plot_sub$truth <- as.factor(d_plot_sub$truth)
+    
+    print(
+        ggplot(d_plot_sub, aes(x = x_coord, y = y_coord, color = cluster)) + 
+            facet_wrap(~ method, nrow = 2) + 
+            geom_point(size = 0.25, alpha = 1) + 
+            coord_fixed() + 
+            scale_color_brewer(palette = "Paired") + 
+            ggtitle(paste0("Clustering: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank())
+    )
+    
+    filename <- paste0("../plots/SpatialDE_clustering/clustering_sample_", 
+                       gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 12.5, height = 5.5)
+}
+```
+
+
+## Plots: ground truth
+
+```{r, fig.width = 4.5, fig.height = 3.75}
+# separate plots for each sample
+for (i in seq_along(sample_names)) {
+    
+    d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
+    
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_names)
+    d_plot_sub$cluster <- as.factor(d_plot_sub$cluster)
+    d_plot_sub$truth <- as.factor(d_plot_sub$truth)
+    
+    # ground truth is the same for each method
+    d_plot_truth <- d_plot_sub[d_plot_sub$method == method_names[1], ]
+    d_plot_truth <- na.omit(d_plot_truth)
+    
+    print(
+        ggplot(d_plot_truth, aes(x = x_coord, y = y_coord, color = truth)) + 
+            geom_point(size = 0.5, alpha = 1) + 
+            coord_fixed() + 
+            scale_color_brewer(palette = "Paired") + 
+            ggtitle(paste0("Ground truth: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank())
+    )
+    
+    filename <- paste0("../plots/SpatialDE_clustering/ground_truth_sample_", 
+                       gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 4.5, height = 3.75)
+}
+```
+
+
+## Plots: Adjusted Rand Index (ARI)
+
+```{r, fig.width = 4.5, fig.height = 5}
+# separate plots for each sample
+for (i in seq_along(sample_names)) {
+    
+    d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_names)
+    
+    d_plot_ARI <- distinct(d_plot_sub[, c("sample_name", "method", "ARI")])
+    
+    print(
+        ggplot(d_plot_ARI, aes(x = method, y = ARI, color = method)) + 
+            geom_point(shape = 4, stroke = 2) + 
+            scale_color_brewer(palette = "Paired") + 
+            ylim(c(-0.1, 0.5)) + 
+            ggtitle(paste0("Adjusted Rand Index: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+                  legend.position = "none")
+    )
+    
+    filename <- paste0("../plots/SpatialDE_clustering/ARI_sample_", 
+                       gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 4.5, height = 5)
+}
+```
+
+
+

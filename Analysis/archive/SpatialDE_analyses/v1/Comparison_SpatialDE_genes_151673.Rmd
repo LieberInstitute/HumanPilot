@@ -1,0 +1,390 @@
+---
+title: "Comparison SpatialDE genes"
+author: "Lukas Weber"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Comparison SpatialDE genes
+
+Comparison of top significant genes detected by SpatialDE (from script `sce_spatialDE.Rmd` from Stephanie Hicks) vs. our previous set of highly variable genes (HVGs).
+
+Note that HVGs were previously calculated from all samples combined.
+
+SpatialDE genes were calculated from sample 151673 only, with subsampling to 1500 spots due to slow runtime for SpatialDE (SpatialDE does not scale well with number of spots).
+
+```{r}
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(scales))
+```
+
+
+## Load data: HVGs
+
+Load original object containing HVGs, which were calculated from all samples combined.
+
+```{r}
+# load scran output file
+load("../../data/Human_DLPFC_Visium_processedData_sce_scran.Rdata")
+sce
+
+# vector of top HVGs
+head(top.hvgs)
+```
+
+
+## Load data: SpatialDE
+
+```{r}
+# load spreadsheet containing SpatialDE results
+spatialDE_results <- read_csv("../../data/Human_DLPFC_Visium_processedData_sce_scran_spatialDE_results.csv")
+```
+
+
+## Comparison of gene lists
+
+Compare list of HVGs vs. list of significant genes from SpatialDE.
+
+```{r}
+# select significant genes from SpatialDE
+spatialDE_sig <- filter(spatialDE_results, qval < 0.05)
+spatialDE_sig_genes <- spatialDE_sig$g
+
+head(spatialDE_sig_genes)
+length(spatialDE_sig_genes)
+
+# compare HVGs vs. significant genes from SpatialDE
+head(top.hvgs)
+head(spatialDE_sig_genes)
+
+length(top.hvgs)
+length(spatialDE_sig_genes)
+
+sum(spatialDE_sig_genes %in% top.hvgs)
+sum(top.hvgs %in% spatialDE_sig_genes)
+```
+
+
+## SpatialDE results
+
+Histogram of p-values. Note that a large number of genes have p-values exactly equal to zero.
+
+```{r, fig.width=4, fig.height=4}
+hist(spatialDE_sig$qval)
+
+# number of genes with p-value (or q-value) equal to 0
+sum(spatialDE_sig$pval == 0)
+sum(spatialDE_sig$qval == 0)
+```
+
+
+## Plots: SpatialDE
+
+Create plots showing expression (UMI counts) of the top significant genes from Spatial DE, for sample 151673.
+
+First do some additional filtering. The SpatialDE top significant genes include some genes with very low UMI counts; and also include some mitochondrial genes. Include additional filtering here to: (i) remove genes with low UMI counts (e.g. using a threshold of 2000 total UMIs per sample), and (ii) remove mitochondrial genes (gene names starting with "MT-").
+
+Note: the filtering threshold removes a number of white matter marker genes. If these are of interest, could try lowering the threshold.
+
+Plots are shown for all genes with q-values equal to 0 that also pass the additional filtering. Since these q-values are all exactly equal to 0, it is not possible to rank among these genes.
+
+```{r, fig.width=12, fig.height=16}
+# select spots from sample 151673 only
+ix_151673 <- colData(sce)$sample_name == 151673
+table(ix_151673)
+
+sce_151673 <- sce[, ix_151673]
+sce_151673
+
+# extract x-y coordinates of spots (note: y coordinate is reversed)
+xy_coords <- data.frame(
+    x_coord = colData(sce_151673)[, c("imagecol")], 
+    y_coord = -colData(sce_151673)[, c("imagerow")]
+)
+
+# select top significant genes from SpatialDE (q-values exactly equal to 0)
+spatialDE_top <- filter(spatialDE_sig, qval == 0)
+spatialDE_top
+dim(spatialDE_top)
+
+# alternatively: rank genes
+# spatialDE_sig <- mutate(spatialDE_sig, rank = rank(qval, ties.method = "first"))
+# n_top <- 10
+# spatialDE_top <- filter(spatialDE_sig, rank <= n_top)
+
+# get top genes
+spatialDE_top_genes <- spatialDE_top$g
+head(spatialDE_top_genes)
+
+# get expression levels (UMI counts) for top significant genes from SpatialDE
+exprs_151673_spatialDE_top <- counts(sce_151673)[spatialDE_top_genes, ]
+dim(exprs_151673_spatialDE_top)
+
+# replace gene symbols with names
+gene_names <- rowData(sce_151673)$gene_name
+names(gene_names) <- rowData(sce_151673)$gene_id
+gene_names_keep <- gene_names[rownames(exprs_151673_spatialDE_top)]
+stopifnot(length(gene_names_keep) == nrow(exprs_151673_spatialDE_top))
+rownames(exprs_151673_spatialDE_top) <- unname(gene_names_keep)
+
+genes_SpatialDE <- rownames(exprs_151673_spatialDE_top)
+head(genes_SpatialDE)
+length(genes_SpatialDE)
+
+# filtering: remove genes with low total UMI counts (across all spots)
+n_filt <- 2000
+ix_keep <- rowSums(exprs_151673_spatialDE_top) >= n_filt
+table(ix_keep)
+
+exprs_151673_spatialDE_top <- exprs_151673_spatialDE_top[ix_keep, , drop = FALSE]
+dim(exprs_151673_spatialDE_top)
+
+# match to spots and set up data frame for ggplot2
+stopifnot(all(colData(sce_151673)$barcode == rownames(t(exprs_151673_spatialDE_top))))
+stopifnot(length(colData(sce_151673)$barcode) == length(rownames(t(exprs_151673_spatialDE_top))))
+
+# filtering: remove mitochondrial genes
+ix_mito <- grep("^MT-", rownames(exprs_151673_spatialDE_top))
+rownames(exprs_151673_spatialDE_top)[ix_mito]
+exprs_151673_spatialDE_top <- exprs_151673_spatialDE_top[-ix_mito, , drop = FALSE]
+dim(exprs_151673_spatialDE_top)
+
+genes_SpatialDE_filt <- rownames(exprs_151673_spatialDE_top)
+head(genes_SpatialDE_filt)
+length(genes_SpatialDE_filt)
+
+# set up plot
+d_plot <- cbind(
+    barcode = colData(sce_151673)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_151673_spatialDE_top)))
+)
+
+d_plot[1:6, 1:6]
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_name", 
+    value.name = "UMIs"
+)
+
+head(d_plot)
+
+# max UMI count for color scale
+max_UMI <- max(exprs_151673_spatialDE_top)
+
+# generate plots
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+    facet_wrap(~ gene_name) + 
+    geom_point(size = 0.1, alpha = 1) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
+    coord_fixed() + 
+    theme_bw() + 
+    ggtitle("UMIs of top SpatialDE genes for sample 151673")
+
+filename <- "../plots/spatialDE/spatialDE_top_genes_151673.png"
+ggsave(filename, width = 12, height = 16)
+```
+
+
+## Compare with known marker genes
+
+Compare with list of known marker genes from Kristen Maynard.
+
+Marker genes are saved in spreadsheet `KRM_Layer_Markers.xlsx`.
+
+```{r}
+# load names of marker genes
+KRM_Layer_Markers <- read_xlsx("KRM_Layer_Markers.xlsx")
+KRM_Layer_Markers
+dim(KRM_Layer_Markers)
+
+marker_genes <- KRM_Layer_Markers$Gene
+length(marker_genes)
+
+# how many of these marker genes are in the SpatialDE list (without filtering)
+# note: upper case / lower case
+sum(toupper(marker_genes) %in% toupper(genes_SpatialDE))
+sum(toupper(genes_SpatialDE) %in% toupper(marker_genes))
+
+# how many of these marker genes are in the SpatialDE list (with filtering)
+# note: upper case / lower case
+sum(toupper(marker_genes) %in% toupper(genes_SpatialDE_filt))
+sum(toupper(genes_SpatialDE_filt) %in% toupper(marker_genes))
+```
+
+
+## Plots: known marker genes (3 only)
+
+Compare to plots showing expression (UMI counts) of known marker genes.
+
+First showing only SNAP25, MOBP, and PCP4 (marker genes from Kristen Maynard's slide presentation).
+
+Note: could also compare with expression of some of the top HVGs (however would need q-values for the HVGs to do this).
+
+```{r, fig.width=11, fig.height=5}
+# choose marker genes and get expression levels (UMI counts)
+marker_genes_3 <- c("SNAP25", "MOBP", "PCP4")
+
+# also check if these are in SpatialDE lists
+sum(toupper(marker_genes_3) %in% toupper(genes_SpatialDE))
+sum(toupper(marker_genes_3) %in% toupper(genes_SpatialDE_filt))
+
+ix_marker_genes_3 <- match(marker_genes_3, rowData(sce_151673)$gene_name)
+exprs_marker_genes_3 <- counts(sce_151673)[ix_marker_genes_3, , drop = FALSE]
+
+# use gene names instead of symbols
+stopifnot(nrow(exprs_marker_genes_3) == length(marker_genes_3))
+rownames(exprs_marker_genes_3) <- marker_genes_3
+dim(exprs_marker_genes_3)
+
+# match to spots and set up data frame for ggplot2
+stopifnot(all(colData(sce_151673)$barcode == rownames(t(exprs_marker_genes_3))))
+stopifnot(length(colData(sce_151673)$barcode) == length(rownames(t(exprs_marker_genes_3))))
+
+d_plot <- cbind(
+    barcode = colData(sce_151673)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_marker_genes_3)))
+)
+
+d_plot[1:6, 1:6]
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_id", 
+    value.name = "UMIs"
+)
+
+head(d_plot)
+
+# max UMI count for color scale
+max_UMI <- max(exprs_marker_genes_3)
+
+# generate plots
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+    facet_wrap(~ gene_id) + 
+    geom_point(size = 0.8, alpha = 1) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
+    coord_fixed() + 
+    theme_bw() + 
+    ggtitle("UMIs of known marker genes for sample 151673")
+
+filename <- "../plots/spatialDE/marker_genes_3_151673.png"
+ggsave(filename, width = 11, height = 5)
+```
+
+
+## Plots: known marker genes (all)
+
+All 81 marker genes (from Kristen Maynard's spreadsheet).
+
+Note: many of these genes are markers for multiple layers.
+
+Note: not all of these genes are available for sample 151673 (77 out of 81).
+
+```{r, fig.width=9, fig.height=11}
+# choose marker genes and get expression levels (UMI counts)
+# note: upper case / lower case
+marker_genes_all <- toupper(marker_genes)
+head(marker_genes_all)
+length(marker_genes_all)
+
+# note: not all of these genes are available for sample 151673
+ix_marker_genes_all <- match(marker_genes_all, rowData(sce_151673)$gene_name)
+sum(is.na(ix_marker_genes_all))
+
+# remove missing genes
+which_na <- is.na(ix_marker_genes_all)
+
+ix_marker_genes_all <- ix_marker_genes_all[!which_na]
+length(ix_marker_genes_all)
+
+# check which ones were missing and update gene names
+marker_genes_all[which_na]
+marker_genes_all <- marker_genes_all[!which_na]
+length(marker_genes_all)
+
+exprs_marker_genes_all <- counts(sce_151673)[ix_marker_genes_all, , drop = FALSE]
+dim(exprs_marker_genes_all)
+
+# use gene names instead of symbols
+stopifnot(nrow(exprs_marker_genes_all) == length(marker_genes_all))
+rownames(exprs_marker_genes_all) <- marker_genes_all
+dim(exprs_marker_genes_all)
+
+# match to spots and set up data frame for ggplot2
+stopifnot(all(colData(sce_151673)$barcode == rownames(t(exprs_marker_genes_all))))
+stopifnot(length(colData(sce_151673)$barcode) == length(rownames(t(exprs_marker_genes_all))))
+
+d_plot <- cbind(
+    barcode = colData(sce_151673)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_marker_genes_all)))
+)
+
+d_plot[1:6, 1:6]
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_id", 
+    value.name = "UMIs"
+)
+
+head(d_plot)
+
+# max UMI count for color scale
+max_UMI <- max(exprs_marker_genes_all)
+
+# generate plots
+ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+    facet_wrap(~ gene_id) + 
+    geom_point(size = 0.1, alpha = 1) + 
+    scale_color_gradientn(colors = c("gray90", "red", "brown", "black"), 
+                          values = rescale(c(0, 10, 20, max_UMI))) + 
+    coord_fixed() + 
+    theme_bw() + 
+    ggtitle("UMIs of known marker genes for sample 151673")
+
+filename <- "../plots/spatialDE/marker_genes_all_151673.png"
+ggsave(filename, width = 9, height = 11)
+```
+
+
+## Comments
+
+Some comments:
+
+- SpatialDE does not scale well with the number of spots, so we needed to subsample spots. However, we still used 1500 out of 3639 spots for sample 151673, so results should be reasonably robust.
+
+- HVGs were calculated using spots from all samples combined; while SpatialDE was run on spots from only a single sample (sample 151673), which will lead to some differences in the gene lists.
+
+- SpatialDE returned p-values exactly equal to 0 for a large number of genes (387), so it is difficult to rank SpatialDE genes.
+
+- A number of the genes detected by SpatialDE had very low UMI counts, so these were not likely to be meaningful marker genes. We have filtered these out (using a threshold of 2000 total UMIs per sample). We have also filtered out mitochondrial genes.
+
+- Most of the SpatialDE genes did not overlap with the list of known marker genes from Kristen Maynard (only 4 out of 81).
+
+- Of the 81 marker genes from Kristen, 77 were available in the SCE object for sample 151673. Also note that many of these are marker genes for multiple layers; the plots show them individually.
+
+- From looking at the plots of the SpatialDE genes, some possible marker genes for individual layers include: NEFH, PCP4, HPCAL1, VSNL1, TMSB10, CCK, HOPX, PPP3CA, GPM6A, ENC1, NEFM, NEFL, DIRAS2, SNCG, FBXL16, GFAP, CAMK2N1, CXCL14, TUBB2A, OLFM1, MALAT1, APLP1 (and many for white matter, e.g. MOBP, ERMN, CLDND1, TF, etc).
+
+- Next: try using these genes for clustering (either with or without spatial coordinates included).
+
+
