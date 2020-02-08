@@ -132,7 +132,7 @@ Notes:
 ```{r}
 # parameters
 n_umap <- 10
-max_spatial <- 0.5
+max_spatial <- 1
 n_neighbors <- 10
 n_clus <- 7
 
@@ -379,8 +379,10 @@ for (i in seq_along(sample_names)) {
             geom_point(size = 0.25, alpha = 1) + 
             coord_fixed() + 
             scale_color_brewer(palette = "Paired") + 
+            ggtitle(paste0("Clustering: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
-            ggtitle(paste0("Clustering: sample ", gsub("^sample_", "", sample_names[i])))
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank())
     )
     
     filename <- paste0("../plots/SpatialDE_clustering/clustering_sample_", 
@@ -411,8 +413,10 @@ for (i in seq_along(sample_names)) {
             geom_point(size = 0.5, alpha = 1) + 
             coord_fixed() + 
             scale_color_brewer(palette = "Paired") + 
+            ggtitle(paste0("Ground truth: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
-            ggtitle(paste0("Ground truth: sample ", gsub("^sample_", "", sample_names[i])))
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank())
     )
     
     filename <- paste0("../plots/SpatialDE_clustering/ground_truth_sample_", 
