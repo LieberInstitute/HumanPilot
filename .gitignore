@@ -11,3 +11,6 @@ Analysis/SpatialDE_subsampling_comparison_files/
 Analysis/SpatialDE_genes_analysis_cache/
 Analysis/SpatialDE_genes_analysis_files/
 Analysis/SpatialDE_genes_analysis.html
+Analysis/SpatialDE_clustering_cache/
+Analysis/SpatialDE_clustering_files/
+Analysis/SpatialDE_clustering.html
