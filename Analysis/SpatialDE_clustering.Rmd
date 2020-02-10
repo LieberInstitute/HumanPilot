@@ -150,18 +150,26 @@ Run the following clustering analyses:
 - clustering on top 50 PCs on SpatialDE significant genes for each sample
 - clustering on top 50 PCs on SpatialDE significant genes pooled
 - clustering on top 50 PCs on HVGs
+- clustering on top 50 PCs on pseudobulk layer genes (from Leo's analyses; 198 genes)
+- clustering on top 50 PCs on known marker genes (from Kristen; 77 out of 81 genes)
 
 - clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample
 - clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled
 - clustering on top 10 UMAPs on top 50 PCs on HVGs
+- clustering on top 10 UMAPs on pseudobulk layer genes (from Leo's analyses; 198 genes)
+- clustering on top 10 UMAPs on known marker genes (from Kristen; 77 out of 81 genes)
 
 - clustering on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
 - clustering on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
 - clustering on top 50 PCs on HVGs + 2 scaled spatial dimensions
+- clustering on top 50 PCs on pseudobulk layer genes (from Leo's analyses; 198 genes) + 2 scaled spatial dimensions
+- clustering on top 50 PCs on known marker genes (from Kristen; 77 out of 81 genes) + 2 scaled spatial dimensions
 
 - clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
 - clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
 - clustering on top 10 UMAPs on top 50 PCs on HVGs + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on pseudobulk layer genes (from Leo's analyses; 198 genes) + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on known marker genes (from Kristen; 77 out of 81 genes) + 2 scaled spatial dimensions
 
 
 Notes:
@@ -344,9 +352,9 @@ for (i in seq_along(sample_names)) {
     stopifnot(nrow(dims_pseudobulk_UMAP) == ncol(sce_sub))
     
     
-    ### known marker genes (from Kristen; 81 genes)
+    ### known marker genes (from Kristen; 77 out of 81 genes)
     
-    # run PCA on known marker genes (from Kristen; 81 genes)
+    # run PCA on known marker genes (from Kristen; 77 out of 81 genes)
     # note: remove NAs
     logcounts_markers <- logcounts(sce_sub[na.omit(genes_markers$gene_id), ])
     
@@ -359,7 +367,7 @@ for (i in seq_along(sample_names)) {
     stopifnot(nrow(dims_markers_PCA) == ncol(sce_sub))
     
     
-    # run UMAP on known marker genes (from Kristen; 81 genes)
+    # run UMAP on known marker genes (from Kristen; 77 out of 81 genes)
     set.seed(1234)
     out_umap_markers <- umap(dims_markers_PCA, scale = TRUE, n_components = n_umap)
     
