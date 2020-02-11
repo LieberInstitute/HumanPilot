@@ -641,13 +641,13 @@ d_plot_truth_combined <- na.omit(d_plot_truth_combined)
 d_plot_truth_combined$method <- factor("ground_truth")
 
 
-# re-build individual plots without faceting
+# re-build individual plots without facets
 p_clustering_semisupervised_best <- 
     ggplot(d_plot_sub_semisupervised_best, aes(x = x_coord, y = y_coord, color = cluster)) + 
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_brewer(palette = "Paired") + 
+        scale_color_manual(values = brewer.pal(7, "Paired")[c(4, 2, 3, 7, 6, 5, 1)]) + 
         ggtitle("Semisupervised clustering (best)", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
@@ -659,7 +659,7 @@ p_clustering_unsupervised_best <-
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_brewer(palette = "Paired") + 
+        scale_color_manual(values = brewer.pal(7, "Paired")[c(4, 3, 2, 1, 7, 6, 5)]) + 
         ggtitle("Unsupervised clustering (best)", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
@@ -671,7 +671,7 @@ p_clustering_markers_best <-
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_brewer(palette = "Paired") + 
+        scale_color_manual(values = brewer.pal(7, "Paired")[c(3, 5, 6, 1, 2, 4, 7)]) + 
         ggtitle("Markers clustering (best)", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
