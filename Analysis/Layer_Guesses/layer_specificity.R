@@ -511,39 +511,45 @@ set.seed(20200121)
 sce_layer <-
     runUMAP(sce_layer, dimred = 'PCA', name = 'UMAP_neighbors15')
 
-
+sce_layer$layer_guess_reordered <-
+    factor(sce_layer$layer_guess, levels = c(paste0('Layer', 1:6), 'WM'))
 pdf('pdf/reduced_dim_PCA.pdf', useDingbats = FALSE)
 plotReducedDim(
     sce_layer,
     dimred = 'PCA',
-    colour_by = 'layer_guess',
-    theme_size = 20
+    colour_by = 'layer_guess_reordered',
+    theme_size = 20,
+    point_size = 5
 ) +
-    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7))[c(2:7, 1)],
         name = 'Layer')
 plotReducedDim(
     sce_layer,
     dimred = 'PCA',
     colour_by = 'sample_name',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'PCA',
     colour_by = 'subject_position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'PCA',
     colour_by = 'subject',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'PCA',
     colour_by = 'position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 dev.off()
 
@@ -600,34 +606,39 @@ pdf('pdf/reduced_dim_TSNE_perplexity5.pdf', useDingbats = FALSE)
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity5',
-    colour_by = 'layer_guess',
-    theme_size = 20
+    colour_by = 'layer_guess_reordered',
+    theme_size = 20,
+    point_size = 5
 ) +
-    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7))[c(2:7, 1)],
         name = 'Layer')
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity5',
     colour_by = 'sample_name',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity5',
     colour_by = 'subject_position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity5',
     colour_by = 'subject',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity5',
     colour_by = 'position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 dev.off()
 
@@ -635,34 +646,39 @@ pdf('pdf/reduced_dim_TSNE_perplexity15.pdf', useDingbats = FALSE)
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity15',
-    colour_by = 'layer_guess',
-    theme_size = 20
+    colour_by = 'layer_guess_reordered',
+    theme_size = 20,
+    point_size = 5
 ) +
-    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7))[c(2:7, 1)],
         name = 'Layer')
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity15',
     colour_by = 'sample_name',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity15',
     colour_by = 'subject_position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity15',
     colour_by = 'subject',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity15',
     colour_by = 'position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 dev.off()
 
@@ -670,34 +686,39 @@ pdf('pdf/reduced_dim_TSNE_perplexity20.pdf', useDingbats = FALSE)
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity20',
-    colour_by = 'layer_guess',
-    theme_size = 20
+    colour_by = 'layer_guess_reordered',
+    theme_size = 20,
+    point_size = 5
 ) +
-    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7))[c(2:7, 1)],
         name = 'Layer')
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity20',
     colour_by = 'sample_name',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity20',
     colour_by = 'subject_position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity20',
     colour_by = 'subject',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'TSNE_perplexity20',
     colour_by = 'position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 dev.off()
 
@@ -705,34 +726,39 @@ pdf('pdf/reduced_dim_UMAP_neighbors15.pdf', useDingbats = FALSE)
 plotReducedDim(
     sce_layer,
     dimred = 'UMAP_neighbors15',
-    colour_by = 'layer_guess',
-    theme_size = 20
+    colour_by = 'layer_guess_reordered',
+    theme_size = 20,
+    point_size = 5
 ) +
-    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7)),
+    ggplot2::scale_fill_manual(values =  unname(Polychrome::palette36.colors(7))[c(2:7, 1)],
         name = 'Layer')
 plotReducedDim(
     sce_layer,
     dimred = 'UMAP_neighbors15',
     colour_by = 'sample_name',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'UMAP_neighbors15',
     colour_by = 'subject_position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'UMAP_neighbors15',
     colour_by = 'subject',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 plotReducedDim(
     sce_layer,
     dimred = 'UMAP_neighbors15',
     colour_by = 'position',
-    theme_size = 20
+    theme_size = 20,
+    point_size = 5
 )
 dev.off()
 
@@ -1581,12 +1607,12 @@ for (i in seq_len(nrow(sig_genes))) {
             sig_genes$ensembl[i],
             sig_genes$layer[i],
             '\n',
-
+            
             'tstat',
             formatC(sig_genes$tstat[i], format = "e", digits = 2),
             'p',
             formatC(sig_genes$pval[i], format = "e", digits = 2),
-
+            
             '\n',
             gsub('top', 'r', gsub('Layer', 'L', sig_genes_df$results[i]))
         ),
