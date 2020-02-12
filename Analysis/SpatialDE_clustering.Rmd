@@ -29,6 +29,7 @@ library(mclust)
 library(aricode)
 library(ggplot2)
 library(RColorBrewer)
+library(Polychrome)
 library(patchwork)
 ```
 
@@ -50,33 +51,32 @@ sample_names
 
 ## Load SpatialDE genes
 
-Load lists of significant SpatialDE genes for each sample (output from previous script "SpatialDE_subsampling_comparison.Rmd").
+Load lists of significant SpatialDE genes (with additional filtering) for each sample. (Note: these gene lists were saved as output files from the previous script "SpatialDE_genes_analysis.Rmd".)
 
 ```{r}
-# load spreadsheets containing SpatialDE gene lists
-genes_SpatialDE_files <- list.files(
-    "../outputs/SpatialDE_subsampling_comparison", 
-    pattern = "^SpatialDE_genes_sig_all_[0-9]+\\.csv$", full.names = TRUE
+# load spreadsheets containing SpatialDE gene lists (with additional filtering)
+genes_SpatialDE_filt_files <- list.files(
+    "../outputs/SpatialDE_genes_analysis", 
+    pattern = "^SpatialDE_filtered_sample_[0-9]+\\.csv$", full.names = TRUE
 )
-genes_SpatialDE_files_pooled <- list.files(
-    "../outputs/SpatialDE_subsampling_comparison", 
-    pattern = "^SpatialDE_genes_sig_all_pooled\\.csv$", full.names = TRUE
+genes_SpatialDE_filt_pooled_file <- list.files(
+    "../outputs/SpatialDE_genes_analysis", 
+    pattern = "^SpatialDE_filtered_pooled\\.csv$", full.names = TRUE
 )
 
-genes_SpatialDE_files
-genes_SpatialDE_files_pooled
+genes_SpatialDE_filt_files
+genes_SpatialDE_filt_pooled_file
 
-genes_SpatialDE <- lapply(genes_SpatialDE_files, read_csv)
+genes_SpatialDE_filt <- lapply(genes_SpatialDE_filt_files, read_csv)
+genes_SpatialDE_filt_pooled <- read_csv(genes_SpatialDE_filt_pooled_file)
 
-genes_SpatialDE_pooled <- read_csv(genes_SpatialDE_files_pooled)
+stopifnot(all(sample_names == paste0("sample_", gsub("\\.csv$", "", gsub("^.*_", "", genes_SpatialDE_filt_files)))))
 
-stopifnot(all(sample_names == paste0("sample_", gsub("\\.csv$", "", gsub("^.*_", "", genes_SpatialDE_files)))))
-
-names(genes_SpatialDE) <- sample_names
+names(genes_SpatialDE_filt) <- sample_names
 
 # number of genes
-sapply(genes_SpatialDE, nrow)
-nrow(genes_SpatialDE_pooled)
+sapply(genes_SpatialDE_filt, nrow)
+nrow(genes_SpatialDE_filt_pooled)
 ```
 
 
@@ -149,26 +149,26 @@ table(KRM_manual_layers$sample_name, KRM_manual_layers$layer)
 
 Run the following clustering analyses:
 
-- clustering on top 50 PCs on SpatialDE significant genes for each sample
-- clustering on top 50 PCs on SpatialDE significant genes pooled
+- clustering on top 50 PCs on SpatialDE significant genes (filtered) for each sample
+- clustering on top 50 PCs on SpatialDE significant genes (filtered) pooled
 - clustering on top 50 PCs on HVGs
 - clustering on top 50 PCs on pseudobulk layer genes (from Leo's analyses; 198 genes)
 - clustering on top 50 PCs on known marker genes (from Kristen; 77 out of 81 genes)
 
-- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample
-- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes (filtered) for each sample
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes (filtered) pooled
 - clustering on top 10 UMAPs on top 50 PCs on HVGs
 - clustering on top 10 UMAPs on pseudobulk layer genes (from Leo's analyses; 198 genes)
 - clustering on top 10 UMAPs on known marker genes (from Kristen; 77 out of 81 genes)
 
-- clustering on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
-- clustering on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
+- clustering on top 50 PCs on SpatialDE significant genes (filtered) for each sample + 2 scaled spatial dimensions
+- clustering on top 50 PCs on SpatialDE significant genes (filtered) pooled + 2 scaled spatial dimensions
 - clustering on top 50 PCs on HVGs + 2 scaled spatial dimensions
 - clustering on top 50 PCs on pseudobulk layer genes (from Leo's analyses; 198 genes) + 2 scaled spatial dimensions
 - clustering on top 50 PCs on known marker genes (from Kristen; 77 out of 81 genes) + 2 scaled spatial dimensions
 
-- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes for each sample + 2 scaled spatial dimensions
-- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes pooled + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes (filtered) for each sample + 2 scaled spatial dimensions
+- clustering on top 10 UMAPs on top 50 PCs on SpatialDE significant genes (filtered) pooled + 2 scaled spatial dimensions
 - clustering on top 10 UMAPs on top 50 PCs on HVGs + 2 scaled spatial dimensions
 - clustering on top 10 UMAPs on pseudobulk layer genes (from Leo's analyses; 198 genes) + 2 scaled spatial dimensions
 - clustering on top 10 UMAPs on known marker genes (from Kristen; 77 out of 81 genes) + 2 scaled spatial dimensions
@@ -280,7 +280,7 @@ for (i in seq_along(sample_names)) {
     ### SpatialDE significant genes (sample-specific)
     
     # run PCA on SpatialDE significant genes (sample-specific)
-    logcounts_spatialde <- logcounts(sce_sub[genes_SpatialDE[[sample_names[i]]]$gene_id, ])
+    logcounts_spatialde <- logcounts(sce_sub[genes_SpatialDE_filt[[sample_names[i]]]$gene_id, ])
     
     # note scater::calculatePCA has random seed
     set.seed(1234)
@@ -306,7 +306,7 @@ for (i in seq_along(sample_names)) {
     ### SpatialDE significant genes (pooled)
     
     # run PCA on SpatialDE significant genes (pooled)
-    logcounts_spatialde_pool <- logcounts(sce_sub[genes_SpatialDE_pooled$gene_id, ])
+    logcounts_spatialde_pool <- logcounts(sce_sub[genes_SpatialDE_filt_pooled$gene_id, ])
     
     # note scater::calculatePCA has random seed
     set.seed(1234)
@@ -468,6 +468,8 @@ method_names_semisupervised <- method_names[!ix_unsupervised]
 p_clustering_unsupervised <- list()
 p_clustering_semisupervised <- list()
 
+colors <- c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black")
+
 for (i in seq_along(sample_names)) {
     
     d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
@@ -485,7 +487,8 @@ for (i in seq_along(sample_names)) {
             facet_wrap(~ method, nrow = 2) + 
             geom_point(size = 0.25, alpha = 1) + 
             coord_fixed() + 
-            scale_color_brewer(palette = "Paired") + 
+            #scale_color_brewer(palette = "Paired") + 
+            scale_color_manual(values = colors) + 
             ggtitle(paste0("Clustering (unsupervised): sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
             theme(axis.title.x = element_blank(), 
@@ -503,7 +506,8 @@ for (i in seq_along(sample_names)) {
             facet_wrap(~ method, nrow = 2) + 
             geom_point(size = 0.25, alpha = 1) + 
             coord_fixed() + 
-            scale_color_brewer(palette = "Paired") + 
+            #scale_color_brewer(palette = "Paired") + 
+            scale_color_manual(values = colors) + 
             ggtitle(paste0("Clustering (semisupervised): sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
             theme(axis.title.x = element_blank(), 
@@ -540,7 +544,8 @@ for (i in seq_along(sample_names)) {
         ggplot(d_plot_truth, aes(x = x_coord, y = y_coord, color = truth)) + 
             geom_point(size = 0.5, alpha = 1) + 
             coord_fixed() + 
-            scale_color_brewer(palette = "Paired") + 
+            #scale_color_brewer(palette = "Paired") + 
+            scale_color_manual(values = colors) + 
             ggtitle(paste0("Ground truth: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
             theme(axis.title.x = element_blank(), 
@@ -689,7 +694,7 @@ Summary plot for sample 151673 showing:
 - unsupervised clustering (best method, i.e. SpatialDE_PCA_spatial)
 - semisupervised clustering (best method) (from Leo's analyses; 198 genes)
 
-```{r, fig.width = 14, fig.height = 3.75}
+```{r, fig.width = 13, fig.height = 3.5}
 # select sample 151673
 i <- 9
 
@@ -715,48 +720,76 @@ p_clustering_semisupervised_best <-
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_manual(values = brewer.pal(8, "Paired")[c(4, 2, 3, 5, 8, 7, 6, 1)]) + 
-        ggtitle("Semisupervised clustering (best)", 
+        #scale_color_manual(values = brewer.pal(8, "Paired")[c(4, 2, 3, 5, 8, 7, 6, 1)]) + 
+        scale_color_manual(values = colors[c(4, 2, 3, 5, 8, 7, 6, 1)]) + 
+        ggtitle("Semisupervised clustering", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
         theme(axis.title.x = element_blank(), 
-              axis.title.y = element_blank())
+              axis.title.y = element_blank(), 
+              axis.text.x = element_blank(), 
+              axis.text.y = element_blank(), 
+              axis.ticks.x = element_blank(), 
+              axis.ticks.y = element_blank(), 
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank())
 
 p_clustering_unsupervised_best <- 
     ggplot(d_plot_sub_unsupervised_best, aes(x = x_coord, y = y_coord, color = cluster)) + 
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_manual(values = brewer.pal(8, "Paired")[c(5, 4, 3, 8, 1, 7, 2, 6)]) + 
-        ggtitle("Unsupervised clustering (best)", 
+        #scale_color_manual(values = brewer.pal(8, "Paired")[c(5, 4, 3, 8, 1, 7, 2, 6)]) + 
+        scale_color_manual(values = colors[c(3, 4, 2, 1, 8, 6, 5, 7)]) + 
+        ggtitle("Unsupervised clustering", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
         theme(axis.title.x = element_blank(), 
-              axis.title.y = element_blank())
+              axis.title.y = element_blank(), 
+              axis.text.x = element_blank(), 
+              axis.text.y = element_blank(), 
+              axis.ticks.x = element_blank(), 
+              axis.ticks.y = element_blank(), 
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank())
 
 p_clustering_markers_best <- 
     ggplot(d_plot_sub_markers_best, aes(x = x_coord, y = y_coord, color = cluster)) + 
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_manual(values = brewer.pal(8, "Paired")[c(3, 5, 7, 6, 1, 2, 4, 8)]) + 
+        #scale_color_manual(values = brewer.pal(8, "Paired")[c(3, 5, 7, 6, 1, 2, 4, 8)]) + 
+        scale_color_manual(values = colors[c(3, 5, 7, 6, 1, 2, 4, 8)]) + 
         ggtitle("Markers clustering (best)", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
         theme(axis.title.x = element_blank(), 
-              axis.title.y = element_blank())
+              axis.title.y = element_blank(), 
+              axis.text.x = element_blank(), 
+              axis.text.y = element_blank(), 
+              axis.ticks.x = element_blank(), 
+              axis.ticks.y = element_blank(), 
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank())
 
 p_ground_truth_combined <- 
     ggplot(d_plot_truth_combined, aes(x = x_coord, y = y_coord, color = truth)) + 
         facet_wrap(~ method) + 
         geom_point(size = 0.3, alpha = 1) + 
         coord_fixed() + 
-        scale_color_brewer(palette = "Paired") + 
+        #scale_color_brewer(palette = "Paired") + 
+        scale_color_manual(values = colors) + 
         ggtitle("Ground truth", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
         theme(axis.title.x = element_blank(), 
-              axis.title.y = element_blank())
+              axis.title.y = element_blank(), 
+              axis.text.x = element_blank(), 
+              axis.text.y = element_blank(), 
+              axis.ticks.x = element_blank(), 
+              axis.ticks.y = element_blank(), 
+              panel.grid.major = element_blank(), 
+              panel.grid.minor = element_blank())
 
 
 # combine plots using 'patchwork' package
@@ -764,9 +797,9 @@ p_combined <- p_ground_truth_combined | p_clustering_semisupervised_best | p_clu
 
 print(p_combined)
 
-filename <- paste0("../plots/SpatialDE_clustering/clustering_combined_best_sample_", 
+filename <- paste0("../plots/SpatialDE_clustering/clustering_summary_sample_", 
                    gsub("^sample_", "", sample_names[i]), ".png")
-ggsave(filename, width = 14, height = 3.75)
+ggsave(filename, width = 13, height = 3.5)
 ```
 
 
