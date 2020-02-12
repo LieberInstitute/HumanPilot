@@ -760,7 +760,7 @@ p_clustering_markers_best <-
         coord_fixed() + 
         #scale_color_manual(values = brewer.pal(8, "Paired")[c(3, 5, 7, 6, 1, 2, 4, 8)]) + 
         scale_color_manual(values = colors[c(3, 5, 7, 6, 1, 2, 4, 8)]) + 
-        ggtitle("Markers clustering (best)", 
+        ggtitle("Markers clustering", 
                 subtitle = paste0("sample ", gsub("^sample_", "", sample_names[i]))) + 
         theme_bw() + 
         theme(axis.title.x = element_blank(), 
