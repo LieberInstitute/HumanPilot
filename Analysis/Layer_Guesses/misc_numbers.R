@@ -46,7 +46,7 @@ expr_total <- colSums(assays(sce)$counts)
 ## Actually, we already had this
 identical(sce$sum_umi, expr_total)
 # [1] TRUE
-expr_chrM <- colSums(assays(sce)$counts[ix_mito, ])
+expr_chrM <- colSums(assays(sce)$counts[ix_mito,])
 expr_chrM_ratio <- expr_chrM / expr_total
 summary(expr_chrM_ratio)
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
@@ -92,7 +92,7 @@ sce_image_grid_gene(
 
 ## Visualize some genes
 genes[grep('SNAP25', genes)]
-# [1] "SNAP25-AS1; ENSG00000227906" 
+# [1] "SNAP25-AS1; ENSG00000227906"
 
 sce_image_grid_gene(
     sce,
@@ -113,6 +113,108 @@ sce_image_grid_gene(
     pdf_file = 'pdf/spot_expr_MOBP.pdf'
 )
 
+
+
+### Check some stat outputs
+
+## load modeling outputs
+load("rda/eb_contrasts.Rdata", verbose = TRUE)
+load("rda/eb0_list.Rdata", verbose = TRUE)
+load('rda/ebF_list.Rdata', verbose = TRUE)
+
+### Compute these numbers
+## with XXXX DE genes (DEGs) across the seven layers (at FDR < 0.05) and
+## XXXX genes across the six layers (excluding white matter, at FDR < 0.05)
+
+f_sig <- function(type, cut = 0.05) {
+    cbind('n' = addmargins(table(f_stats[[type]] < cut)),
+        'ratio' = addmargins(table(f_stats[[type]] < cut)) / nrow(f_stats))
+}
+f_sig('full_fdr')
+#           n     ratio
+# FALSE  2433 0.1089517
+# TRUE  19898 0.8910483
+# Sum   22331 1.0000000
+
+f_sig('noWM_fdr')
+#           n     ratio
+# FALSE  2563 0.1147732
+# TRUE  19768 0.8852268
+# Sum   22331 1.0000000
+
+f_sig('full_fdr', 0.001)
+#           n    ratio
+# FALSE  4220 0.188975
+# TRUE  18111 0.811025
+# Sum   22331 1.000000
+
+f_sig('noWM_fdr', 0.001)
+#           n    ratio
+# FALSE  4393 0.196722
+# TRUE  17938 0.803278
+# Sum   22331 1.000000
+
+## Extract the p-values
+pvals0_contrasts <- sapply(eb0_list, function(x) {
+    x$p.value[, 2, drop = FALSE]
+})
+rownames(pvals0_contrasts) = rownames(eb_contrasts)
+fdrs0_contrasts = apply(pvals0_contrasts, 2, p.adjust, "fdr")
+
+summary(fdrs0_contrasts < 0.05)
+ #     WM            Layer1          Layer2          Layer3       
+ # Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+ # FALSE:13207     FALSE:19298     FALSE:20769     FALSE:22148    
+ # TRUE :9124      TRUE :3033      TRUE :1562      TRUE :183      
+ #   Layer4          Layer5          Layer6       
+ # Mode :logical   Mode :logical   Mode :logical  
+ # FALSE:21591     FALSE:21688     FALSE:21952    
+ # TRUE :740       TRUE :643       TRUE :379
+sort(colSums(fdrs0_contrasts < 0.05))
+# Layer3 Layer6 Layer5 Layer4 Layer2 Layer1     WM 
+#    183    379    643    740   1562   3033   9124 
+
+pvals_contrasts <- eb_contrasts$p.value
+fdrs_contrasts <- apply(pvals_contrasts, 2, p.adjust, "fdr")
+dim(pvals_contrasts)
+# [1] 22331    21
+
+summary(fdrs_contrasts < 0.05)
+# WM-Layer1       WM-Layer2       WM-Layer3       WM-Layer4      
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+#  FALSE:16664     FALSE:14339     FALSE:13831     FALSE:13873    
+#  TRUE :5667      TRUE :7992      TRUE :8500      TRUE :8458     
+#  WM-Layer5       WM-Layer6       Layer1-Layer2   Layer1-Layer3  
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+#  FALSE:14352     FALSE:15645     FALSE:18645     FALSE:18765    
+#  TRUE :7979      TRUE :6686      TRUE :3686      TRUE :3566     
+#  Layer1-Layer4   Layer1-Layer5   Layer1-Layer6   Layer2-Layer3  
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+#  FALSE:17654     FALSE:17693     FALSE:18076     FALSE:21954    
+#  TRUE :4677      TRUE :4638      TRUE :4255      TRUE :377      
+#  Layer2-Layer4   Layer2-Layer5   Layer2-Layer6   Layer3-Layer4  
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+#  FALSE:20047     FALSE:20026     FALSE:19884     FALSE:22004    
+#  TRUE :2284      TRUE :2305      TRUE :2447      TRUE :327      
+#  Layer3-Layer5   Layer3-Layer6   Layer4-Layer5   Layer4-Layer6  
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+#  FALSE:21389     FALSE:20579     FALSE:22039     FALSE:20586    
+#  TRUE :942       TRUE :1752      TRUE :292       TRUE :1745     
+#  Layer5-Layer6  
+#  Mode :logical  
+#  FALSE:21816    
+#  TRUE :515
+sort(colSums(fdrs_contrasts < 0.05))
+# Layer4-Layer5 Layer3-Layer4 Layer2-Layer3 Layer5-Layer6 Layer3-Layer5 
+#           292           327           377           515           942 
+# Layer4-Layer6 Layer3-Layer6 Layer2-Layer4 Layer2-Layer5 Layer2-Layer6 
+#          1745          1752          2284          2305          2447 
+# Layer1-Layer3 Layer1-Layer2 Layer1-Layer6 Layer1-Layer5 Layer1-Layer4 
+#          3566          3686          4255          4638          4677 
+#     WM-Layer1     WM-Layer6     WM-Layer5     WM-Layer2     WM-Layer4 
+#          5667          6686          7979          7992          8458 
+#     WM-Layer3 
+#          8500
 
 ## Reproducibility information
 print('Reproducibility information:')
