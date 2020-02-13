@@ -562,127 +562,183 @@ for (i in seq_along(sample_names)) {
 
 ## Plots: Adjusted Rand Index (ARI)
 
-```{r, fig.width = 4.5, fig.height = 4.5}
+```{r}
+# order method names and types for ARI plots
+method_levels <- c(
+    "SpatialDE_PCA", "SpatialDE_pool_PCA", "HVG_PCA", "pseudobulk_PCA", "markers_PCA", 
+    "SpatialDE_PCA_spatial", "SpatialDE_pool_PCA_spatial", "HVG_PCA_spatial", "pseudobulk_PCA_spatial", "markers_PCA_spatial", 
+    "SpatialDE_UMAP", "SpatialDE_pool_UMAP", "HVG_UMAP", "pseudobulk_UMAP", "markers_UMAP", 
+    "SpatialDE_UMAP_spatial", "SpatialDE_pool_UMAP_spatial", "HVG_UMAP_spatial", "pseudobulk_UMAP_spatial", "markers_UMAP_spatial"
+)
+
+# method types for plotting
+method_types_supervision <- factor(
+    rep(c("unsupervised", "unsupervised", "unsupervised", "semisupervised", "semisupervised"), 4), 
+    levels = c("unsupervised", "semisupervised"))
+method_types_dimension_reduction <- factor(
+    rep(c(rep("PCA", 5), rep("UMAP", 5)), 2), levels = c("PCA", "UMAP"))
+method_types_SpatialDE <- factor(
+    rep(c(rep("SpatialDE", 2), rep("other", 3)), 4), levels = c("SpatialDE", "other"))
+method_types_spatial_coords <- factor(
+    c(rep("nonspatial", 10), rep("spatial", 10)), levels = c("nonspatial", "spatial"))
+
+method_types <- data.frame(
+    method = factor(method_names, levels = method_levels), 
+    method_types_supervision, 
+    method_types_dimension_reduction, 
+    method_types_SpatialDE, 
+    method_types_spatial_coords
+)
+rownames(method_types) <- method_types$method
+```
+
+
+```{r, fig.width = 7, fig.height = 5}
 # separate plots for each sample
 p_ARI <- list()
 
 for (i in seq_along(sample_names)) {
     
     d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
-    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_names)
+    d_plot_sub <- merge(d_plot_sub, method_types, by = "method", all = FALSE, sort = FALSE)
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_levels)
     
-    d_plot_ARI <- distinct(d_plot_sub[, c("sample_name", "method", "ARI")])
-    
-    colors <- c(rep(c(rep("blue", 2), "forestgreen", "purple", "deeppink3"), 2), 
-                rep(c(rep("mediumblue", 2), "darkgreen", "purple3", "deeppink4"), 2))
+    d_plot_ARI <- distinct(
+        d_plot_sub[, c("sample_name", "method", "ARI", 
+                       "method_types_supervision", "method_types_dimension_reduction", 
+                       "method_types_SpatialDE", "method_types_spatial_coords")]
+    )
     
     p_ARI[[i]] <- 
-        ggplot(d_plot_ARI, aes(x = method, y = ARI, color = method)) + 
-            geom_point(shape = 4, stroke = 2) + 
-            scale_color_manual(values = colors) + 
+        ggplot(d_plot_ARI, aes(x = method, y = ARI, 
+                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
+                               shape = method_types_SpatialDE)) + 
+            facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+            geom_point(stroke = 1.5) + 
+            scale_shape_manual(values = c(4, 19)) + 
+            scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
             ylim(c(-0.1, 0.5)) + 
             ggtitle(paste0("Adjusted Rand Index: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
             theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
                   axis.title.x = element_blank(), 
-                  legend.position = "none")
+                  legend.title = element_blank())
     
     print(p_ARI[[i]])
     
     filename <- paste0("../plots/SpatialDE_clustering/ARI_sample_", 
                        gsub("^sample_", "", sample_names[i]), ".png")
-    ggsave(filename, width = 4.5, height = 4.5)
+    ggsave(filename, width = 7, height = 5)
 }
 ```
 
 
-```{r, fig.width = 5, fig.height = 5}
+```{r, fig.width = 7.5, fig.height = 5}
 # combined boxplots showing all samples for each method
-d_plot_ARI_all <- distinct(d_plot[, c("sample_name", "method", "ARI")])
+d_plot_ARI_all <- merge(d_plot, method_types, by = "method", all = FALSE, sort = FALSE)
+d_plot_ARI_all$method <- factor(d_plot_ARI_all$method, levels = method_levels)
 
-d_plot_ARI_all$method <- factor(d_plot_ARI_all$method, levels = method_names)
-
-colors <- c(rep(c(rep("blue", 2), "forestgreen", "purple", "deeppink3"), 2), 
-            rep(c(rep("mediumblue", 2), "darkgreen", "purple3", "deeppink4"), 2))
+d_plot_ARI_all <- distinct(
+    d_plot_ARI_all[, c("sample_name", "method", "ARI", 
+                       "method_types_supervision", "method_types_dimension_reduction", 
+                       "method_types_SpatialDE", "method_types_spatial_coords")]
+    )
 
 p_ARI_all <- 
-    ggplot(d_plot_ARI_all, aes(x = method, y = ARI, color = method)) + 
-        geom_boxplot() + 
-        scale_color_manual(values = colors) + 
+    ggplot(d_plot_ARI_all, aes(x = method, y = ARI, 
+                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
+                               shape = method_types_SpatialDE)) + 
+        facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+        geom_boxplot(show.legend = FALSE) + 
+        geom_jitter(stroke = 1.5, size = 0.5, width = 0.15, height = 0) + 
+        scale_shape_manual(values = c(4, 19)) + 
+        scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
         ylim(c(-0.1, 0.5)) + 
         ggtitle("Adjusted Rand Index: all samples") + 
         theme_bw() + 
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
               axis.title.x = element_blank(), 
-              legend.position = "none")
+              legend.title = element_blank())
 
 print(p_ARI_all)
 
 filename <- "../plots/SpatialDE_clustering/ARI_all_samples.png"
-ggsave(filename, width = 5, height = 5)
+ggsave(filename, width = 7.5, height = 5)
 ```
 
 
 ## Plots: Normalized Mutual Information (NMI)
 
-```{r, fig.width = 4.5, fig.height = 4.5}
-# separate plots for each sample
+```{r, fig.width = 7, fig.height = 5}
 p_NMI <- list()
 
 for (i in seq_along(sample_names)) {
     
     d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
-    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_names)
+    d_plot_sub <- merge(d_plot_sub, method_types, by = "method", all = FALSE, sort = FALSE)
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = method_levels)
     
-    d_plot_NMI <- distinct(d_plot_sub[, c("sample_name", "method", "NMI")])
-    
-    colors <- c(rep(c(rep("blue", 2), "forestgreen", "purple", "deeppink3"), 2), 
-                rep(c(rep("mediumblue", 2), "darkgreen", "purple3", "deeppink4"), 2))
+    d_plot_NMI <- distinct(
+        d_plot_sub[, c("sample_name", "method", "NMI", 
+                       "method_types_supervision", "method_types_dimension_reduction", 
+                       "method_types_SpatialDE", "method_types_spatial_coords")]
+    )
     
     p_NMI[[i]] <- 
-        ggplot(d_plot_NMI, aes(x = method, y = NMI, color = method)) + 
-            geom_point(shape = 4, stroke = 2) + 
-            scale_color_manual(values = colors) + 
+        ggplot(d_plot_NMI, aes(x = method, y = NMI, 
+                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
+                               shape = method_types_SpatialDE)) + 
+            facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+            geom_point(stroke = 1.5) + 
+            scale_shape_manual(values = c(4, 19)) + 
+            scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
             ylim(c(0, 0.6)) + 
             ggtitle(paste0("Normalized Mutual Information: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
             theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
                   axis.title.x = element_blank(), 
-                  legend.position = "none")
+                  legend.title = element_blank())
     
     print(p_NMI[[i]])
     
     filename <- paste0("../plots/SpatialDE_clustering/NMI_sample_", 
                        gsub("^sample_", "", sample_names[i]), ".png")
-    ggsave(filename, width = 4.5, height = 4.5)
+    ggsave(filename, width = 7, height = 5)
 }
 ```
 
 
-```{r, fig.width = 5, fig.height = 5}
+```{r, fig.width = 7.5, fig.height = 5}
 # combined boxplots showing all samples for each method
-d_plot_NMI_all <- distinct(d_plot[, c("sample_name", "method", "NMI")])
+d_plot_NMI_all <- merge(d_plot, method_types, by = "method", all = FALSE, sort = FALSE)
+d_plot_NMI_all$method <- factor(d_plot_NMI_all$method, levels = method_levels)
 
-d_plot_NMI_all$method <- factor(d_plot_NMI_all$method, levels = method_names)
-
-colors <- c(rep(c(rep("blue", 2), "forestgreen", "purple", "deeppink3"), 2), 
-            rep(c(rep("mediumblue", 2), "darkgreen", "purple3", "deeppink4"), 2))
+d_plot_NMI_all <- distinct(
+    d_plot_NMI_all[, c("sample_name", "method", "NMI", 
+                       "method_types_supervision", "method_types_dimension_reduction", 
+                       "method_types_SpatialDE", "method_types_spatial_coords")]
+    )
 
 p_NMI_all <- 
-    ggplot(d_plot_NMI_all, aes(x = method, y = NMI, color = method)) + 
-        geom_boxplot() + 
-        scale_color_manual(values = colors) + 
+    ggplot(d_plot_NMI_all, aes(x = method, y = NMI, 
+                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
+                               shape = method_types_SpatialDE)) + 
+        facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+        geom_boxplot(show.legend = FALSE) + 
+        geom_jitter(stroke = 1.5, size = 0.5, width = 0.15, height = 0) + 
+        scale_shape_manual(values = c(4, 19)) + 
+        scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
         ylim(c(0, 0.6)) + 
         ggtitle("Normalized Mutual Information: all samples") + 
         theme_bw() + 
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
               axis.title.x = element_blank(), 
-              legend.position = "none")
+              legend.title = element_blank())
 
 print(p_NMI_all)
 
 filename <- "../plots/SpatialDE_clustering/NMI_all_samples.png"
-ggsave(filename, width = 5, height = 5)
+ggsave(filename, width = 7.5, height = 5)
 ```
 
 
@@ -691,9 +747,9 @@ ggsave(filename, width = 5, height = 5)
 Summary plot for sample 151673 showing:
 
 - gold standard (Kristen's manual annotation)
-- clustering using marker genes (best method) (from Kristen; 77 out of 81 genes)
-- unsupervised clustering (best method, i.e. SpatialDE_PCA_spatial)
-- semisupervised clustering (best method) (from Leo's analyses; 198 genes)
+- clustering using marker genes (best result from this set of methods) (from Kristen; 77 out of 81 genes)
+- unsupervised clustering (best result from this set of methods, i.e. SpatialDE_PCA_spatial)
+- semisupervised clustering (best result from this set of methods) (from Leo's analyses; 198 genes)
 
 ```{r, fig.width = 13, fig.height = 3.5}
 # color palette
