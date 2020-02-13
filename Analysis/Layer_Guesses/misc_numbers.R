@@ -2,6 +2,8 @@ library('SingleCellExperiment')
 library('here')
 library('readxl')
 library('limma')
+library('grid')
+library('gridExtra')
 library('sessioninfo')
 
 dir.create('pdf', showWarnings = FALSE)
@@ -89,6 +91,79 @@ sce_image_grid_gene(
 # expr_chrM_ratio_layer <- expr_chrM_layer / expr_total_layer
 # summary(expr_chrM_ratio_layer)
 ## Err, it's all 0 because we already dropped chrM by this point :P
+
+
+## chrM_ratio vs number of cells
+pdf('pdf/spot_expr_chrM_ratio_by_cell_boxplot.pdf',
+    useDingbats = FALSE)
+
+## From https://community.rstudio.com/t/add-regression-line-in-geom-boxplot/9096/2?u=lcolladotor
+coefs <- coef(lm(sce$expr_chrM_ratio ~ sce$cell_count))
+ggplot(as.data.frame(colData(sce)),
+    aes(x = cell_count, group = cell_count, y = expr_chrM_ratio)) +
+    geom_boxplot() + ylab('chrM expression ratio') +
+    xlab('Number of cells per spot') +
+    theme_bw(base_size = 20) + xlim(c(-1, 30)) +
+    geom_abline(
+        intercept = coefs[1],
+        slope = coefs[2],
+        colour = 'red',
+        linetype = 2
+    )
+dev.off()
+
+
+f_chrM_cell <- function(sample = 1) {
+    sce <- sce[, sce$sample_name == unique(sce$sample_name)[sample]]
+    coefs <- coef(lm(sce$expr_chrM_ratio ~ sce$cell_count))
+    ggplot(
+        as.data.frame(colData(sce)),
+        aes(x = cell_count, group = cell_count, y = expr_chrM_ratio)
+    ) +
+        geom_boxplot() + ylab('') +
+        xlab('') +
+        theme_bw(base_size = 20) + xlim(c(-1, 30)) +
+        facet_grid(~ sample_name) +
+        geom_abline(
+            intercept = coefs[1],
+            slope = coefs[2],
+            colour = 'red',
+            linetype = 2
+        )
+}
+
+p_list <- cowplot::plot_grid(
+    plotlist = lapply(1:12, f_chrM_cell),
+    nrow = 3,
+    ncol = 4
+)
+pdf(
+    'pdf/spot_expr_chrM_ratio_by_cell_boxplot_per_sample.pdf',
+    useDingbats = FALSE,
+    width = 4 * 5,
+    height = 3 * 5
+)
+## From https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
+#create common x and y labels
+y.grob <- textGrob(
+    "chrM expression ratio",
+    gp = gpar(
+        fontface = "bold",
+        col = "black",
+        fontsize = 40
+    ),
+    rot = 90
+)
+x.grob <- textGrob("Number of cells per spot",
+    gp = gpar(
+        fontface = "bold",
+        col = "black",
+        fontsize = 40
+    ))
+
+#add to plot
+grid.arrange(arrangeGrob(p_list, left = y.grob, bottom = x.grob))
+dev.off()
 
 ## Visualize some genes
 genes[grep('SNAP25', genes)]
