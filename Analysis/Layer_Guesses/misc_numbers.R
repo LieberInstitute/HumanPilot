@@ -459,6 +459,70 @@ ggplot(anova_df,
     ylab('-log10 p-value (L1 through L6 only)')
 dev.off()
 
+
+pdf(
+    'pdf/layer_specificity_full_vs_noWM_Amean.pdf',
+    useDingbats = FALSE,
+    width = 10
+)
+ggplot(anova_df,
+    aes(x = f_stat_full, y = f_stat_noWM, color = Amean_full)) +
+    geom_point() + theme_bw(base_size = 20) +
+    scale_color_gradientn(name = 'Amean full', colors = viridis(21)) +
+    geom_abline(
+        intercept = 0,
+        slope = 1,
+        colour = 'red',
+        linetype = 2
+    ) +
+    xlab('F-stats (WM + L1 through L6)') +
+    ylab('F-stats (L1 through L6 only)')
+# ggplot(anova_df,
+#     aes(x = f_stat_full, y = f_stat_noWM, color = Amean_noWM)) +
+#     geom_point() + theme_bw(base_size = 20) +
+#     scale_color_gradientn(name = 'Amean noWM', colors = viridis(21)) +
+#     geom_abline(
+#         intercept = 0,
+#         slope = 1,
+#         colour = 'red',
+#         linetype = 2
+#     ) +
+#     xlab('F-stats (WM + L1 through L6)') +
+#     ylab('F-stats (L1 through L6 only)')
+ggplot(anova_df,
+    aes(
+        x = -log10(p_value_full),
+        y = -log10(p_value_noWM),
+        color = Amean_full
+    )) +
+    geom_point() + theme_bw(base_size = 20) +
+    scale_color_gradientn(name = 'Amean full', colors = viridis(21)) +
+    geom_abline(
+        intercept = 0,
+        slope = 1,
+        colour = 'red',
+        linetype = 2
+    )  +
+    xlab('-log10 p-value (WM + L1 through L6)') +
+    ylab('-log10 p-value (L1 through L6 only)')
+# ggplot(anova_df,
+#     aes(
+#         x = -log10(p_value_full),
+#         y = -log10(p_value_noWM),
+#         color = Amean_noWM
+#     )) +
+#     geom_point() + theme_bw(base_size = 20) +
+#     scale_color_gradientn(name = 'Amean nowm', colors = viridis(21)) +
+#     geom_abline(
+#         intercept = 0,
+#         slope = 1,
+#         colour = 'red',
+#         linetype = 2
+#     )  +
+#     xlab('-log10 p-value (WM + L1 through L6)') +
+#     ylab('-log10 p-value (L1 through L6 only)')
+dev.off()
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
