@@ -90,6 +90,29 @@ sce_image_grid_gene(
 # summary(expr_chrM_ratio_layer)
 ## Err, it's all 0 because we already dropped chrM by this point :P
 
+## Visualize some genes
+genes[grep('SNAP25', genes)]
+# [1] "SNAP25-AS1; ENSG00000227906" 
+
+sce_image_grid_gene(
+    sce,
+    geneid = "SNAP25; ENSG00000132639",
+    spatial = TRUE,
+    minCount = 0,
+    pdf_file = 'pdf/spot_expr_SNAP25.pdf'
+)
+
+genes[grep('MOBP', genes)]
+# [1] "MOBP; ENSG00000168314"
+
+sce_image_grid_gene(
+    sce,
+    geneid = "MOBP; ENSG00000168314",
+    spatial = TRUE,
+    minCount = 0,
+    pdf_file = 'pdf/spot_expr_MOBP.pdf'
+)
+
 
 ## Reproducibility information
 print('Reproducibility information:')
