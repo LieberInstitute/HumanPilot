@@ -468,7 +468,7 @@ method_names_semisupervised <- method_names[!ix_unsupervised]
 p_clustering_unsupervised <- list()
 p_clustering_semisupervised <- list()
 
-colors <- c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black")
+colors <- rep(c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black"), 2)
 
 for (i in seq_along(sample_names)) {
     
@@ -689,12 +689,16 @@ ggsave(filename, width = 5, height = 5)
 ## Plots: summary plot
 
 Summary plot for sample 151673 showing:
+
 - gold standard (Kristen's manual annotation)
 - clustering using marker genes (best method) (from Kristen; 77 out of 81 genes)
 - unsupervised clustering (best method, i.e. SpatialDE_PCA_spatial)
 - semisupervised clustering (best method) (from Leo's analyses; 198 genes)
 
 ```{r, fig.width = 13, fig.height = 3.5}
+# color palette
+colors <- c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black")
+
 # select sample 151673
 i <- 9
 
