@@ -46,7 +46,7 @@ expr_total <- colSums(assays(sce)$counts)
 ## Actually, we already had this
 identical(sce$sum_umi, expr_total)
 # [1] TRUE
-expr_chrM <- colSums(assays(sce)$counts[ix_mito,])
+expr_chrM <- colSums(assays(sce)$counts[ix_mito, ])
 expr_chrM_ratio <- expr_chrM / expr_total
 summary(expr_chrM_ratio)
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
@@ -161,18 +161,24 @@ pvals0_contrasts <- sapply(eb0_list, function(x) {
 rownames(pvals0_contrasts) = rownames(eb_contrasts)
 fdrs0_contrasts = apply(pvals0_contrasts, 2, p.adjust, "fdr")
 
+## Extract the t-stats
+t0_contrasts <- sapply(eb0_list, function(x) {
+    x$t[, 2, drop = FALSE]
+})
+rownames(t0_contrasts) = rownames(eb_contrasts)
+
 summary(fdrs0_contrasts < 0.05)
- #     WM            Layer1          Layer2          Layer3       
- # Mode :logical   Mode :logical   Mode :logical   Mode :logical  
- # FALSE:13207     FALSE:19298     FALSE:20769     FALSE:22148    
- # TRUE :9124      TRUE :3033      TRUE :1562      TRUE :183      
- #   Layer4          Layer5          Layer6       
- # Mode :logical   Mode :logical   Mode :logical  
- # FALSE:21591     FALSE:21688     FALSE:21952    
- # TRUE :740       TRUE :643       TRUE :379
+#     WM            Layer1          Layer2          Layer3
+# Mode :logical   Mode :logical   Mode :logical   Mode :logical
+# FALSE:13207     FALSE:19298     FALSE:20769     FALSE:22148
+# TRUE :9124      TRUE :3033      TRUE :1562      TRUE :183
+#   Layer4          Layer5          Layer6
+# Mode :logical   Mode :logical   Mode :logical
+# FALSE:21591     FALSE:21688     FALSE:21952
+# TRUE :740       TRUE :643       TRUE :379
 sort(colSums(fdrs0_contrasts < 0.05))
-# Layer3 Layer6 Layer5 Layer4 Layer2 Layer1     WM 
-#    183    379    643    740   1562   3033   9124 
+# Layer3 Layer6 Layer5 Layer4 Layer2 Layer1     WM
+#    183    379    643    740   1562   3033   9124
 
 pvals_contrasts <- eb_contrasts$p.value
 fdrs_contrasts <- apply(pvals_contrasts, 2, p.adjust, "fdr")
@@ -180,41 +186,155 @@ dim(pvals_contrasts)
 # [1] 22331    21
 
 summary(fdrs_contrasts < 0.05)
-# WM-Layer1       WM-Layer2       WM-Layer3       WM-Layer4      
-#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
-#  FALSE:16664     FALSE:14339     FALSE:13831     FALSE:13873    
-#  TRUE :5667      TRUE :7992      TRUE :8500      TRUE :8458     
-#  WM-Layer5       WM-Layer6       Layer1-Layer2   Layer1-Layer3  
-#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
-#  FALSE:14352     FALSE:15645     FALSE:18645     FALSE:18765    
-#  TRUE :7979      TRUE :6686      TRUE :3686      TRUE :3566     
-#  Layer1-Layer4   Layer1-Layer5   Layer1-Layer6   Layer2-Layer3  
-#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
-#  FALSE:17654     FALSE:17693     FALSE:18076     FALSE:21954    
-#  TRUE :4677      TRUE :4638      TRUE :4255      TRUE :377      
-#  Layer2-Layer4   Layer2-Layer5   Layer2-Layer6   Layer3-Layer4  
-#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
-#  FALSE:20047     FALSE:20026     FALSE:19884     FALSE:22004    
-#  TRUE :2284      TRUE :2305      TRUE :2447      TRUE :327      
-#  Layer3-Layer5   Layer3-Layer6   Layer4-Layer5   Layer4-Layer6  
-#  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
-#  FALSE:21389     FALSE:20579     FALSE:22039     FALSE:20586    
-#  TRUE :942       TRUE :1752      TRUE :292       TRUE :1745     
-#  Layer5-Layer6  
-#  Mode :logical  
-#  FALSE:21816    
+# WM-Layer1       WM-Layer2       WM-Layer3       WM-Layer4
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical
+#  FALSE:16664     FALSE:14339     FALSE:13831     FALSE:13873
+#  TRUE :5667      TRUE :7992      TRUE :8500      TRUE :8458
+#  WM-Layer5       WM-Layer6       Layer1-Layer2   Layer1-Layer3
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical
+#  FALSE:14352     FALSE:15645     FALSE:18645     FALSE:18765
+#  TRUE :7979      TRUE :6686      TRUE :3686      TRUE :3566
+#  Layer1-Layer4   Layer1-Layer5   Layer1-Layer6   Layer2-Layer3
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical
+#  FALSE:17654     FALSE:17693     FALSE:18076     FALSE:21954
+#  TRUE :4677      TRUE :4638      TRUE :4255      TRUE :377
+#  Layer2-Layer4   Layer2-Layer5   Layer2-Layer6   Layer3-Layer4
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical
+#  FALSE:20047     FALSE:20026     FALSE:19884     FALSE:22004
+#  TRUE :2284      TRUE :2305      TRUE :2447      TRUE :327
+#  Layer3-Layer5   Layer3-Layer6   Layer4-Layer5   Layer4-Layer6
+#  Mode :logical   Mode :logical   Mode :logical   Mode :logical
+#  FALSE:21389     FALSE:20579     FALSE:22039     FALSE:20586
+#  TRUE :942       TRUE :1752      TRUE :292       TRUE :1745
+#  Layer5-Layer6
+#  Mode :logical
+#  FALSE:21816
 #  TRUE :515
 sort(colSums(fdrs_contrasts < 0.05))
-# Layer4-Layer5 Layer3-Layer4 Layer2-Layer3 Layer5-Layer6 Layer3-Layer5 
-#           292           327           377           515           942 
-# Layer4-Layer6 Layer3-Layer6 Layer2-Layer4 Layer2-Layer5 Layer2-Layer6 
-#          1745          1752          2284          2305          2447 
-# Layer1-Layer3 Layer1-Layer2 Layer1-Layer6 Layer1-Layer5 Layer1-Layer4 
-#          3566          3686          4255          4638          4677 
-#     WM-Layer1     WM-Layer6     WM-Layer5     WM-Layer2     WM-Layer4 
-#          5667          6686          7979          7992          8458 
-#     WM-Layer3 
+# Layer4-Layer5 Layer3-Layer4 Layer2-Layer3 Layer5-Layer6 Layer3-Layer5
+#           292           327           377           515           942
+# Layer4-Layer6 Layer3-Layer6 Layer2-Layer4 Layer2-Layer5 Layer2-Layer6
+#          1745          1752          2284          2305          2447
+# Layer1-Layer3 Layer1-Layer2 Layer1-Layer6 Layer1-Layer5 Layer1-Layer4
+#          3566          3686          4255          4638          4677
+#     WM-Layer1     WM-Layer6     WM-Layer5     WM-Layer2     WM-Layer4
+#          5667          6686          7979          7992          8458
+#     WM-Layer3
 #          8500
+
+
+## Make some supplementary tables
+f_merge <- function(p, fdr, t) {
+    colnames(p) <- paste0('p_value_', colnames(p))
+    colnames(fdr) <- paste0('fdr_', colnames(fdr))
+    colnames(t) <- paste0('t_stat_', colnames(t))
+    res <- as.data.frame(cbind(t, p, fdr))
+    res$ensembl <- rownames(res)
+    ## Check it's all in order
+    stopifnot(identical(rownames(res), rownames(sce_layer)))
+    res$gene <- rowData(sce_layer)$gene_name
+    rownames(res) <- NULL
+    return(res)
+}
+
+results_specificity <-
+    f_merge(p = pvals0_contrasts, fdr = fdrs0_contrasts, t = t0_contrasts)
+head(results_specificity)
+#    t_stat_WM t_stat_Layer1 t_stat_Layer2 t_stat_Layer3 t_stat_Layer4
+# 1 -0.6344143    -1.0321320    0.17815008   -0.72835965    1.56703859
+# 2 -2.4758891     1.2232062   -0.87337451    1.93793650    1.33150141
+# 3 -3.0079360    -0.8564572    2.13358520    0.48741121    0.35212807
+# 4 -1.2916584    -0.9494234   -0.94854397    0.56378302   -0.11206713
+# 5  2.3175897     0.6156900    0.11274780   -0.09907566   -0.03376771
+# 6 -2.2686017    -0.6536163   -0.08615251    1.84786166    0.77710957
+#   t_stat_Layer5 t_stat_Layer6  p_value_WM p_value_Layer1 p_value_Layer2
+# 1    -0.2202707     0.7438713 0.527700348      0.3052551     0.85907467
+# 2     0.4773214    -1.6152865 0.015497447      0.2249981     0.38518446
+# 3     0.6071363     0.3832779 0.003557367      0.3944138     0.03607273
+# 4     1.1536114     1.2634726 0.200358650      0.3453884     0.34583092
+# 5    -0.3434730    -2.4629827 0.023143222      0.5399225     0.91052499
+# 6     0.0355838     0.1945122 0.026108214      0.5153146     0.93156963
+#   p_value_Layer3 p_value_Layer4 p_value_Layer5 p_value_Layer6     fdr_WM
+# 1     0.46861049      0.1212213      0.8262455     0.45922628 0.63711486
+# 2     0.05630996      0.1869669      0.6344905     0.11035355 0.03959651
+# 3     0.62735659      0.7257077      0.5455535     0.70257361 0.01107944
+# 4     0.57454588      0.9110629      0.2522414     0.21024494 0.31550730
+# 5     0.92133658      0.9731501      0.7321823     0.01601949 0.05551142
+# 6     0.06847596      0.4394838      0.9717067     0.84628893 0.06148729
+#   fdr_Layer1 fdr_Layer2 fdr_Layer3 fdr_Layer4 fdr_Layer5 fdr_Layer6
+# 1  0.5644497  0.9418694  0.8284720  0.4139767  0.9596911  0.8115244
+# 2  0.4828399  0.6944277  0.3831776  0.4938944  0.9051814  0.5481106
+# 3  0.6380674  0.2127681  0.9022535  0.8830293  0.8698217  0.9150742
+# 4  0.6001298  0.6683198  0.8845131  0.9674045  0.7017599  0.6698502
+# 5  0.7356770  0.9635319  0.9848034  0.9910492  0.9343088  0.2431891
+# 6  0.7192630  0.9733708  0.4139515  0.7028656  0.9936069  0.9633326
+#           ensembl        gene
+# 1 ENSG00000243485 MIR1302-2HG
+# 2 ENSG00000238009  AL627309.1
+# 3 ENSG00000237491  AL669831.5
+# 4 ENSG00000177757      FAM87B
+# 5 ENSG00000225880   LINC00115
+# 6 ENSG00000230368      FAM41C
+
+
+results_pairwise <-
+    f_merge(p = pvals_contrasts, fdr = fdrs_contrasts, t = eb_contrasts$t)
+colnames(results_pairwise)
+#  [1] "t_stat_WM-Layer1"      "t_stat_WM-Layer2"      "t_stat_WM-Layer3"
+#  [4] "t_stat_WM-Layer4"      "t_stat_WM-Layer5"      "t_stat_WM-Layer6"
+#  [7] "t_stat_Layer1-Layer2"  "t_stat_Layer1-Layer3"  "t_stat_Layer1-Layer4"
+# [10] "t_stat_Layer1-Layer5"  "t_stat_Layer1-Layer6"  "t_stat_Layer2-Layer3"
+# [13] "t_stat_Layer2-Layer4"  "t_stat_Layer2-Layer5"  "t_stat_Layer2-Layer6"
+# [16] "t_stat_Layer3-Layer4"  "t_stat_Layer3-Layer5"  "t_stat_Layer3-Layer6"
+# [19] "t_stat_Layer4-Layer5"  "t_stat_Layer4-Layer6"  "t_stat_Layer5-Layer6"
+# [22] "p_value_WM-Layer1"     "p_value_WM-Layer2"     "p_value_WM-Layer3"
+# [25] "p_value_WM-Layer4"     "p_value_WM-Layer5"     "p_value_WM-Layer6"
+# [28] "p_value_Layer1-Layer2" "p_value_Layer1-Layer3" "p_value_Layer1-Layer4"
+# [31] "p_value_Layer1-Layer5" "p_value_Layer1-Layer6" "p_value_Layer2-Layer3"
+# [34] "p_value_Layer2-Layer4" "p_value_Layer2-Layer5" "p_value_Layer2-Layer6"
+# [37] "p_value_Layer3-Layer4" "p_value_Layer3-Layer5" "p_value_Layer3-Layer6"
+# [40] "p_value_Layer4-Layer5" "p_value_Layer4-Layer6" "p_value_Layer5-Layer6"
+# [43] "fdr_WM-Layer1"         "fdr_WM-Layer2"         "fdr_WM-Layer3"
+# [46] "fdr_WM-Layer4"         "fdr_WM-Layer5"         "fdr_WM-Layer6"
+# [49] "fdr_Layer1-Layer2"     "fdr_Layer1-Layer3"     "fdr_Layer1-Layer4"
+# [52] "fdr_Layer1-Layer5"     "fdr_Layer1-Layer6"     "fdr_Layer2-Layer3"
+# [55] "fdr_Layer2-Layer4"     "fdr_Layer2-Layer5"     "fdr_Layer2-Layer6"
+# [58] "fdr_Layer3-Layer4"     "fdr_Layer3-Layer5"     "fdr_Layer3-Layer6"
+# [61] "fdr_Layer4-Layer5"     "fdr_Layer4-Layer6"     "fdr_Layer5-Layer6"
+# [64] "ensembl"               "gene"
+
+
+## Match the colnames to the new style
+f_rename <- function(x, old, new = old) {
+    old_patt <- paste0('_', old, '$')
+    i <- grep(old_patt, colnames(x))
+    tmp <- gsub(old_patt, '', colnames(x)[i])
+    tmp <- paste0(new, '_', tmp)
+    colnames(x)[i] <- tmp
+    return(x)
+}
+results_anova <-
+    f_rename(f_rename(f_rename(
+        f_rename(f_stats, 'f', 'f_stat'), 'p_value'
+    ), 'fdr'), 'Amean')
+head(results_anova)
+#   f_stat_full p_value_full     fdr_full Amean_full f_stat_noWM p_value_noWM
+# 1    1.126228 3.565528e-01 3.679551e-01  0.1422407    1.094988 3.758663e-01
+# 2    8.282190 2.294975e-07 3.118859e-07  0.8383094    8.080743 2.028620e-06
+# 3   90.122437 7.145239e-33 1.319553e-32  3.5454133  222.281074 3.587143e-39
+# 4    1.447935 2.000407e-01 2.120027e-01  0.1048252    1.314147 2.648163e-01
+# 5   10.377382 6.555601e-09 9.162741e-09  1.2135801   10.136817 9.944087e-08
+# 6   10.650917 4.217147e-09 5.914653e-09  1.3447335   12.470669 4.417884e-09
+#       fdr_noWM Amean_noWM         ensembl        gene
+# 1 3.875101e-01  0.1565079 ENSG00000243485 MIR1302-2HG
+# 2 2.732439e-06  0.9362990 ENSG00000238009  AL627309.1
+# 3 7.312807e-39  3.6730061 ENSG00000237491  AL669831.5
+# 4 2.778953e-01  0.1244799 ENSG00000177757      FAM87B
+# 5 1.372529e-07  1.1121321 ENSG00000225880   LINC00115
+# 6 6.250761e-09  1.4543898 ENSG00000230368      FAM41C
+
+## Save for later
+save(results_anova, results_specificity, results_pairwise, file = 'rda/modeling_results.Rdata')
 
 ## Reproducibility information
 print('Reproducibility information:')
