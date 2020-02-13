@@ -9,6 +9,10 @@ load(here(
     'Human_DLPFC_Visium_processedData_sce_scran.Rdata'
 ))
 
+## For plotting
+source(here('Analysis', 'spatialLIBD_global_plot_code.R'))
+genes <- paste0(rowData(sce)$gene_name, '; ', rowData(sce)$gene_id)
+
 ## Merge the first and second round merged guesses
 tab <-
     read.csv(
@@ -143,6 +147,15 @@ summary(sce$cell_count)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 # 0.000   1.000   3.000   3.281   4.000  27.000
 
+sce_image_grid_gene(
+    sce,
+    geneid = 'cell_count',
+    spatial = TRUE,
+    minCount = 0,
+    pdf_file = 'pdf/spot_cell_count.pdf'
+)
+
+
 ## Then by sample
 group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = mean(cell_count))
 # # A tibble: 12 x 2
@@ -161,6 +174,15 @@ group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = me
 # 11      151675       3.46
 # 12      151676       3.24
 
+group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = mean(cell_count)) %>% summary()
+# sample_name       mean_cells
+# Min.   :151507   Min.   :2.066
+# 1st Qu.:151510   1st Qu.:2.708
+# Median :151670   Median :3.222
+# Mean   :151618   Mean   :3.328
+# 3rd Qu.:151673   3rd Qu.:3.586
+# Max.   :151676   Max.   :5.595
+
 layer_guess_tab$cell_count = sce$cell_count[match(layer_guess_tab$key, sce$key)]
 
 group_by(layer_guess_tab, layer) %>%
@@ -177,6 +199,17 @@ group_by(layer_guess_tab, layer) %>%
 # 6 Layer 5   0.0344 0.119
 # 7 Layer 6   0.0484 0.128
 # 8 WM        0.0385 0.0594
+
+group_by(layer_guess_tab, layer) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1)) %>% summary()
+#    layer               prop0             prop1
+# Length:8           Min.   :0.03129   Min.   :0.05937
+# Class :character   1st Qu.:0.03751   1st Qu.:0.11854
+# Mode  :character   Median :0.07144   Median :0.14696
+#                    Mean   :0.10442   Mean   :0.14678
+#                    3rd Qu.:0.11949   3rd Qu.:0.18122
+#                    Max.   :0.33446   Max.   :0.21702
 
 group_by(layer_guess_tab, sample_name) %>%
     summarize(prop0 = mean(cell_count == 0),
@@ -197,6 +230,17 @@ group_by(layer_guess_tab, sample_name) %>%
 # 11      151675 0.0645 0.160
 # 12      151676 0.0851 0.187
 
+group_by(layer_guess_tab, sample_name) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1)) %>% summary()
+#  sample_name         prop0             prop1
+# Min.   :151507   Min.   :0.02268   Min.   :0.05843
+# 1st Qu.:151510   1st Qu.:0.05411   1st Qu.:0.12772
+# Median :151670   Median :0.07480   Median :0.14957
+# Mean   :151618   Mean   :0.09714   Mean   :0.14956
+# 3rd Qu.:151673   3rd Qu.:0.12301   3rd Qu.:0.17885
+# Max.   :151676   Max.   :0.24331   Max.   :0.26312
+
 group_by(layer_guess_tab, layer, sample_name) %>%
     summarize(prop0 = mean(cell_count == 0),
         prop1 = mean(cell_count == 1))
@@ -216,6 +260,17 @@ group_by(layer_guess_tab, layer, sample_name) %>%
 # 10 Layer 2      151508 0.163 0.224
 # # … with 66 more rows
 
+group_by(layer_guess_tab, layer, sample_name) %>%
+    summarize(prop0 = mean(cell_count == 0),
+        prop1 = mean(cell_count == 1)) %>% summary()
+#    layer            sample_name         prop0             prop1
+# Length:76          Min.   :151507   Min.   :0.00000   Min.   :0.0064
+# Class :character   1st Qu.:151509   1st Qu.:0.01287   1st Qu.:0.0524
+# Mode  :character   Median :151670   Median :0.04030   Median :0.1284
+#                    Mean   :151612   Mean   :0.09198   Mean   :0.1342
+#                    3rd Qu.:151674   3rd Qu.:0.10067   3rd Qu.:0.1955
+#                    Max.   :151676   Max.   :0.74699   Max.   :0.3049
+
 ## Next by subject
 group_by(as.data.frame(colData(sce)), subject) %>% summarize(mean_cells = mean(cell_count))
 # # A tibble: 3 x 2
@@ -224,6 +279,15 @@ group_by(as.data.frame(colData(sce)), subject) %>% summarize(mean_cells = mean(c
 # 1 Br5292        2.94
 # 2 Br5595        3.19
 # 3 Br8100        3.81
+
+group_by(as.data.frame(colData(sce)), subject) %>% summarize(mean_cells = mean(cell_count)) %>%  summary()
+#   subject            mean_cells
+# Length:3           Min.   :2.939
+# Class :character   1st Qu.:3.064
+# Mode  :character   Median :3.188
+#                    Mean   :3.312
+#                    3rd Qu.:3.499
+#                    Max.   :3.809
 
 ## Finally by subject and position
 group_by(as.data.frame(colData(sce)), subject, position) %>% summarize(mean_cells = mean(cell_count))
@@ -237,6 +301,15 @@ group_by(as.data.frame(colData(sce)), subject, position) %>% summarize(mean_cell
 # 4 Br5595  300            2.40
 # 5 Br8100  0              4.25
 # 6 Br8100  300            3.35
+
+group_by(as.data.frame(colData(sce)), subject, position) %>% summarize(mean_cells = mean(cell_count)) %>% summary()
+#   subject            position           mean_cells
+# Length:6           Length:6           Min.   :2.403
+# Class :character   Class :character   1st Qu.:2.849
+# Mode  :character   Mode  :character   Median :3.224
+#                                       Mean   :3.324
+#                                       3rd Qu.:3.898
+#                                       Max.   :4.250
 
 ## Reproducibility information
 print('Reproducibility information:')
