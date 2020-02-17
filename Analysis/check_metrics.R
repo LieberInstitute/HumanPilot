@@ -81,6 +81,11 @@ metrics <- cbind('Variable' = rownames(metrics), metrics)
 write.table(metrics, sep = "\t",
     file = "visium_dlpfc_pilot_sample_metrics.tsv", row.names = FALSE)
 
+## We sequenced each sample to a mean depth of XX reads
+summary(as.numeric(gsub(',', '', unlist(metrics['Number.of.Reads', -1])))) / 1e6
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 229.3   269.3   291.1   346.1   327.7   822.2
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
