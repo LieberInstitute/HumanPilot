@@ -165,6 +165,7 @@ x.grob <- textGrob("Number of cells per spot",
 grid.arrange(arrangeGrob(p_list, left = y.grob, bottom = x.grob))
 dev.off()
 
+
 ## Visualize some genes
 genes[grep('SNAP25', genes)]
 # [1] "SNAP25-AS1; ENSG00000227906"
@@ -522,6 +523,90 @@ ggplot(anova_df,
 #     xlab('-log10 p-value (WM + L1 through L6)') +
 #     ylab('-log10 p-value (L1 through L6 only)')
 dev.off()
+
+
+
+## Load layer guesses
+load(here('Analysis', 'Layer_Guesses',
+    'layer_guess_tab.Rdata'))
+
+## Add layer guesses to the sce object
+sce$layer_guess <- NA
+m <- match(sce$key, layer_guess_tab$key)
+table(is.na(m))
+# FALSE  TRUE
+# 47329   352
+sce$layer_guess[!is.na(m)] <- layer_guess_tab$layer[m[!is.na(m)]]
+
+## Drop the layer guess NAs for now
+sce_original <- sce
+sce <- sce[, !is.na(sce$layer_guess)]
+dim(sce)
+# [1] 33538 47329
+
+## Next, re-label "Layer 2/3" as "Layer 3" for now
+## (there's more layer 3 in the other samples than 2 anyway)
+sce$layer_guess[sce$layer_guess == 'Layer 2/3'] <- 'Layer 3'
+
+## Make it into a factor with WM as the reference
+## and remove spaces
+sce$layer_guess <-
+    factor(gsub(' ', '', sce$layer_guess), levels = c('WM', paste0('Layer', 1:6)))
+
+
+f_chrM_cell_layer <- function(layer = 1) {
+    sce <- sce[, sce$layer_guess == levels(sce$layer_guess)[layer]]
+    coefs <- coef(lm(sce$expr_chrM_ratio ~ sce$cell_count))
+    ggplot(
+        as.data.frame(colData(sce)),
+        aes(x = cell_count, group = cell_count, y = expr_chrM_ratio)
+    ) +
+        geom_boxplot() + ylab('') +
+        xlab('') +
+        theme_bw(base_size = 20) + xlim(c(-1, 30)) +
+        facet_grid( ~ layer_guess) +
+        geom_abline(
+            intercept = coefs[1],
+            slope = coefs[2],
+            colour = 'red',
+            linetype = 2
+        )
+}
+
+p_list <- cowplot::plot_grid(
+    plotlist = lapply(c(2:7, 1), f_chrM_cell_layer),
+    nrow = 2,
+    ncol = 4
+)
+pdf(
+    'pdf/spot_expr_chrM_ratio_by_cell_boxplot_per_layer.pdf',
+    useDingbats = FALSE,
+    width = 4 * 5,
+    height = 2 * 5
+)
+## From https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
+#create common x and y labels
+y.grob <- textGrob(
+    "chrM expression ratio",
+    gp = gpar(
+        fontface = "bold",
+        col = "black",
+        fontsize = 40
+    ),
+    rot = 90
+)
+x.grob <- textGrob("Number of cells per spot",
+    gp = gpar(
+        fontface = "bold",
+        col = "black",
+        fontsize = 40
+    ))
+
+#add to plot
+grid.arrange(arrangeGrob(p_list, left = y.grob, bottom = x.grob))
+dev.off()
+
+
 
 ## Reproducibility information
 print('Reproducibility information:')
