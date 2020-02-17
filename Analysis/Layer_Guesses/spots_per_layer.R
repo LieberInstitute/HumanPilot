@@ -57,7 +57,7 @@ stopifnot(!any(tab2$key %in% tab$key))
 layer_guess_tab <- rbind(tab, tab2)
 rownames(layer_guess_tab) <- NULL
 save(layer_guess_tab,
-    file = here('Analysis', 'Layer_Guesses', 'layer_guess_tab.Rdata'))
+    file = here('Analysis', 'Layer_Guesses', 'rda', 'layer_guess_tab.Rdata'))
 
 ## Find which ones are missing:
 m <- match(sce$key, layer_guess_tab$key)
@@ -79,7 +79,7 @@ spots_layer$subject <-
 
 ## Save for later
 save(spots_layer,
-    file = here('Analysis', 'Layer_Guesses', 'spots_layer.Rdata'))
+    file = here('Analysis', 'Layer_Guesses', 'rda', 'spots_layer.Rdata'))
 
 ## Global mean: 604.4 spots per layer across all slides
 ## and across all layers
