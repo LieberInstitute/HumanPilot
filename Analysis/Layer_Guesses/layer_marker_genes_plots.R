@@ -35,8 +35,23 @@ genes_to_plot <- c(
     'PCP4',
     'B3GALT2',
     'CCK',
-    'MBP' ## From the figure, not on the Slack message
+    'MBP',
+    ## From the figure, not on the Slack message,
+    'AQP4',
+    ## Added on 2020-02-17
+    'RELN',
+    'TRABD2A',
+    'BCL11B',
+    'CARTPT',
+    'FREM3',
+    'NR4A2',
+    'KRT17',
+    'LAMP5',
+    'HPCAL1',
+    'NDRG1',
+    'MBP'
 )
+genes_to_plot <- genes_to_plot[!duplicated(genes_to_plot)]
 
 ## Load sig_genes data
 load('rda/layer_sig_genes.Rdata', verbose = TRUE)
@@ -45,11 +60,32 @@ load('rda/layer_sig_genes.Rdata', verbose = TRUE)
 sort(unique(sig_genes$gene[grep('ne', tolower(sig_genes$gene))]))
 # [1] "NECAB1"   "NECAB2"   "NEFH"     "NEFL"     "NEFM"     "NEUROD6"  "SERPINE2"
 
+## Add BCL11B manually
+sig_genes <- rbind(
+    sig_genes,
+    DataFrame(
+        top = NA,
+        layer = NA,
+        gene = 'BCL11B',
+        tstat = NA,
+        pval = NA,
+        fdr = NA,
+        gene_index = which(rowData(sce)$gene_name == 'BCL11B'),
+        ensembl = rownames(sce)[which(rowData(sce)$gene_name == 'BCL11B')],
+        KM_Zeng = FALSE,
+        BM = FALSE,
+        RNAscope = NA,
+        test = NA,
+        in_rows = IntegerList(NA),
+        results = CharacterList(NA)
+    )
+)
+
 ## After editing genes_to_plot, we are good to go
 stopifnot(all(genes_to_plot %in% sig_genes$gene))
 
 ## Prepare the data needed for making the plots
-sig_genes_sub <- sig_genes[match(genes_to_plot, sig_genes$gene), ]
+sig_genes_sub <- sig_genes[match(genes_to_plot, sig_genes$gene),]
 sig_genes_unique <- splitit(sig_genes_sub$ensembl)
 
 ## For the titles
@@ -133,7 +169,8 @@ for (j in samples_to_plot) {
             ) + theme(legend.title = element_text(size = 20),
                 legend.text = element_text(size = 15))
         pdf(
-            file.path(pdf_dir,
+            file.path(
+                pdf_dir,
                 j,
                 paste0(
                     sig_genes_sub$gene[i],
@@ -142,7 +179,8 @@ for (j in samples_to_plot) {
                         'Layer', 'L', sig_genes_df$results[i]
                     )),
                     '.pdf'
-                )),
+                )
+            ),
             useDingbats = FALSE,
             height = 8,
             width = 9.5
@@ -170,7 +208,7 @@ session_info()
 #  collate  en_US.UTF-8
 #  ctype    en_US.UTF-8
 #  tz       US/Eastern
-#  date     2020-02-07
+#  date     2020-02-17
 #
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 #  package              * version   date       lib source
