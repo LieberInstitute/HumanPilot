@@ -76,8 +76,10 @@ metrics <-
 metrics <-
     rbind(metrics, 'Primary.Diagnosis' = as.character(toxicant[['2019-09-03']]$primarydx[m_pheno]))
 
+
+metrics <- cbind('Variable' = rownames(metrics), metrics)
 write.table(metrics, sep = "\t",
-    file = "visium_dlpfc_pilot_sample_metrics.tsv")
+    file = "visium_dlpfc_pilot_sample_metrics.tsv", row.names = FALSE)
 
 ## Reproducibility information
 print('Reproducibility information:')
