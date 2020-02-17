@@ -383,6 +383,68 @@ for (i in seq_len(nrow(marker_genes_summary))) {
 dev.off()
 
 
+layer_guess_reordered_short <- layer_guess_reordered
+levels(layer_guess_reordered_short) <- gsub('ayer', '', levels(layer_guess_reordered_short))
+pdf('pdf/markers_gene_optimal_boxplots_short.pdf', useDingbats = FALSE)
+set.seed(20200206)
+for (i in seq_len(nrow(marker_genes_summary))) {
+    # i <- 1
+    par(mar = c(2, 3, 2, 1) + 0.1)
+    message(
+        paste(
+            Sys.time(),
+            'making the plot for',
+            i,
+            'gene',
+            marker_genes_summary$gene_name[i]
+        )
+    )
+    curr_layers <-
+        strsplit(marker_genes_summary$models[i], '\\+')[[1]]
+    boxplot(
+        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered_short,
+        xlab = '',
+        ylab = '',
+        main = paste(
+            marker_genes_summary$gene_name[i],
+            paste(
+                ifelse(marker_genes_summary$species[i] == 'H', 'HM', 'MM')
+            ),
+            paste0('p=',
+                formatC(
+                    marker_genes_summary$p_val[i],
+                    format = "e",
+                    digits = 2
+                )), 
+            'rank',
+            marker_genes_summary$rank[i]
+        ),
+        outline = FALSE,
+        cex = 2,
+        cex.axis = 2,
+        cex.lab = 2,
+        cex.main = 2,
+        col = ifelse(
+            levels(layer_guess_reordered) %in% curr_layers,
+            'skyblue',
+            'violet'
+        )
+    )
+    points(
+        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered_short)),
+        pch = 21,
+        bg = ifelse(
+            layer_guess_reordered %in% curr_layers,
+            'dodgerblue4',
+            'darkviolet'
+        ),
+        cex = 2
+    )
+}
+dev.off()
+
+
+
 marker_genes_summary$species <-
     ifelse(marker_genes_summary$species == 'MH', 'mouse', 'human')
 

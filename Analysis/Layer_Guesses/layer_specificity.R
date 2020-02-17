@@ -1634,6 +1634,86 @@ for (i in seq_len(nrow(sig_genes))) {
 }
 dev.off()
 
+layer_guess_reordered_short <- layer_guess_reordered
+levels(layer_guess_reordered_short) <- gsub('ayer', '', levels(layer_guess_reordered_short))
+
+add_rest <- function(x) {
+    ifelse(grepl('-', x), x, paste0(x, '-rest'))
+}
+
+## Used in pdf/markers_layer_boxplots_short_t1.pdf
+# add_bkg_col <- function(x) {
+#     if(grepl('-', x)) {
+#         col <- rep('transparent', 7)
+#         col[levels(layer_guess_reordered) == gsub('-.*', '', x)] <- 'deeppink'
+#         col[levels(layer_guess_reordered) == gsub('.*-', '', x)] <- 'orange'
+#     } else {
+#         col <- rep('grey20', 7)
+#         col[levels(layer_guess_reordered) == x] <- 'deeppink'
+#     }
+#     names(col) <- levels(layer_guess_reordered_short)
+#     return(col)
+# }
+
+add_bkg_col <- function(x) {
+    if(grepl('-', x)) {
+        col <- rep('grey80', 7)
+        col[levels(layer_guess_reordered) == gsub('-.*', '', x)] <- 'skyblue'
+        col[levels(layer_guess_reordered) == gsub('.*-', '', x)] <- 'violet'
+    } else {
+        col <- rep('violet', 7)
+        col[levels(layer_guess_reordered) == x] <- 'skyblue'
+    }
+    names(col) <- levels(layer_guess_reordered_short)
+    return(col)
+}
+
+add_col <- function(x) {
+    if(grepl('-', x)) {
+        col <- rep('grey40', 7)
+        col[levels(layer_guess_reordered) == gsub('-.*', '', x)] <- 'dodgerblue4'
+        col[levels(layer_guess_reordered) == gsub('.*-', '', x)] <- 'darkviolet'
+    } else {
+        col <- rep('darkviolet', 7)
+        col[levels(layer_guess_reordered) == x] <- 'dodgerblue4'
+    }
+    names(col) <- levels(layer_guess_reordered_short)
+    return(col)
+}
+
+pdf('pdf/markers_layer_boxplots_short.pdf', useDingbats = FALSE)
+set.seed(20200206)
+for (i in seq_len(nrow(sig_genes))) {
+# for (i in seq_len(10)) {
+    par(mar = c(2, 3, 2, 1) + 0.1)
+    # i <- 1
+    message(paste(Sys.time(), 'making the plot for', i, 'gene', sig_genes$gene[i]))
+    boxplot(
+        mat[sig_genes$gene_index[i], ] ~ layer_guess_reordered_short,
+        xlab = '',
+        ylab = '',
+        main = paste(
+            sig_genes$gene[i],
+            gsub('-', '>', add_rest(gsub('ayer', '', sig_genes$layer[i]))),
+            paste0('p=', formatC(sig_genes$pval[i], format = "e", digits = 2))
+        ),
+        outline = FALSE,
+        cex = 2,
+        cex.axis = 2,
+        cex.lab = 2,
+        cex.main = 2,
+        col = add_bkg_col(sig_genes$layer[i])
+    )
+    points(
+        mat[sig_genes$gene_index[i], ] ~ jitter(as.integer(layer_guess_reordered_short)),
+        pch = 21,
+        # bg = Polychrome::palette36.colors(7)[as.integer(sce_layer$layer_guess)],
+        bg = add_col(sig_genes$layer[i])[as.character(layer_guess_reordered_short)],
+        cex = 2
+    )
+}
+dev.off()
+
 
 ## Reproducibility information
 print('Reproducibility information:')
