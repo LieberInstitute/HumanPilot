@@ -214,8 +214,26 @@ fit = bumphunter:::.getEstimate(sce_logcounts, mod, coef=2, full=TRUE)
 tt = bumphunter:::.getModT(fit)
 pv = 2*pt(-abs(tt$t), df = tt$df.total)
 stats = data.frame(logFC = fit$coef, t = tt$t, P.Value = pv)
-save(fit,tt,pv, file = "rda/linear_model_zerospot.Rdata")
+rownames(stats) = rownames(sce_logcounts)
+stats$Symbol = rowData(sce)$gene_name
+save(stats, file = "rda/linear_model_zerospot.Rdata")
 
+## human anno
+mm2 = match(rownames(stats), neuropil$ensembl_hs)
+neuropil_match2 = neuropil[mm2,]
+
+stats$neuropil_numReads = neuropil_match2$number_reads_in_cds
+stats$neuropil_numReads[is.na(stats$neuropil_numReads)] = 0
+
+stats$neuropil_analyzed = neuropil_match2$status == "analyzed"
+stats$neuropil_analyzed[is.na(stats$neuropil_analyzed)] = 0
+
+plot(logFC ~ log2(neuropil_numReads+1), data=stats)
+cor.test(stats$logFC, log2(stats$neuropil_numReads+1))
+
+boxplot(t ~ neuropil_analyzed, data=stats)
+
+stats[order(stats$t, decreasing=TRUE)[1:20],]
 
 ## this is going to be way too slow, so lets just do linear
 # corfit <-  duplicateCorrelation(sce_logcounts, mod, block = sce$subject_position)

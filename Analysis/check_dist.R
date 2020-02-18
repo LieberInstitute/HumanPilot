@@ -10,7 +10,6 @@ library('Polychrome')
 library('cluster')
 library('limma')
 library('sessioninfo')
-library('qlcMatrix')
 
 ## Load data
 load(here(
@@ -18,14 +17,9 @@ load(here(
     'Human_DLPFC_Visium_processedData_sce_scran.Rdata'
 ))
 
-# get expression
-mat = assays(sce)$logcounts
-
-## filter
-exprsIndex = rowMeans(mat) > 0
-mat = mat[exprsIndex,]
-t_mat = t(mat)
+## filter to variable genes
+sce_hvg = sce[top.hvgs,]
 
 ## calc dist
-dd = dist(t_mat)
+dd = dist(t(assays(sce_hvg)$logcounts))
 
