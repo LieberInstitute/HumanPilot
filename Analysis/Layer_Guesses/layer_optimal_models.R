@@ -510,33 +510,40 @@ with(marker_genes_summary, cor(best_gene_log_fc, log_fc))
 load('rda/modeling_results.Rdata', verbose = TRUE)
 
 
-geneSetTest(
-    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
-    statistics = results_anova$f_stat_full
-)
-# [1] 1.22359e-09
 
-set.seed(20200218)
-geneSetTest(
-    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
-    statistics = results_anova$f_stat_full,
-    ranks.only = FALSE
-)
-# [1] 0.1975
+compute_GST <- function(type = 'f_stat_full', ranks.only = TRUE, species = c('mouse', 'human')) {
+    set.seed(20200218)
+    df <- subset(marker_genes_summary, species %in% species)
+    geneSetTest(
+        index = match(unique(df$ensembl), results_anova$ensembl),
+        statistics = results_anova[[type]],
+        ranks.only = ranks.only
+    )
+}
 
-geneSetTest(
-    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
-    statistics = results_anova$f_stat_noWM,
-)
-# [1] 1.588663e-10
+apply_GST <- function(type) {
+    data.frame(
+        'all' = compute_GST(type),
+        'all_sim' = compute_GST(type, ranks.only = FALSE),
+        'mouse' = compute_GST(type, species = 'mouse'),
+        'mouse_sim' = compute_GST(type, ranks.only = FALSE, species = 'mouse'),
+        'human' = compute_GST(type, species = 'human'),
+        'human_sim' = compute_GST(type, ranks.only = FALSE, species = 'human'),
+        'type' = type,
+        stringsAsFactors = FALSE
+    )
+    
+}
 
-set.seed(20200218)
-geneSetTest(
-    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
-    statistics = results_anova$f_stat_noWM,
-    ranks.only = FALSE
+results_GST <- rbind(
+    apply_GST('f_stat_full'),
+    apply_GST('f_stat_noWM')
 )
-# [1] 0.0211
+
+results_GST 
+#            all all_sim        mouse mouse_sim        human human_sim        type
+# 1 1.223590e-09  0.1975 1.223590e-09    0.1975 1.223590e-09    0.1975 f_stat_full
+# 2 1.588663e-10  0.0211 1.588663e-10    0.0211 1.588663e-10    0.0211 f_stat_noWM
 
 addmargins(with(marker_genes_summary, table('FDR <5%' = fdr < 0.05, species)))
 #        species
