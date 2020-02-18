@@ -49,9 +49,9 @@ genes_query_mat <- rbind(genes_km_mat, genes_bm_mat)
 ## Keep only those that are present in the data and have useful matrix info
 ## otherwise the model fails later
 marker_genes <- list(gene_info = genes_query[!is.na(genes_query$m) &
-        rowSums(genes_query_mat) > 0, ],
+        rowSums(genes_query_mat) > 0,],
     layer_mat = genes_query_mat[!is.na(genes_query$m) &
-            rowSums(genes_query_mat) > 0, ])
+            rowSums(genes_query_mat) > 0,])
 
 ## How many of these are unique models?
 marker_genes$gene_info$models <-
@@ -87,14 +87,14 @@ dups_drop <-
         marker_genes$gene_info$ensembl %in% dups_ensembl_remove &
             marker_genes$gene_info$list == 'BM'
     )
-marker_genes$gene_info[dups_drop, ]
+marker_genes$gene_info[dups_drop,]
 #     symbol list species     m gene_name         ensembl               models
 # 84    RELN   BM      MH  8638      RELN ENSG00000189056               Layer1
 # 93    RorB   BM      MH 10825      RORB ENSG00000198963               Layer4
 # 101   cux2   BM      MH 14444      CUX2 ENSG00000111249 Layer2+Layer3+Layer4
 # 137  Foxp2   BM      MH  8689     FOXP2 ENSG00000128573               Layer6
 marker_genes <- lapply(marker_genes, function(x) {
-    x[-dups_drop, ]
+    x[-dups_drop,]
 })
 
 
@@ -103,7 +103,7 @@ marker_genes <- lapply(marker_genes, function(x) {
 mat <- assays(sce_layer)$logcounts
 
 ## Build a group model
-mod <- with(colData(sce_layer), model.matrix( ~ 0 + layer_guess))
+mod <- with(colData(sce_layer), model.matrix(~ 0 + layer_guess))
 colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
@@ -121,9 +121,9 @@ eb_markers_list <-
     lapply(seq_len(nrow(marker_genes$gene_info)), function(i) {
         res <- rep(0, ncol(sce_layer))
         layers <-
-            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i, ] > 0]
+            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i,] > 0]
         res[unlist(layer_idx[layers])] <- 1
-        m <- model.matrix( ~ res)
+        m <- model.matrix(~ res)
         eBayes(
             lmFit(
                 mat,
@@ -266,7 +266,7 @@ addmargins(do.call(
 
 ## Add mean expr
 marker_genes_summary$mean_expr <-
-    rowMeans(mat[marker_genes_summary$m, ])
+    rowMeans(mat[marker_genes_summary$m,])
 
 
 ## Find the best gene for each model
@@ -287,14 +287,14 @@ marker_genes_summary$best_gene_t_stat <-
 marker_genes_summary$best_gene_log_fc <-
     marker_extract(logFC_markers, marker_genes_summary$best_gene_m)
 marker_genes_summary$best_gene_mean_expr <-
-    rowMeans(mat[marker_genes_summary$best_gene_m, ])
+    rowMeans(mat[marker_genes_summary$best_gene_m,])
 
 ## Re-order by p-value
 marker_genes <- lapply(marker_genes, function(x) {
-    x[order(marker_genes_summary$p_value), ]
+    x[order(marker_genes_summary$p_value),]
 })
 marker_genes_summary <-
-    marker_genes_summary[order(marker_genes_summary$p_value), ]
+    marker_genes_summary[order(marker_genes_summary$p_value),]
 
 ## Save for later
 save(eb_markers_list, file = 'rda/eb_markers_list.Rdata')
@@ -327,7 +327,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered,
+        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -365,7 +365,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered)),
+        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -404,7 +404,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered_short,
+        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered_short,
         xlab = '',
         ylab = '',
         main = paste(
@@ -435,7 +435,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered_short)),
+        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered_short)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -474,7 +474,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -489,7 +489,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -504,7 +504,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 dev.off()
 
@@ -624,7 +624,7 @@ addmargins(with(
 # [1] 57.01754
 
 ## Lets look at those genes
-with(marker_genes_summary[dups,],
+with(marker_genes_summary[dups, ],
     table('FDR <5%' = fdr < 0.05, species, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
@@ -669,7 +669,7 @@ with(marker_genes_summary[dups,],
 #   TRUE      2
 
 options(width = 200)
-with(marker_genes_summary[dups,],
+with(marker_genes_summary[dups, ],
     table('FDR <5%' = fdr < 0.05, models, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
@@ -759,6 +759,7 @@ addmargins(with(
 
 marker_genes_logistic <- data.frame(
     replicated = marker_genes_summary$p_value < 1e-05,
+    replicated_fdr = marker_genes_summary$fdr < 0.05,
     n_layers = stringr::str_count(marker_genes_summary$models, '\\+') + 1,
     species = marker_genes_summary$species,
     list_km = grepl('KM', marker_genes_summary$list),
@@ -817,6 +818,62 @@ anova(fit_log, test = 'Chisq')
 # list_km   1   4.9448       122     163.57  0.02617 *
 # list_bm   1   1.3312       121     162.24  0.24859
 # is_dup    1   0.0750       120     162.16  0.78420
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+fit_log_fdr <-
+    glm(
+        replicated_fdr ~ n_layers + species + list_km + list_bm + is_dup,
+        family = binomial,
+        data = marker_genes_logistic
+    )
+summary(fit_log_fdr)
+
+# Call:
+# glm(formula = replicated_fdr ~ n_layers + species + list_km +
+#     list_bm + is_dup, family = binomial, data = marker_genes_logistic)
+#
+# Deviance Residuals:
+#     Min       1Q   Median       3Q      Max
+# -2.0582  -0.9220   0.6484   0.8207   1.6986
+#
+# Coefficients:
+#               Estimate Std. Error z value Pr(>|z|)
+# (Intercept)   -18.1615  1168.7051  -0.016   0.9876
+# n_layers        0.5375     0.2246   2.394   0.0167 *
+# speciesmouse    0.4949     0.5743   0.862   0.3888
+# list_kmTRUE    17.5067  1168.7049   0.015   0.9880
+# list_bmTRUE    15.9561  1168.7049   0.014   0.9891
+# is_dupTRUE      1.9547     0.8833   2.213   0.0269 *
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+# (Dispersion parameter for binomial family taken to be 1)
+#
+#     Null deviance: 170.07  on 125  degrees of freedom
+# Residual deviance: 143.13  on 120  degrees of freedom
+# AIC: 155.13
+#
+# Number of Fisher Scoring iterations: 15
+
+anova(fit_log_fdr, test = 'Chisq')
+# Analysis of Deviance Table
+#
+# Model: binomial, link: logit
+#
+# Response: replicated_fdr
+#
+# Terms added sequentially (first to last)
+#
+#
+#          Df Deviance Resid. Df Resid. Dev  Pr(>Chi)
+# NULL                       125     170.07
+# n_layers  1   4.3650       124     165.71 0.0366844 *
+# species   1   0.0039       123     165.71 0.9505145
+# list_km   1  13.7117       122     151.99 0.0002131 ***
+# list_bm   1   2.7375       121     149.26 0.0980165 .
+# is_dup    1   6.1288       120     143.13 0.0133000 *
 # ---
 # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
