@@ -672,6 +672,101 @@ with(marker_genes_summary[dups, ], table('FDR <5%' = fdr < 0.05, models, 'Gene' 
 #   FALSE      0             0                           0      0                           0      0      0             0      0
 #   TRUE       0             0                           0      0                           0      0      0             1      1
 
+
+
+## Answer the following question:
+## The biggest factor contributing to replication of markers in our data was XXX
+
+
+addmargins(with(marker_genes_summary, table('pval < 1e-5' =  p_value < 1e-5, species, 'Has more than 1 model' = dups)))
+# , , Has more than 1 model = FALSE
+# 
+#            species
+# pval < 1e-5 human mouse Sum
+#       FALSE    14    54  68
+#       TRUE      8    38  46
+#       Sum      22    92 114
+# 
+# , , Has more than 1 model = TRUE
+# 
+#            species
+# pval < 1e-5 human mouse Sum
+#       FALSE     0     7   7
+#       TRUE      0     5   5
+#       Sum       0    12  12
+# 
+# , , Has more than 1 model = Sum
+# 
+#            species
+# pval < 1e-5 human mouse Sum
+#       FALSE    14    61  75
+#       TRUE      8    43  51
+#       Sum      22   104 126
+
+51 / 126 * 100
+# [1] 40.47619
+
+46 / 114 * 100
+# [1] 40.35088
+
+marker_genes_logistic <- data.frame(
+    replicated = marker_genes_summary$p_value < 1e-05,
+    n_layers = stringr::str_count(marker_genes_summary$models, '\\+') + 1,
+    species = marker_genes_summary$species,
+    list_km = grepl('KM', marker_genes_summary$list),
+    list_bm = grepl('BM', marker_genes_summary$list),
+    is_dup = dups,
+    stringsAsFactors = FALSE
+)
+fit_log <- glm(replicated ~ n_layers + species + list_km + list_bm + is_dup, family = binomial, data = marker_genes_logistic)
+summary(fit_log)
+# Call:
+# glm(formula = replicated ~ n_layers + species + list_km + list_bm + 
+#     is_dup, family = binomial, data = marker_genes_logistic)
+# 
+# Deviance Residuals: 
+#     Min       1Q   Median       3Q      Max  
+# -1.6148  -1.0078  -0.7411   1.2159   1.6081  
+# 
+# Coefficients:
+#              Estimate Std. Error z value Pr(>|z|)  
+# (Intercept)   -3.0965     1.3727  -2.256   0.0241 *
+# n_layers       0.2463     0.1976   1.247   0.2125  
+# speciesmouse   0.3747     0.5514   0.680   0.4968  
+# list_kmTRUE    2.1390     1.2139   1.762   0.0780 .
+# list_bmTRUE    1.3233     1.2096   1.094   0.2739  
+# is_dupTRUE     0.1798     0.6547   0.275   0.7836  
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for binomial family taken to be 1)
+# 
+#     Null deviance: 170.07  on 125  degrees of freedom
+# Residual deviance: 162.16  on 120  degrees of freedom
+# AIC: 174.16
+# 
+# Number of Fisher Scoring iterations: 4
+
+anova(fit_log, test = 'Chisq')
+# Analysis of Deviance Table
+# 
+# Model: binomial, link: logit
+# 
+# Response: replicated
+# 
+# Terms added sequentially (first to last)
+# 
+# 
+#          Df Deviance Resid. Df Resid. Dev Pr(>Chi)  
+# NULL                       125     170.07           
+# n_layers  1   1.5324       124     168.54  0.21575  
+# species   1   0.0292       123     168.51  0.86443  
+# list_km   1   4.9448       122     163.57  0.02617 *
+# list_bm   1   1.3312       121     162.24  0.24859  
+# is_dup    1   0.0750       120     162.16  0.78420  
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
