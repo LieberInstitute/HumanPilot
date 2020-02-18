@@ -497,6 +497,181 @@ with(marker_genes_summary, cor(best_gene_t_stat, t_stat))
 with(marker_genes_summary, cor(best_gene_log_fc, log_fc))
 # [1] 0.1767757
 
+
+
+
+### Numbers for:
+## First, we tested for enrichment of these genes - as a set - among the DEGs
+## described above, and found strong enrichment (p = XX). However, only
+## XX of the genes were significant DEGs in our human data.
+
+
+## Load summary t-stats
+load('rda/modeling_results.Rdata', verbose = TRUE)
+
+
+geneSetTest(
+    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
+    statistics = results_anova$f_stat_full
+)
+# [1] 1.22359e-09
+
+set.seed(20200218)
+geneSetTest(
+    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
+    statistics = results_anova$f_stat_full,
+    ranks.only = FALSE
+)
+# [1] 0.1975
+
+geneSetTest(
+    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
+    statistics = results_anova$f_stat_noWM,
+)
+# [1] 1.588663e-10
+
+set.seed(20200218)
+geneSetTest(
+    index = match(unique(marker_genes_summary$ensembl), results_anova$ensembl),
+    statistics = results_anova$f_stat_noWM,
+    ranks.only = FALSE
+)
+# [1] 0.0211
+
+addmargins(with(marker_genes_summary, table('FDR <5%' = fdr < 0.05, species)))
+#        species
+# FDR <5% human mouse Sum
+#   FALSE    10    41  51
+#   TRUE     12    63  75
+#   Sum      22   104 126
+
+## Six genes appear twice in the table
+marker_genes_summary$gene_name[duplicated(marker_genes_summary$ensembl)]
+# [1] "ETV1"   "PCP4"   "TLE4"   "CARTPT" "KCNIP2" "CRYM"
+dups <- marker_genes_summary$ensembl %in% marker_genes_summary$ensembl[duplicated(marker_genes_summary$ensembl)]
+table(dups)
+# FALSE  TRUE 
+#   114    12 
+
+
+addmargins(with(marker_genes_summary, table('FDR <5%' = fdr < 0.05, species, 'Has more than 1 model' = dups)))
+# , , Has more than 1 model = FALSE
+# 
+#        species
+# FDR <5% human mouse Sum
+#   FALSE    10    39  49
+#   TRUE     12    53  65
+#   Sum      22    92 114
+# 
+# , , Has more than 1 model = TRUE
+# 
+#        species
+# FDR <5% human mouse Sum
+#   FALSE     0     2   2
+#   TRUE      0    10  10
+#   Sum       0    12  12
+# 
+# , , Has more than 1 model = Sum
+# 
+#        species
+# FDR <5% human mouse Sum
+#   FALSE    10    41  51
+#   TRUE     12    63  75
+#   Sum      22   104 126
+
+75 / 126 * 100
+# [1] 59.52381
+65 / 114 * 100
+# [1] 57.01754
+
+## Lets look at those genes
+with(marker_genes_summary[dups, ], table('FDR <5%' = fdr < 0.05, species, 'Gene' = gene_name))
+# , , Gene = CARTPT
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     0
+#   TRUE      2
+# 
+# , , Gene = CRYM
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     1
+#   TRUE      1
+# 
+# , , Gene = ETV1
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     0
+#   TRUE      2
+# 
+# , , Gene = KCNIP2
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     1
+#   TRUE      1
+# 
+# , , Gene = PCP4
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     0
+#   TRUE      2
+# 
+# , , Gene = TLE4
+# 
+#        species
+# FDR <5% mouse
+#   FALSE     0
+#   TRUE      2
+
+options(width = 200)
+with(marker_genes_summary[dups, ], table('FDR <5%' = fdr < 0.05, models, 'Gene' = gene_name))
+# , , Gene = CARTPT
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      0      0             0      0
+#   TRUE       1             0                           0      1                           0      0      0             0      0
+# 
+# , , Gene = CRYM
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      0      0             1      0
+#   TRUE       0             0                           1      0                           0      0      0             0      0
+# 
+# , , Gene = ETV1
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      0      0             0      0
+#   TRUE       0             0                           0      0                           0      0      1             1      0
+# 
+# , , Gene = KCNIP2
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      1      0             0      0
+#   TRUE       0             1                           0      0                           0      0      0             0      0
+# 
+# , , Gene = PCP4
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      0      0             0      0
+#   TRUE       0             0                           0      0                           1      0      1             0      0
+# 
+# , , Gene = TLE4
+# 
+#        models
+# FDR <5% Layer2 Layer2+Layer3 Layer2+Layer3+Layer5+Layer6 Layer3 Layer3+Layer4+Layer5+Layer6 Layer4 Layer5 Layer5+Layer6 Layer6
+#   FALSE      0             0                           0      0                           0      0      0             0      0
+#   TRUE       0             0                           0      0                           0      0      0             1      1
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
