@@ -24,7 +24,8 @@ mat = assays(sce)$logcounts
 ## filter
 exprsIndex = rowMeans(mat) > 0
 mat = mat[exprsIndex,]
+t_mat = t(mat)
 
 ## calc dist
-dd = dist(t(mat))
+dd = dist(t_mat)
 
