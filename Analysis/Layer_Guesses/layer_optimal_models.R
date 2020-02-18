@@ -45,13 +45,27 @@ genes_query$ensembl <- rownames(sce_layer)[genes_query$m]
 
 ## Combine the matrices into one
 genes_query_mat <- rbind(genes_km_mat, genes_bm_mat)
+dim(genes_query_mat)
+# [1] 146   7
+
+## Note this includes 4 genes that are fully duplicated in the lists
+## as determined further below
+addmargins(table(
+    'Expressed in our data' = !is.na(genes_query$m),
+    'Has useful model info' = rowSums(genes_query_mat) > 0
+))
+#                      Has useful model info
+# Expressed in our data FALSE TRUE Sum
+#                 FALSE     0   14  14
+#                 TRUE      2  130 132
+#                 Sum       2  144 146
 
 ## Keep only those that are present in the data and have useful matrix info
 ## otherwise the model fails later
 marker_genes <- list(gene_info = genes_query[!is.na(genes_query$m) &
-        rowSums(genes_query_mat) > 0,],
+        rowSums(genes_query_mat) > 0, ],
     layer_mat = genes_query_mat[!is.na(genes_query$m) &
-            rowSums(genes_query_mat) > 0,])
+            rowSums(genes_query_mat) > 0, ])
 
 ## How many of these are unique models?
 marker_genes$gene_info$models <-
@@ -87,14 +101,14 @@ dups_drop <-
         marker_genes$gene_info$ensembl %in% dups_ensembl_remove &
             marker_genes$gene_info$list == 'BM'
     )
-marker_genes$gene_info[dups_drop,]
+marker_genes$gene_info[dups_drop, ]
 #     symbol list species     m gene_name         ensembl               models
 # 84    RELN   BM      MH  8638      RELN ENSG00000189056               Layer1
 # 93    RorB   BM      MH 10825      RORB ENSG00000198963               Layer4
 # 101   cux2   BM      MH 14444      CUX2 ENSG00000111249 Layer2+Layer3+Layer4
 # 137  Foxp2   BM      MH  8689     FOXP2 ENSG00000128573               Layer6
 marker_genes <- lapply(marker_genes, function(x) {
-    x[-dups_drop,]
+    x[-dups_drop, ]
 })
 
 
@@ -103,7 +117,7 @@ marker_genes <- lapply(marker_genes, function(x) {
 mat <- assays(sce_layer)$logcounts
 
 ## Build a group model
-mod <- with(colData(sce_layer), model.matrix(~ 0 + layer_guess))
+mod <- with(colData(sce_layer), model.matrix( ~ 0 + layer_guess))
 colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
@@ -121,9 +135,9 @@ eb_markers_list <-
     lapply(seq_len(nrow(marker_genes$gene_info)), function(i) {
         res <- rep(0, ncol(sce_layer))
         layers <-
-            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i,] > 0]
+            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i, ] > 0]
         res[unlist(layer_idx[layers])] <- 1
-        m <- model.matrix(~ res)
+        m <- model.matrix( ~ res)
         eBayes(
             lmFit(
                 mat,
@@ -266,7 +280,7 @@ addmargins(do.call(
 
 ## Add mean expr
 marker_genes_summary$mean_expr <-
-    rowMeans(mat[marker_genes_summary$m,])
+    rowMeans(mat[marker_genes_summary$m, ])
 
 
 ## Find the best gene for each model
@@ -287,14 +301,14 @@ marker_genes_summary$best_gene_t_stat <-
 marker_genes_summary$best_gene_log_fc <-
     marker_extract(logFC_markers, marker_genes_summary$best_gene_m)
 marker_genes_summary$best_gene_mean_expr <-
-    rowMeans(mat[marker_genes_summary$best_gene_m,])
+    rowMeans(mat[marker_genes_summary$best_gene_m, ])
 
 ## Re-order by p-value
 marker_genes <- lapply(marker_genes, function(x) {
-    x[order(marker_genes_summary$p_value),]
+    x[order(marker_genes_summary$p_value), ]
 })
 marker_genes_summary <-
-    marker_genes_summary[order(marker_genes_summary$p_value),]
+    marker_genes_summary[order(marker_genes_summary$p_value), ]
 
 ## Save for later
 save(eb_markers_list, file = 'rda/eb_markers_list.Rdata')
@@ -327,7 +341,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered,
+        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -365,7 +379,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered)),
+        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -404,7 +418,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered_short,
+        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered_short,
         xlab = '',
         ylab = '',
         main = paste(
@@ -435,7 +449,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered_short)),
+        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered_short)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -474,7 +488,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid(~ species) +
+    facet_grid( ~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -489,7 +503,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid(~ species) +
+    facet_grid( ~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -504,7 +518,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid(~ species) +
+    facet_grid( ~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 dev.off()
 
@@ -624,7 +638,7 @@ addmargins(with(
 # [1] 57.01754
 
 ## Lets look at those genes
-with(marker_genes_summary[dups, ],
+with(marker_genes_summary[dups,],
     table('FDR <5%' = fdr < 0.05, species, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
@@ -669,7 +683,7 @@ with(marker_genes_summary[dups, ],
 #   TRUE      2
 
 options(width = 200)
-with(marker_genes_summary[dups, ],
+with(marker_genes_summary[dups,],
     table('FDR <5%' = fdr < 0.05, models, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
