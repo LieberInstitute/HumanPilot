@@ -76,7 +76,7 @@ if (file.exists(sce_layer_file))
 source(here('Analysis', 'Layer_Guesses', 'layer_specificity_functions.R'))
 
 ## Load layer guesses
-load(here('Analysis', 'Layer_Guesses',
+load(here('Analysis', 'Layer_Guesses', 'rda',
     'layer_guess_tab.Rdata'))
 
 ## Add layer guesses to the sce object

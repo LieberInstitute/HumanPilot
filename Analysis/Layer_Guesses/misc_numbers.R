@@ -527,7 +527,7 @@ dev.off()
 
 
 ## Load layer guesses
-load(here('Analysis', 'Layer_Guesses',
+load(here('Analysis', 'Layer_Guesses', 'rda',
     'layer_guess_tab.Rdata'))
 
 ## Add layer guesses to the sce object
