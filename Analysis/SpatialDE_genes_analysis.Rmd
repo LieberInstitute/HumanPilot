@@ -634,9 +634,9 @@ upset(
 ```
 
 
-```{r, fig.width = 4, fig.height = 3.5}
+```{r, fig.width = 6.75, fig.height = 2.75}
 # select gene(s)
-genes_fig <- "HBB"
+genes_fig <- c("PCP4", "HBB", "IGKC")
 
 # subset original SCE object
 sce_fig <- sce[toupper(rowData(sce)$gene_name) %in% genes_fig, 
@@ -674,17 +674,19 @@ d_plot <- melt(
     value.name = "UMIs"
 )
 
+d_plot$gene_name <- factor(d_plot$gene_name, levels = genes_fig)
+
 max_UMI <- max(d_plot$UMIs)
 
 ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-    #facet_wrap(~ gene_name) + 
-    geom_point(size = 0.6) + 
+    facet_wrap(~ gene_name) + 
+    geom_point(size = 0.2) + 
     scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
                           values = rescale(c(0, 3, 15, max_UMI)), 
                           limits = c(0, max_UMI), 
                           name = "UMI counts") + 
     coord_fixed() + 
-    ggtitle("Expression of gene HBB") + 
+    ggtitle("Expression of selected genes") + 
     theme_bw() + 
         theme(axis.title.x = element_blank(), 
               axis.title.y = element_blank(), 
@@ -695,8 +697,8 @@ ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) +
               panel.grid.major = element_blank(), 
               panel.grid.minor = element_blank())
 
-filename <- paste0("../plots/figure/fig_LMW_expression_HBB.pdf")
-ggsave(filename, width = 4, height = 3.5)
+filename <- paste0("../plots/figure/fig_LMW_expression_selected.pdf")
+ggsave(filename, width = 6.75, height = 2.75)
 ```
 
 

@@ -6,6 +6,7 @@ Analysis/archive/SpatialDE_analyses/**/*.html
 outputs/archive/*
 plots
 plots/archive/*
+outputs/clustering/*
 Analysis/SpatialDE_subsampling_comparison_cache/
 Analysis/SpatialDE_subsampling_comparison_files/
 Analysis/SpatialDE_subsampling_comparison.html

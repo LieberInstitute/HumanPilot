@@ -663,6 +663,8 @@ d_plot_ARI_all <- distinct(
                        "method_types_SpatialDE", "method_types_spatial_coords")]
     )
 
+save(d_plot_ARI_all, file = "../outputs/clustering/ARI.RData")
+
 set.seed(123)
 p_ARI_all <- 
     ggplot(d_plot_ARI_all, aes(x = method, y = ARI, 
@@ -762,6 +764,8 @@ d_plot_NMI_all <- distinct(
                        "method_types_supervision", "method_types_dimension_reduction", 
                        "method_types_SpatialDE", "method_types_spatial_coords")]
     )
+
+save(d_plot_NMI_all, file = "../outputs/clustering/NMI.RData")
 
 set.seed(123)
 p_NMI_all <- 
@@ -907,38 +911,49 @@ print(p_combined)
 filename <- paste0("../plots/SpatialDE_clustering/clustering_summary_sample_", 
                    gsub("^sample_", "", sample_names[i]), ".png")
 ggsave(filename, width = 13, height = 3.5)
+```
 
 
+```{r, fig.width = 7.25, fig.height = 2.75}
 # save panels for final figure (with custom formatting)
 panel_a_ground_truth <- 
     p_ground_truth_combined + 
         facet_wrap(NULL) + 
+        geom_point(size = 0.15) + 
         scale_color_manual(values = colors, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
         ggtitle("Ground truth", subtitle = NULL) + 
-        theme(
-            legend.title = element_blank(), 
-            strip.background = element_blank(), 
-            strip.text.x = element_blank()
-        )
+        guides(color = guide_legend(override.aes = list(size = 2.5))) + 
+        theme(legend.title = element_blank(), 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
 print(panel_a_ground_truth)
-ggsave("../plots/figure/fig_LMW_ground_truth.pdf", width = 3.8, height = 3)
+ggsave("../plots/figure/fig_LMW_ground_truth.pdf", width = 3.75, height = 2.75)
 
 panel_b_i <- 
     p_clustering_unsupervised_best + 
-        ggtitle("Unsupervised clustering", subtitle = NULL) + 
-        theme(legend.position = "none")
+        geom_point(size = 0.15) + 
+        ggtitle("Unsupervised", subtitle = NULL) + 
+        theme(legend.position = "none", 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
 panel_b_ii <- 
     p_clustering_semisupervised_best + 
-        ggtitle("Semisupervised clustering", subtitle = NULL) + 
-        theme(legend.position = "none")
+        geom_point(size = 0.15) + 
+        ggtitle("Semisupervised", subtitle = NULL) + 
+        theme(legend.position = "none", 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
 panel_b_iii <- 
     p_clustering_markers_best + 
-        ggtitle("Clustering known markers", subtitle = NULL) + 
-        guides(color = guide_legend(override.aes = list(color = colors)))
+        geom_point(size = 0.15) + 
+        ggtitle("Known markers", subtitle = NULL) + 
+        guides(color = guide_legend(override.aes = list(color = colors, size = 2.5))) + 
+        theme(strip.background = element_blank(), 
+              strip.text.x = element_blank())
 # using 'patchwork' package
 panel_b_clustering <- panel_b_i | panel_b_ii | panel_b_iii
 print(panel_b_clustering)
-ggsave("../plots/figure/fig_LMW_clustering.pdf", width = 8.5, height = 3.5)
+ggsave("../plots/figure/fig_LMW_clustering.pdf", width = 7.25, height = 2.75)
 ```
 
 
