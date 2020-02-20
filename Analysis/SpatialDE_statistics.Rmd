@@ -1,0 +1,266 @@
+---
+title: "SpatialDE statistics"
+author: "Lukas Weber"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 2
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+# SpatialDE statistics
+
+Comparison of gene-level test statistics from manually guided analyses vs. SpatialDE.
+
+
+## Load data
+
+```{r, message = FALSE}
+library(SingleCellExperiment)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(viridis)
+library(RColorBrewer)
+library(ggrepel)
+```
+
+
+```{r, message = FALSE, warning = FALSE}
+# load spreadsheets containing SpatialDE results
+spatialDE_files_all <- list.files(
+    "../../data/SpatialDE/spatialDE_all", pattern = "\\.csv$", full.names = TRUE
+)
+
+spatialDE_results_all <- lapply(spatialDE_files_all, read_csv)
+
+sample_names <- gsub("_spatialDE.*$", "", gsub("^.*/", "", spatialDE_files_all))
+names(spatialDE_results_all) <- sample_names
+
+head(spatialDE_results_all[[1]])
+```
+
+
+```{r}
+# load F-statistics from manually guided analyses
+load("../../data/F_stats/ebF_list.Rdata")
+
+head(f_stats)
+```
+
+
+## Compare statistics
+
+```{r}
+# merge data frames
+
+df_merged <- list()
+
+for (i in seq_along(sample_names)) {
+    
+    head(spatialDE_results_all[[i]])
+    head(f_stats)
+    
+    dim(spatialDE_results_all[[i]])
+    dim(f_stats)
+    
+    # check
+    sum(spatialDE_results_all[[i]]$g %in% f_stats$ensembl)
+    sum(f_stats$ensembl %in% spatialDE_results_all[[i]]$g)
+    
+    # merge
+    df_merged[[i]] <- merge(spatialDE_results_all[[i]], f_stats, by.x = "g", by.y = "ensembl")
+}
+```
+
+
+## Plots
+
+Plots comparing gene-level p-values and test statistics from manually guided analyses vs. SpatialDE.
+
+```{r, fig.width = 5.5, fig.height = 5}
+# plots (sample 151673 only)
+
+i <- 9
+
+
+# ----------------
+# compare p-values
+# ----------------
+
+# compare p-values: manually guided (with white matter) vs. SpatialDE
+ggplot(df_merged[[i]], aes(x = -log10(full_p_value), y = -log10(pval))) + 
+    geom_point() + 
+    xlab("manually guided (with white matter): -log10 p-value") + 
+    ylab("SpatialDE: -log10 p-value") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_pvals_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 5.5, height = 5)
+
+# compare p-values: manually guided (without white matter) vs. SpatialDE
+ggplot(df_merged[[i]], aes(x = -log10(noWM_p_value), y = -log10(pval))) + 
+    geom_point() + 
+    xlab("manually guided (without white matter): -log10 p-value") + 
+    ylab("SpatialDE: -log10 p-value") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_noWM_pvals_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 5.5, height = 5)
+
+
+# ------------------
+# compare statistics
+# ------------------
+
+# compare test statistics: F-stat from manually guided (with white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = full_f, y = LLR)) + 
+    geom_point() + 
+    xlab("manually guided (with white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_stats_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 5.5, height = 5)
+
+# compare test statistics: F-stat from manually guided (without white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = noWM_f, y = LLR)) + 
+    geom_point() + 
+    xlab("manually guided (without white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_noWM_stats_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 5.5, height = 5)
+```
+
+
+```{r, fig.width = 6.5, fig.height = 5}
+# compare test statistics: F-stat from manually guided (with white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = full_f, y = LLR)) + 
+    geom_point(aes(color = full_Amean)) + 
+    scale_color_viridis() + 
+    xlab("manually guided (with white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_stats_Amean_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 6.5, height = 5)
+
+# compare test statistics: F-stat from manually guided (without white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = noWM_f, y = LLR)) + 
+    geom_point(aes(color = noWM_Amean)) + 
+    scale_color_viridis() + 
+    xlab("manually guided (without white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_noWM_stats_Amean_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 6.5, height = 5)
+```
+
+
+```{r, fig.width = 7, fig.height = 5}
+# ------------------------------------------------------
+# compare statistics: with annotation for specific genes
+# ------------------------------------------------------
+
+# highlight specific genes we are interested in (sample 151673 only)
+
+i <- 9
+
+# check exact matches will work
+df_merged[[i]]$gene[grepl("MOBP", df_merged[[i]]$gene)]
+df_merged[[i]]$gene[grepl("PCP4", df_merged[[i]]$gene)]
+df_merged[[i]]$gene[grepl("SNAP25", df_merged[[i]]$gene)]
+df_merged[[i]]$gene[grepl("HBB", df_merged[[i]]$gene)]
+df_merged[[i]]$gene[grepl("IGKC", df_merged[[i]]$gene)]
+
+df_merged[[i]]$selected_genes <- "other"
+df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "MOBP"] <- "MOBP"
+df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "PCP4"] <- "PCP4"
+df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "SNAP25"] <- "SNAP25"
+df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "HBB"] <- "HBB"
+df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "IGKC"] <- "IGKC"
+
+df_merged[[i]]$selected_genes <- factor(
+    df_merged[[i]]$selected_genes, 
+    levels = c("other", "MOBP", "PCP4", "SNAP25", "HBB", "IGKC")
+)
+
+df_merged[[i]]$point_size <- ifelse(df_merged[[i]]$selected_genes == "other", 0.75, 1.5)
+
+head(df_merged[[i]])
+
+
+# compare test statistics: F-stat from manually guided (with white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = full_f, y = LLR, color = selected_genes, stroke = point_size)) + 
+    geom_point() + 
+    scale_color_manual(values = c("gray50", brewer.pal(nlevels(df_merged[[i]]$selected_genes) - 1, "Set1"))) + 
+    xlab("manually guided (with white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_stats_selected_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 7, height = 5)
+
+
+# compare test statistics: F-stat from manually guided (without white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = noWM_f, y = LLR, color = selected_genes, stroke = point_size)) + 
+    geom_point() + 
+    scale_color_manual(values = c("gray50", brewer.pal(nlevels(df_merged[[i]]$selected_genes) - 1, "Set1"))) + 
+    xlab("manually guided (without white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_noWM_stats_selected_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 7, height = 5)
+```
+
+
+```{r, fig.width = 8, fig.height = 7}
+# compare test statistics: F-stat from manually guided (with white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = full_f, y = LLR)) + 
+    geom_point() + 
+    geom_text_repel(data = df_merged[[i]] %>% filter(full_f > 40000 | LLR > 1000), 
+                    aes(label = gene), 
+                    color = "red4") + 
+    xlab("manually guided (with white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_stats_labels_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 8, height = 7)
+
+
+# compare test statistics: F-stat from manually guided (without white matter) vs. LLR from SpatialDE
+ggplot(df_merged[[i]], aes(x = noWM_f, y = LLR)) + 
+    geom_point() + 
+    geom_text_repel(data = df_merged[[i]] %>% filter(noWM_f > 60000 | LLR > 1200), 
+                    aes(label = gene), 
+                    color = "red4") + 
+    xlab("manually guided (without white matter): F-statistic") + 
+    ylab("SpatialDE: log-likelihood ratio (LLR)") + 
+    theme_bw()
+
+ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_noWM_stats_labels_", 
+              gsub("^sample_", "", sample_names[[i]]), ".pdf"), 
+       width = 8, height = 7)
+```
+
+
+
