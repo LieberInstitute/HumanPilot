@@ -8,6 +8,7 @@ plots
 plots/archive/*
 Analysis/SpatialDE_subsampling_comparison_cache/
 Analysis/SpatialDE_subsampling_comparison_files/
+Analysis/SpatialDE_subsampling_comparison.html
 Analysis/SpatialDE_genes_analysis_cache/
 Analysis/SpatialDE_genes_analysis_files/
 Analysis/SpatialDE_genes_analysis.html
