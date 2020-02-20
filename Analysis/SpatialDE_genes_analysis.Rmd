@@ -433,67 +433,73 @@ for (i in seq_along(sample_names)) {
 ```
 
 
-```{r}
+```{r, fig.width = 9, fig.height = 4}
 # ----------------------------------------------------
 # plots of 3 known marker genes (from Kristen Maynard)
 # ----------------------------------------------------
 
-# plots of 3 known marker genes (MOBP, PCP4, SNAP2)
-marker_genes_3 <- c("MOBP", "PCP4", "SNAP25")
-
-# subset original SCE object
-sce_3 <- sce[toupper(rowData(sce)$gene_name) %in% marker_genes_3, 
-             colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
-dim(sce_3)
-
-# extract x-y coordinates of spots (note: y coordinate is reversed)
-xy_coords <- data.frame(
-    x_coord = colData(sce_3)[, c("imagecol")], 
-    y_coord = -colData(sce_3)[, c("imagerow")]
-)
-
-# extract expression levels (UMI counts)
-exprs_3 <- counts(sce_3)
-dim(exprs_3)
-# replace gene IDs with gene names for plots
-stopifnot(all(rownames(exprs_3) == rowData(sce_3)$gene_id))
-rownames(exprs_3) <- rowData(sce_3)$gene_name
-# check column ordering matches spots
-stopifnot(all(colData(sce_3)$barcode == colnames(exprs_3)))
-stopifnot(length(colData(sce_3)$barcode) == length(colnames(exprs_3)))
-# order genes alphabetically
-exprs_3 <- exprs_3[order(rownames(exprs_3)), ]
-
-d_plot <- cbind(
-    barcode = colData(sce_3)$barcode, 
-    xy_coords, 
-    as.data.frame(as.matrix(t(exprs_3)))
-)
-
-d_plot <- melt(
-    d_plot, 
-    id.vars = c("barcode", "x_coord", "y_coord"), 
-    variable.name = "gene_name", 
-    value.name = "UMIs"
-)
-
-max_UMI <- max(d_plot$UMIs)
-
-ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-    facet_wrap(~ gene_name) + 
-    geom_point(size = 0.6) + 
-    scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
-                          values = rescale(c(0, 3, 15, max_UMI)), 
-                          limits = c(0, max_UMI)) + 
-    coord_fixed() + 
-    ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank())
-
-filename <- paste0("../plots/SpatialDE_genes_analysis/marker_genes_3_expr_sample_", 
-                   gsub("^sample_", "", sample_names[i]), ".png")
-ggsave(filename, width = 9, height = 4)
+# for each sample
+for (i in seq_along(sample_names)) {
+    
+    # plots of 3 known marker genes (MOBP, PCP4, SNAP2)
+    marker_genes_3 <- c("MOBP", "PCP4", "SNAP25")
+    
+    # subset original SCE object
+    sce_3 <- sce[toupper(rowData(sce)$gene_name) %in% marker_genes_3, 
+                 colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
+    dim(sce_3)
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_3)[, c("imagecol")], 
+        y_coord = -colData(sce_3)[, c("imagerow")]
+    )
+    
+    # extract expression levels (UMI counts)
+    exprs_3 <- counts(sce_3)
+    dim(exprs_3)
+    # replace gene IDs with gene names for plots
+    stopifnot(all(rownames(exprs_3) == rowData(sce_3)$gene_id))
+    rownames(exprs_3) <- rowData(sce_3)$gene_name
+    # check column ordering matches spots
+    stopifnot(all(colData(sce_3)$barcode == colnames(exprs_3)))
+    stopifnot(length(colData(sce_3)$barcode) == length(colnames(exprs_3)))
+    # order genes alphabetically
+    exprs_3 <- exprs_3[order(rownames(exprs_3)), ]
+    
+    d_plot <- cbind(
+        barcode = colData(sce_3)$barcode, 
+        xy_coords, 
+        as.data.frame(as.matrix(t(exprs_3)))
+    )
+    
+    d_plot <- melt(
+        d_plot, 
+        id.vars = c("barcode", "x_coord", "y_coord"), 
+        variable.name = "gene_name", 
+        value.name = "UMIs"
+    )
+    
+    max_UMI <- max(d_plot$UMIs)
+    
+    print(
+        ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            facet_wrap(~ gene_name) + 
+            geom_point(size = 0.6) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 3, 15, max_UMI)), 
+                                  limits = c(0, max_UMI)) + 
+            coord_fixed() + 
+            ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+    )
+    
+    filename <- paste0("../plots/SpatialDE_genes_analysis/marker_genes_3_expr_sample_", 
+                       gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 9, height = 4)
+}
 ```
 
 
