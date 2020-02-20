@@ -64,29 +64,6 @@ sce$layer_guess[sce$layer_guess == 'Layer 2/3'] <- 'Layer 3'
 sce$layer_guess <-
     factor(gsub(' ', '', sce$layer_guess), levels = c('WM', paste0('Layer', 1:6)))
 
-#########################
-### read in neuropil ####
-#########################
-
-neuropil = read_excel("gene_sets/1-s2.0-S0896627312002863-mmc2.xlsx", sheet=1, skip=29)
-neuropil = clean_names(neuropil)
-neuropil = as.data.frame(neuropil)
-
-### homology
-# hom = read.delim("http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt",header=FALSE,
-hom = read.delim("http://www.informatics.jax.org/downloads/reports/HOM_AllOrganism.rpt",
-	as.is=TRUE)
-hom_rat = hom[match(neuropil$entrez, hom$EntrezGene.ID),]
-hom_hs = hom[hom$Common.Organism.Name == "human",]
-neuropil$entrez_hs = hom_hs$EntrezGene.ID[match(hom_rat$HomoloGene.ID, hom_hs$HomoloGene.ID)]
-neuropil$symbol_hs = hom_hs$Symbol[match(hom_rat$HomoloGene.ID, hom_hs$HomoloGene.ID)]
-
-## get ensembl from entrez
-ens = select(org.Hs.eg.db, key=as.character(neuropil$entrez_hs),
-	columns="ENSEMBL", keytype="ENTREZID")
-neuropil$ensembl_hs = ens$ENSEMBL[match(neuropil$entrez_hs, ens$ENTREZID)]
-
-
 #############################
 ### line up to layer info ###
 #############################
@@ -99,6 +76,103 @@ sce = sce[exprsIndex,]
 
 ## fit model of 0 cell bodies vs all others
 sce$zero_cell = as.numeric(sce$cell_count  == 0)
+
+
+#########################
+### read in neuropil ####
+#########################
+
+######## old paper
+# neuropil = read_excel("gene_sets/1-s2.0-S0896627312002863-mmc2.xlsx", sheet=1, skip=29)
+# neuropil = clean_names(neuropil)
+# neuropil = as.data.frame(neuropil)
+
+## homology
+# # # hom = read.delim("http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt",header=FALSE,
+# hom = read.delim("http://www.informatics.jax.org/downloads/reports/HOM_AllOrganism.rpt",
+	# as.is=TRUE)
+
+
+# hom_hs = hom[hom$Common.Organism.Name == "human",]
+# neuropil$entrez_hs = hom_hs$EntrezGene.ID[match(neuropil$HomoloGene.ID, hom_hs$HomoloGene.ID)]
+# neuropil$symbol_hs = hom_hs$Symbol[match(neuropil$HomoloGene.ID, hom_hs$HomoloGene.ID)]
+
+# hom_rat = hom[match(neuropil$entrez, hom$EntrezGene.ID),]
+# hom_hs = hom[hom$Common.Organism.Name == "human",]
+# neuropil$entrez_hs = hom_hs$EntrezGene.ID[match(hom_rat$HomoloGene.ID, hom_hs$HomoloGene.ID)]
+# neuropil$symbol_hs = hom_hs$Symbol[match(hom_rat$HomoloGene.ID, hom_hs$HomoloGene.ID)]
+
+##### new paper
+neuropil = read_excel("gene_sets/aau3644_TableS1.xls", 
+	sheet="DE", skip=4)
+neuropil = as.data.frame(neuropil)
+neuropil$padj = as.numeric(neuropil$padj)
+table(neuropil$padj < 0.05, sign(neuropil$stat))
+
+## line up
+hom2 = read.delim("http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt",
+	as.is=TRUE, header=FALSE)
+colnames(hom2)[1:5] = c("symbol_hs", "entrez_hs", "entrez_mm", "mapped", "symbol_mm")
+neuropil$symbol_hs = hom2$symbol_hs[match(neuropil$GeneID, hom2$symbol_mm)]
+neuropil$entrez_hs = hom2$entrez_hs[match(neuropil$GeneID, hom2$symbol_mm)]
+
+# get ensembl from entrez
+ens = select(org.Hs.eg.db, key=as.character(neuropil$entrez_hs),
+	columns="ENSEMBL", keytype="ENTREZID")
+neuropil$ensembl_hs = ens$ENSEMBL[match(neuropil$entrez_hs, ens$ENTREZID)]
+
+
+#######################################
+### spot level below, very slow, run once and save
+# sce_logcounts = assays(sce)$logcounts
+# mod = model.matrix(~zero_cell + layer_guess + subject_position,data =colData(sce))
+# fit = bumphunter:::.getEstimate(sce_logcounts, mod, coef=2, full=TRUE)
+# tt = bumphunter:::.getModT(fit)
+# pv = 2*pt(-abs(tt$t), df = tt$df.total)
+# stats = data.frame(logFC = fit$coef, t = tt$t, P.Value = pv)
+# rownames(stats) = rownames(sce_logcounts)
+# stats$Symbol = rowData(sce)$gene_name
+# save(stats, file = "rda/linear_model_zerospot.Rdata")
+
+## human anno
+load("rda/linear_model_zerospot.Rdata")
+
+stats$in_neuropil = rownames(stats) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
+stats$neuropil_padj = neuropil$padj[match(rownames(stats), neuropil$ensembl_hs)]
+stats$neuropil_stat = neuropil$stat[match(rownames(stats), neuropil$ensembl_hs)]
+stats$neuropil_logFC = neuropil$Log2FoldChange[match(rownames(stats), neuropil$ensembl_hs)]
+
+## plots
+ct = cor.test(stats$logFC, stats$neuropil_logFC)
+ct_sig = with(stats[which(stats$neuropil_padj < 0.05),], cor.test(logFC, neuropil_logFC))
+ct_sig$p.value
+n_all = sum(complete.cases(stats[,c("logFC", "neuropil_logFC")]))
+n_sig = sum(complete.cases(stats[which(stats$neuropil_padj < 0.05),c("logFC", "neuropil_logFC")]))
+
+pdf("pdf/neuropil_scatter_plots.pdf")
+par(mar=c(5,6,4,2),cex.axis=1.8,cex.lab=1.8,cex.main=1.8)
+plot(logFC ~ neuropil_logFC, data=stats,
+	pch = 21, bg = "grey", 
+	main = paste(n_all, "Expressed Homologs"),
+	xlab = "vGLUT1+ Enrichment (log2FC)",
+	ylab = "Visium Zero Cell Enrichment (log2FC)")
+legend("topleft", paste0("r=", signif(ct$estimate, 3)),cex=1.5)
+plot(logFC ~ neuropil_logFC, 
+	data=stats[which(stats$neuropil_padj < 0.05),],
+	main = paste(n_sig, "vGLUT1+ Significat Homologs"),
+	pch = 21, bg = "grey",
+	xlab = "vGLUT1+ Enrichment (log2FC)",
+	ylab = "Visium Zero Cell Enrichment (logFC)")
+legend("topleft", paste0("r=", signif(ct_sig$estimate, 3)),cex=1.5)
+dev.off()
+
+
+plot(t ~ neuropil_stat, data=stats)
+
+
+boxplot(logFC ~ in_neuropil, data=stats)
+
+
 
 ########################################
 ## pseudobulk by layer and cell count 
@@ -190,48 +264,26 @@ hist(outGene_zeroCell2$t, xlab="0 Cell Effect");abline(v=0,col="red")
 ###########################
 ### line up to neuropil data
 
-## human anno
-mm = match(rownames(outGene_zeroCell2), neuropil$ensembl_hs)
-neuropil_match = neuropil[mm,]
+mm = match(rownames(outGene_zeroCell), neuropil$ensembl_hs)
+outGene_zeroCell$in_neuropil = rownames(outGene_zeroCell) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
+outGene_zeroCell$neuropil_stat = neuropil$stat[mm]
+outGene_zeroCell$neuropil_logFC = neuropil$Log2FoldChange[mm]
+outGene_zeroCell2$in_neuropil = rownames(outGene_zeroCell2) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
+outGene_zeroCell2$neuropil_stat = neuropil$stat[mm]
+outGene_zeroCell2$neuropil_logFC = neuropil$Log2FoldChange[mm]
 
-outGene_zeroCell2$neuropil_numReads = neuropil_match$number_reads_in_cds
-outGene_zeroCell2$neuropil_numReads[is.na(outGene_zeroCell2$neuropil_numReads)] = 0
+boxplot(t ~ in_neuropil, data=outGene_zeroCell2)
+boxplot(t ~ in_neuropil, data=outGene_zeroCell)
 
-outGene_zeroCell2$neuropil_analyzed = neuropil_match$status == "analyzed"
-outGene_zeroCell2$neuropil_analyzed[is.na(outGene_zeroCell2$neuropil_analyzed)] = 0
+plot(t ~ neuropil_stat, data=outGene_zeroCell)
+plot(logFC ~ neuropil_logFC, data=outGene_zeroCell)
+cor.test(outGene_zeroCell$logFC, outGene_zeroCell$neuropil_logFC)
 
-plot(logFC ~ log2(neuropil_numReads+1), data=outGene_zeroCell2)
-cor.test(outGene_zeroCell2$logFC, log2(outGene_zeroCell2$neuropil_numReads+1))
+plot(t ~ neuropil_stat, data=outGene_zeroCell2)
+plot(logFC ~ neuropil_logFC, data=outGene_zeroCell2)
+cor.test(outGene_zeroCell2$logFC, outGene_zeroCell2$neuropil_logFC)
 
-boxplot(t ~ neuropil_analyzed, data=outGene_zeroCell2)
-boxplot(t ~ neuropil_analyzed, data=outGene_zeroCell)
 
-#######################################
-### spot level below, very slow
-
-mod = model.matrix(~zero_cell + layer_guess + subject_position,data =colData(sce))
-fit = bumphunter:::.getEstimate(sce_logcounts, mod, coef=2, full=TRUE)
-tt = bumphunter:::.getModT(fit)
-pv = 2*pt(-abs(tt$t), df = tt$df.total)
-stats = data.frame(logFC = fit$coef, t = tt$t, P.Value = pv)
-rownames(stats) = rownames(sce_logcounts)
-stats$Symbol = rowData(sce)$gene_name
-save(stats, file = "rda/linear_model_zerospot.Rdata")
-
-## human anno
-mm2 = match(rownames(stats), neuropil$ensembl_hs)
-neuropil_match2 = neuropil[mm2,]
-
-stats$neuropil_numReads = neuropil_match2$number_reads_in_cds
-stats$neuropil_numReads[is.na(stats$neuropil_numReads)] = 0
-
-stats$neuropil_analyzed = neuropil_match2$status == "analyzed"
-stats$neuropil_analyzed[is.na(stats$neuropil_analyzed)] = 0
-
-plot(logFC ~ log2(neuropil_numReads+1), data=stats)
-cor.test(stats$logFC, log2(stats$neuropil_numReads+1))
-
-boxplot(t ~ neuropil_analyzed, data=stats)
 
 stats[order(stats$t, decreasing=TRUE)[1:20],]
 
