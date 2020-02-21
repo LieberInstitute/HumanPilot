@@ -19,6 +19,7 @@ library('org.Hs.eg.db')
 library('GenomicFeatures')
 library('SparseM')
 library('MatrixModels')
+library('biomaRt')
 
 ## Load data
 load(here(
@@ -121,6 +122,16 @@ ens = select(org.Hs.eg.db, key=as.character(neuropil$entrez_hs),
 	columns="ENSEMBL", keytype="ENTREZID")
 neuropil$ensembl_hs = ens$ENSEMBL[match(neuropil$entrez_hs, ens$ENTREZID)]
 
+#### my stats recaluclated
+neuropil_2 = read.csv("../hafner_vglut/vglut1_de_stats.csv",
+	row.names=1, as.is=TRUE)
+neuropil_2$symbol_hs = hom2$symbol_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
+neuropil_2$entrez_hs = hom2$entrez_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
+neuropil_2$ensembl_hs = ens$ENSEMBL[match(neuropil_2$entrez_hs, ens$ENTREZID)]
+
+# ensembl=useMart("ensembl",dataset = 'mmusculus_gene_ensembl')
+# MMtoHG = getBM(attributes = c('ensembl_gene_id','hsapiens_homolog_ensembl_gene'),mart = ensembl)
+# neuropil_2$ensembl_hs = MMtoHG$hsapiens_homolog_ensembl_gene[match(
 
 #######################################
 ### spot level below, very slow, run once and save
@@ -136,11 +147,17 @@ neuropil$ensembl_hs = ens$ENSEMBL[match(neuropil$entrez_hs, ens$ENTREZID)]
 
 ## human anno
 load("rda/linear_model_zerospot.Rdata")
+stats_2 = stats # for second dataset
 
 stats$in_neuropil = rownames(stats) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
 stats$neuropil_padj = neuropil$padj[match(rownames(stats), neuropil$ensembl_hs)]
 stats$neuropil_stat = neuropil$stat[match(rownames(stats), neuropil$ensembl_hs)]
 stats$neuropil_logFC = neuropil$Log2FoldChange[match(rownames(stats), neuropil$ensembl_hs)]
+
+stats_2$in_neuropil = rownames(stats) %in% neuropil_2$ensembl_hs[neuropil_2$adj.P.Val < 0.05]
+stats_2$neuropil_padj = neuropil_2$adj.P.Val[match(rownames(stats_2), neuropil_2$ensembl_hs)]
+stats_2$neuropil_stat = neuropil_2$t[match(rownames(stats_2), neuropil_2$ensembl_hs)]
+stats_2$neuropil_logFC = neuropil_2$logFC[match(rownames(stats_2), neuropil_2$ensembl_hs)]
 
 ## plots
 ct = cor.test(stats$logFC, stats$neuropil_logFC)
@@ -165,127 +182,3 @@ plot(logFC ~ neuropil_logFC,
 	ylab = "Visium Zero Cell Enrichment (logFC)")
 legend("topleft", paste0("r=", signif(ct_sig$estimate, 3)),cex=1.5)
 dev.off()
-
-
-plot(t ~ neuropil_stat, data=stats)
-
-
-boxplot(logFC ~ in_neuropil, data=stats)
-
-
-
-########################################
-## pseudobulk by layer and cell count 
-########################################
-
-layerIndexes <-  splitit(paste(sce$sample_name, sce$layer_guess, sce$zero_cell,sep='_'))
-
-## Collapse UMIs
-umiComb <-
-    sapply(layerIndexes, function(ii)
-        rowSums(assays(sce)$counts[, ii, drop = FALSE]))
-dim(umiComb)
-# [1] 25595   145
-
-## Build a data.frame with the pheno data by layer
-layer_df <- data.frame(
-    sample_name = ss(colnames(umiComb), '_', 1),
-    layer_guess = factor(ss(colnames(umiComb), '_', 2), levels = levels(sce$layer_guess)),
-    zero_cells = ss(colnames(umiComb), '_', 3),
-    stringsAsFactors = FALSE
-)
-m_layer <- match(layer_df$sample_name, sce$sample_name)
-layer_df$subject <- sce$subject[m_layer]
-layer_df$position <- sce$position[m_layer]
-layer_df$replicate <- sce$replicate[m_layer]
-layer_df$subject_position <- sce$subject_position[m_layer]
-rownames(layer_df) <- colnames(umiComb)
-
-## Build a new sce object
-sce_layer_count <-
-    logNormCounts(SingleCellExperiment(
-        list(counts = umiComb),
-        colData = layer_df,
-        rowData = rowData(sce)
-    ))
-	
-
-##################
-### modeling #####
-##################
-
-## Extract the data
-mat <- assays(sce_layer_count)$logcounts
-
-## Build a group model
-mod <- with(colData(sce_layer_count), model.matrix(~ zero_cells + layer_guess))
-colnames(mod) <- gsub('layer_guess', '', colnames(mod))
-
-## Takes like 2 min to run
-corfit <-
-    duplicateCorrelation(mat, mod, block = sce_layer_count$subject_position)
-fit <-
-    lmFit(
-        mat,
-        design = mod,
-        block = sce_layer_count$subject_position,
-        correlation = corfit$consensus.correlation
-    )
-eb <- eBayes(fit)
-
-outGene_zeroCell = topTable(eb, coef=2,sort="none", p=1,n=nrow(mat))
-outGene_zeroCell$Symbol = rowData(sce_layer_count)$gene_name
-
-
-hist(outGene_zeroCell$t, xlab="0 Cell Effect");abline(v=0,col="red")
-outGene_zeroCell$Symbol[outGene_zeroCell$t > 3]
-
-######################
-#### try with voom ###
-######################
-library(edgeR)
-dge = DGEList(counts = assays(sce_layer_count)$counts, 
-	genes = rowData(sce_layer_count))
-dge = calcNormFactors(dge)
-
-vGene = voom(dge,mod,plot=TRUE)
-corfit2 <- duplicateCorrelation(vGene$E, mod, block = sce_layer_count$subject_position)
-
-fitGene = lmFit(vGene, 
-	correlation=corfit2$consensus.correlation, 
-	block=colData(sce_layer_count)$subject_position)
-	
-ebGene = eBayes(fitGene)
-outGene_zeroCell2 = topTable(ebGene, coef=2, 
-	p.value = 1,sort="none",number=nrow(dge))
-
-hist(outGene_zeroCell2$t, xlab="0 Cell Effect");abline(v=0,col="red")
-	
-###########################
-### line up to neuropil data
-
-mm = match(rownames(outGene_zeroCell), neuropil$ensembl_hs)
-outGene_zeroCell$in_neuropil = rownames(outGene_zeroCell) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
-outGene_zeroCell$neuropil_stat = neuropil$stat[mm]
-outGene_zeroCell$neuropil_logFC = neuropil$Log2FoldChange[mm]
-outGene_zeroCell2$in_neuropil = rownames(outGene_zeroCell2) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
-outGene_zeroCell2$neuropil_stat = neuropil$stat[mm]
-outGene_zeroCell2$neuropil_logFC = neuropil$Log2FoldChange[mm]
-
-boxplot(t ~ in_neuropil, data=outGene_zeroCell2)
-boxplot(t ~ in_neuropil, data=outGene_zeroCell)
-
-plot(t ~ neuropil_stat, data=outGene_zeroCell)
-plot(logFC ~ neuropil_logFC, data=outGene_zeroCell)
-cor.test(outGene_zeroCell$logFC, outGene_zeroCell$neuropil_logFC)
-
-plot(t ~ neuropil_stat, data=outGene_zeroCell2)
-plot(logFC ~ neuropil_logFC, data=outGene_zeroCell2)
-cor.test(outGene_zeroCell2$logFC, outGene_zeroCell2$neuropil_logFC)
-
-
-
-stats[order(stats$t, decreasing=TRUE)[1:20],]
-
-## this is going to be way too slow, so lets just do linear
-# corfit <-  duplicateCorrelation(sce_logcounts, mod, block = sce$subject_position)

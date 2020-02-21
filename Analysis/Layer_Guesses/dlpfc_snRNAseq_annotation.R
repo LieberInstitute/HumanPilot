@@ -38,6 +38,8 @@ save(sce_pseudobulk, file = "rda/dlpfc_snRNAseq_pseudobulked.Rdata")
 
 ###############################
 ## extract expression
+load("rda/dlpfc_snRNAseq_pseudobulked.Rdata")
+
 mat <- assays(sce_pseudobulk)$logcounts
 
 ## Build a group model
@@ -70,6 +72,8 @@ save(eb0_list_cell, file = "rda/dlpfc_snRNAseq_pseudobulked_specific_Ts.Rdata")
 
 ##########
 ## Extract the p-values
+load("rda/dlpfc_snRNAseq_pseudobulked_specific_Ts.Rdata")
+
 pvals0_contrasts_cell <- sapply(eb0_list_cell, function(x) {
     x$p.value[, 2, drop = FALSE]
 })
@@ -174,8 +178,12 @@ cor_t_layer = cor(t0_contrasts_cell[layer_ind, ],
 signif(cor_t_layer, 3)
 
 ### heatmap
-theSeq = seq(-.81, .81, by = 0.01)
+theSeq = seq(-.85, .85, by = 0.01)
 my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
+
+dd = dist(1-cor_t_layer)
+hc = hclust(dd)
+cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
 
 ct = colData(sce_pseudobulk)
 ct = ct[!duplicated(sce_pseudobulk$prelimCluster),]

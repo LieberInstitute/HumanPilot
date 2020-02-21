@@ -169,11 +169,14 @@ cor_t_layer = cor(t0_contrasts_cell[layer_ind, ],
 signif(cor_t_layer, 3)
 
 ### heatmap
-theSeq = seq(-.81, .81, by = 0.01)
+theSeq = seq(-.85, .85, by = 0.01)
 my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
-cor_t_layer_toPlot = cor_t_layer[, c(1, 7:2)]
-pdf("pdf/snRNAseq_overlap_heatmap.pdf", width = 8)
+dd = dist(1-cor_t_layer)
+hc = hclust(dd)
+cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
+
+pdf("pdf/velmeshev_snRNAseq_overlap_heatmap.pdf", width = 8)
 print(
     levelplot(
         cor_t_layer_toPlot,
