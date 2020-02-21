@@ -208,27 +208,27 @@ f_sig <- function(type, cut = 0.05) {
 }
 f_sig('full_fdr')
 #           n     ratio
-# FALSE  2433 0.1089517
-# TRUE  19898 0.8910483
+# FALSE 11698 0.5238458
+# TRUE  10633 0.4761542
 # Sum   22331 1.0000000
 
 f_sig('noWM_fdr')
-#           n     ratio
-# FALSE  2563 0.1147732
-# TRUE  19768 0.8852268
-# Sum   22331 1.0000000
+#           n    ratio
+# FALSE 13750 0.615736
+# TRUE   8581 0.384264
+# Sum   22331 1.000000
 
 f_sig('full_fdr', 0.001)
-#           n    ratio
-# FALSE  4220 0.188975
-# TRUE  18111 0.811025
-# Sum   22331 1.000000
+#           n     ratio
+# FALSE 15750 0.7052976
+# TRUE   6581 0.2947024
+# Sum   22331 1.0000000
 
 f_sig('noWM_fdr', 0.001)
-#           n    ratio
-# FALSE  4393 0.196722
-# TRUE  17938 0.803278
-# Sum   22331 1.000000
+#           n     ratio
+# FALSE 17797 0.7969639
+# TRUE   4534 0.2030361
+# Sum   22331 1.0000000
 
 ## Extract the p-values
 pvals0_contrasts <- sapply(eb0_list, function(x) {
@@ -394,20 +394,20 @@ results_anova <-
         f_rename(f_stats, 'f', 'f_stat'), 'p_value'
     ), 'fdr'), 'Amean')
 head(results_anova)
-#   f_stat_full p_value_full     fdr_full Amean_full f_stat_noWM p_value_noWM
-# 1    1.126228 3.565528e-01 3.679551e-01  0.1422407    1.094988 3.758663e-01
-# 2    8.282190 2.294975e-07 3.118859e-07  0.8383094    8.080743 2.028620e-06
-# 3   90.122437 7.145239e-33 1.319553e-32  3.5454133  222.281074 3.587143e-39
-# 4    1.447935 2.000407e-01 2.120027e-01  0.1048252    1.314147 2.648163e-01
-# 5   10.377382 6.555601e-09 9.162741e-09  1.2135801   10.136817 9.944087e-08
-# 6   10.650917 4.217147e-09 5.914653e-09  1.3447335   12.470669 4.417884e-09
-#       fdr_noWM Amean_noWM         ensembl        gene
-# 1 3.875101e-01  0.1565079 ENSG00000243485 MIR1302-2HG
-# 2 2.732439e-06  0.9362990 ENSG00000238009  AL627309.1
-# 3 7.312807e-39  3.6730061 ENSG00000237491  AL669831.5
-# 4 2.778953e-01  0.1244799 ENSG00000177757      FAM87B
-# 5 1.372529e-07  1.1121321 ENSG00000225880   LINC00115
-# 6 6.250761e-09  1.4543898 ENSG00000230368      FAM41C
+#   f_stat_full p_value_full   fdr_full full_AveExpr f_stat_noWM p_value_noWM
+# 1   0.7055034   0.64613823 0.71662018    0.1422407   0.6753082   0.64375784
+# 2   2.5500608   0.02705036 0.05586955    0.8383094   1.6289143   0.16611181
+# 3   2.2086804   0.05191480 0.09724935    3.5454133   2.1242007   0.07466448
+# 4   0.9785169   0.44622269 0.54759570    0.1048252   0.7183197   0.61218520
+# 5   1.6674804   0.14158125 0.22362788    1.2135801   1.1911356   0.32429532
+# 6   1.3364877   0.25244796 0.35390894    1.3447335   0.5876680   0.70932745
+#    fdr_noWM noWM_AveExpr         ensembl        gene
+# 1 0.7283289    0.1565079 ENSG00000243485 MIR1302-2HG
+# 2 0.2774245    0.9362990 ENSG00000238009  AL627309.1
+# 3 0.1498954    3.6730061 ENSG00000237491  AL669831.5
+# 4 0.7040224    0.1244799 ENSG00000177757      FAM87B
+# 5 0.4526797    1.1121321 ENSG00000225880   LINC00115
+# 6 0.7800006    1.4543898 ENSG00000230368      FAM41C
 
 ## Save for later
 save(results_anova, results_specificity, results_pairwise, file = 'rda/modeling_results.Rdata')
@@ -462,14 +462,14 @@ dev.off()
 
 
 pdf(
-    'pdf/layer_specificity_full_vs_noWM_Amean.pdf',
+    'pdf/layer_specificity_full_vs_noWM_AveExpr.pdf',
     useDingbats = FALSE,
     width = 10
 )
 ggplot(anova_df,
-    aes(x = f_stat_full, y = f_stat_noWM, color = Amean_full)) +
+    aes(x = f_stat_full, y = f_stat_noWM, color = full_AveExpr)) +
     geom_point() + theme_bw(base_size = 20) +
-    scale_color_gradientn(name = 'Amean full', colors = viridis(21)) +
+    scale_color_gradientn(name = 'AveExpr full', colors = viridis(21)) +
     geom_abline(
         intercept = 0,
         slope = 1,
@@ -478,26 +478,14 @@ ggplot(anova_df,
     ) +
     xlab('F-stats (WM + L1 through L6)') +
     ylab('F-stats (L1 through L6 only)')
-# ggplot(anova_df,
-#     aes(x = f_stat_full, y = f_stat_noWM, color = Amean_noWM)) +
-#     geom_point() + theme_bw(base_size = 20) +
-#     scale_color_gradientn(name = 'Amean noWM', colors = viridis(21)) +
-#     geom_abline(
-#         intercept = 0,
-#         slope = 1,
-#         colour = 'red',
-#         linetype = 2
-#     ) +
-#     xlab('F-stats (WM + L1 through L6)') +
-#     ylab('F-stats (L1 through L6 only)')
 ggplot(anova_df,
     aes(
         x = -log10(p_value_full),
         y = -log10(p_value_noWM),
-        color = Amean_full
+        color = full_AveExpr
     )) +
     geom_point() + theme_bw(base_size = 20) +
-    scale_color_gradientn(name = 'Amean full', colors = viridis(21)) +
+    scale_color_gradientn(name = 'AveExpr full', colors = viridis(21)) +
     geom_abline(
         intercept = 0,
         slope = 1,
@@ -506,22 +494,6 @@ ggplot(anova_df,
     )  +
     xlab('-log10 p-value (WM + L1 through L6)') +
     ylab('-log10 p-value (L1 through L6 only)')
-# ggplot(anova_df,
-#     aes(
-#         x = -log10(p_value_full),
-#         y = -log10(p_value_noWM),
-#         color = Amean_noWM
-#     )) +
-#     geom_point() + theme_bw(base_size = 20) +
-#     scale_color_gradientn(name = 'Amean nowm', colors = viridis(21)) +
-#     geom_abline(
-#         intercept = 0,
-#         slope = 1,
-#         colour = 'red',
-#         linetype = 2
-#     )  +
-#     xlab('-log10 p-value (WM + L1 through L6)') +
-#     ylab('-log10 p-value (L1 through L6 only)')
 dev.off()
 
 
@@ -625,81 +597,75 @@ session_info()
 #  collate  en_US.UTF-8
 #  ctype    en_US.UTF-8
 #  tz       US/Eastern
-#  date     2020-02-13
+#  date     2020-02-21
 #
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-#  package              * version   date       lib source
-#  assertthat             0.2.1     2019-03-21 [2] CRAN (R 3.6.1)
-#  backports              1.1.5     2019-10-02 [1] CRAN (R 3.6.1)
-#  Biobase              * 2.46.0    2019-10-29 [2] Bioconductor
-#  BiocGenerics         * 0.32.0    2019-10-29 [1] Bioconductor
-#  BiocParallel         * 1.20.1    2019-12-21 [1] Bioconductor
-#  bitops                 1.0-6     2013-08-17 [2] CRAN (R 3.6.1)
-#  cellranger             1.1.0     2016-07-27 [1] CRAN (R 3.6.1)
-#  cli                    2.0.0     2019-12-09 [1] CRAN (R 3.6.1)
-#  colorout             * 1.2-2     2019-10-31 [1] Github (jalvesaq/colorout@641ed38)
-#  colorspace             1.4-1     2019-03-18 [2] CRAN (R 3.6.1)
-#  cowplot              * 1.0.0     2019-07-11 [1] CRAN (R 3.6.1)
-#  crayon                 1.3.4     2017-09-16 [1] CRAN (R 3.6.1)
-#  DelayedArray         * 0.12.0    2019-10-29 [2] Bioconductor
-#  digest                 0.6.23    2019-11-23 [1] CRAN (R 3.6.1)
-#  dplyr                  0.8.3     2019-07-04 [1] CRAN (R 3.6.1)
-#  fansi                  0.4.0     2018-10-05 [1] CRAN (R 3.6.1)
-#  GenomeInfoDb         * 1.22.0    2019-10-29 [1] Bioconductor
-#  GenomeInfoDbData       1.2.2     2019-10-28 [2] Bioconductor
-#  GenomicRanges        * 1.38.0    2019-10-29 [1] Bioconductor
-#  ggplot2              * 3.2.1     2019-08-10 [1] CRAN (R 3.6.1)
-#  glue                   1.3.1     2019-03-12 [1] CRAN (R 3.6.1)
-#  gridExtra            * 2.3       2017-09-09 [2] CRAN (R 3.6.1)
-#  gtable                 0.3.0     2019-03-25 [2] CRAN (R 3.6.1)
-#  here                 * 0.1       2017-05-28 [1] CRAN (R 3.6.1)
-#  htmltools              0.4.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  htmlwidgets            1.5.1     2019-10-08 [1] CRAN (R 3.6.1)
-#  httpuv                 1.5.2     2019-09-11 [1] CRAN (R 3.6.1)
-#  IRanges              * 2.20.1    2019-11-20 [1] Bioconductor
-#  jsonlite               1.6       2018-12-07 [2] CRAN (R 3.6.1)
-#  labeling               0.3       2014-08-23 [2] CRAN (R 3.6.1)
-#  later                  1.0.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  lattice                0.20-38   2018-11-04 [3] CRAN (R 3.6.1)
-#  lazyeval               0.2.2     2019-03-15 [2] CRAN (R 3.6.1)
-#  limma                * 3.42.0    2019-10-29 [1] Bioconductor
-#  magrittr               1.5       2014-11-22 [1] CRAN (R 3.6.1)
-#  Matrix                 1.2-17    2019-03-22 [3] CRAN (R 3.6.1)
-#  matrixStats          * 0.55.0    2019-09-07 [1] CRAN (R 3.6.1)
-#  mime                   0.8       2019-12-19 [1] CRAN (R 3.6.1)
-#  munsell                0.5.0     2018-06-12 [2] CRAN (R 3.6.1)
-#  pillar                 1.4.3     2019-12-20 [1] CRAN (R 3.6.1)
-#  pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 3.6.1)
-#  plyr                   1.8.4     2016-06-08 [2] CRAN (R 3.6.1)
-#  png                    0.1-7     2013-12-03 [2] CRAN (R 3.6.1)
-#  Polychrome           * 1.2.3     2019-08-01 [1] CRAN (R 3.6.1)
-#  promises               1.1.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  purrr                  0.3.3     2019-10-18 [2] CRAN (R 3.6.1)
-#  R6                     2.4.0     2019-02-14 [2] CRAN (R 3.6.1)
-#  RColorBrewer           1.1-2     2014-12-07 [2] CRAN (R 3.6.1)
-#  Rcpp                   1.0.3     2019-11-08 [1] CRAN (R 3.6.1)
-#  RCurl                  1.95-4.12 2019-03-04 [2] CRAN (R 3.6.1)
-#  readxl               * 1.3.1     2019-03-13 [2] CRAN (R 3.6.1)
-#  reshape2               1.4.3     2017-12-11 [2] CRAN (R 3.6.1)
-#  rlang                  0.4.2     2019-11-23 [1] CRAN (R 3.6.1)
-#  rmote                * 0.3.4     2019-10-31 [1] Github (cloudyr/rmote@fbce611)
-#  rprojroot              1.3-2     2018-01-03 [2] CRAN (R 3.6.1)
-#  S4Vectors            * 0.24.1    2019-12-01 [1] Bioconductor
-#  scales                 1.0.0     2018-08-09 [2] CRAN (R 3.6.1)
-#  scatterplot3d          0.3-41    2018-03-14 [1] CRAN (R 3.6.1)
-#  servr                  0.15      2019-08-07 [1] CRAN (R 3.6.1)
-#  sessioninfo          * 1.1.1     2018-11-05 [1] CRAN (R 3.6.1)
-#  SingleCellExperiment * 1.8.0     2019-10-29 [2] Bioconductor
-#  stringi                1.4.3     2019-03-12 [2] CRAN (R 3.6.1)
-#  stringr                1.4.0     2019-02-10 [1] CRAN (R 3.6.1)
-#  SummarizedExperiment * 1.16.1    2019-12-19 [1] Bioconductor
-#  tibble                 2.1.3     2019-06-06 [1] CRAN (R 3.6.1)
-#  tidyselect             0.2.5     2018-10-11 [2] CRAN (R 3.6.1)
-#  viridisLite          * 0.3.0     2018-02-01 [2] CRAN (R 3.6.1)
-#  withr                  2.1.2     2018-03-15 [2] CRAN (R 3.6.1)
-#  xfun                   0.11      2019-11-12 [1] CRAN (R 3.6.1)
-#  XVector                0.26.0    2019-10-29 [1] Bioconductor
-#  zlibbioc               1.32.0    2019-10-29 [2] Bioconductor
+#  package              * version  date       lib source
+#  assertthat             0.2.1    2019-03-21 [2] CRAN (R 3.6.1)
+#  backports              1.1.5    2019-10-02 [1] CRAN (R 3.6.1)
+#  Biobase              * 2.46.0   2019-10-29 [2] Bioconductor
+#  BiocGenerics         * 0.32.0   2019-10-29 [1] Bioconductor
+#  BiocParallel         * 1.20.1   2019-12-21 [1] Bioconductor
+#  bitops                 1.0-6    2013-08-17 [2] CRAN (R 3.6.1)
+#  cellranger             1.1.0    2016-07-27 [1] CRAN (R 3.6.1)
+#  cli                    2.0.0    2019-12-09 [1] CRAN (R 3.6.1)
+#  colorout             * 1.2-2    2019-10-31 [1] Github (jalvesaq/colorout@641ed38)
+#  colorspace             1.4-1    2019-03-18 [2] CRAN (R 3.6.1)
+#  cowplot              * 1.0.0    2019-07-11 [1] CRAN (R 3.6.1)
+#  crayon                 1.3.4    2017-09-16 [1] CRAN (R 3.6.1)
+#  DelayedArray         * 0.12.2   2020-01-06 [2] Bioconductor
+#  digest                 0.6.23   2019-11-23 [1] CRAN (R 3.6.1)
+#  fansi                  0.4.0    2018-10-05 [1] CRAN (R 3.6.1)
+#  farver                 2.0.1    2019-11-13 [1] CRAN (R 3.6.1)
+#  GenomeInfoDb         * 1.22.0   2019-10-29 [1] Bioconductor
+#  GenomeInfoDbData       1.2.2    2019-10-28 [2] Bioconductor
+#  GenomicRanges        * 1.38.0   2019-10-29 [1] Bioconductor
+#  ggplot2              * 3.2.1    2019-08-10 [1] CRAN (R 3.6.1)
+#  glue                   1.3.1    2019-03-12 [1] CRAN (R 3.6.1)
+#  gridExtra            * 2.3      2017-09-09 [2] CRAN (R 3.6.1)
+#  gtable                 0.3.0    2019-03-25 [2] CRAN (R 3.6.1)
+#  here                 * 0.1      2017-05-28 [1] CRAN (R 3.6.1)
+#  htmltools              0.4.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  htmlwidgets            1.5.1    2019-10-08 [1] CRAN (R 3.6.1)
+#  httpuv                 1.5.2    2019-09-11 [1] CRAN (R 3.6.1)
+#  IRanges              * 2.20.1   2019-11-20 [1] Bioconductor
+#  jsonlite               1.6.1    2020-02-02 [2] CRAN (R 3.6.1)
+#  labeling               0.3      2014-08-23 [2] CRAN (R 3.6.1)
+#  later                  1.0.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  lattice                0.20-38  2018-11-04 [3] CRAN (R 3.6.1)
+#  lazyeval               0.2.2    2019-03-15 [2] CRAN (R 3.6.1)
+#  lifecycle              0.1.0    2019-08-01 [1] CRAN (R 3.6.1)
+#  limma                * 3.42.0   2019-10-29 [1] Bioconductor
+#  magrittr               1.5      2014-11-22 [1] CRAN (R 3.6.1)
+#  Matrix                 1.2-17   2019-03-22 [3] CRAN (R 3.6.1)
+#  matrixStats          * 0.55.0   2019-09-07 [1] CRAN (R 3.6.1)
+#  munsell                0.5.0    2018-06-12 [2] CRAN (R 3.6.1)
+#  pillar                 1.4.3    2019-12-20 [1] CRAN (R 3.6.1)
+#  pkgconfig              2.0.3    2019-09-22 [1] CRAN (R 3.6.1)
+#  png                    0.1-7    2013-12-03 [2] CRAN (R 3.6.1)
+#  Polychrome           * 1.2.3    2019-08-01 [1] CRAN (R 3.6.1)
+#  promises               1.1.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  R6                     2.4.1    2019-11-12 [2] CRAN (R 3.6.1)
+#  RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 3.6.1)
+#  Rcpp                   1.0.3    2019-11-08 [1] CRAN (R 3.6.1)
+#  RCurl                  1.98-1.1 2020-01-19 [2] CRAN (R 3.6.1)
+#  readxl               * 1.3.1    2019-03-13 [2] CRAN (R 3.6.1)
+#  rlang                  0.4.2    2019-11-23 [1] CRAN (R 3.6.1)
+#  rmote                * 0.3.4    2019-10-31 [1] Github (cloudyr/rmote@fbce611)
+#  rprojroot              1.3-2    2018-01-03 [2] CRAN (R 3.6.1)
+#  S4Vectors            * 0.24.1   2019-12-01 [1] Bioconductor
+#  scales                 1.1.0    2019-11-18 [2] CRAN (R 3.6.1)
+#  scatterplot3d          0.3-41   2018-03-14 [1] CRAN (R 3.6.1)
+#  servr                  0.15     2019-08-07 [1] CRAN (R 3.6.1)
+#  sessioninfo          * 1.1.1    2018-11-05 [1] CRAN (R 3.6.1)
+#  SingleCellExperiment * 1.8.0    2019-10-29 [2] Bioconductor
+#  SummarizedExperiment * 1.16.1   2019-12-19 [1] Bioconductor
+#  tibble                 2.1.3    2019-06-06 [1] CRAN (R 3.6.1)
+#  viridisLite          * 0.3.0    2018-02-01 [2] CRAN (R 3.6.1)
+#  withr                  2.1.2    2018-03-15 [2] CRAN (R 3.6.1)
+#  xfun                   0.11     2019-11-12 [1] CRAN (R 3.6.1)
+#  XVector                0.26.0   2019-10-29 [1] Bioconductor
+#  zlibbioc               1.32.0   2019-10-29 [2] Bioconductor
 #
 # [1] /users/lcollado/R/3.6.x
 # [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/site-library

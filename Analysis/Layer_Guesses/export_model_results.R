@@ -20,7 +20,8 @@ library('sessioninfo')
 
 load('rda/modeling_results.Rdata', verbose = TRUE)
 
-write.xlsx(results_anova,
+write.xlsx(
+    results_anova,
     file = "SupplementaryTableXX_modeling.xlsx",
     sheetName = "ANOVA model",
     append = FALSE,
@@ -61,7 +62,7 @@ session_info()
 #  collate  en_US.UTF-8
 #  ctype    en_US.UTF-8
 #  tz       US/Eastern
-#  date     2020-02-13
+#  date     2020-02-21
 #
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 #  package     * version date       lib source

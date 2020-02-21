@@ -63,9 +63,9 @@ addmargins(table(
 ## Keep only those that are present in the data and have useful matrix info
 ## otherwise the model fails later
 marker_genes <- list(gene_info = genes_query[!is.na(genes_query$m) &
-        rowSums(genes_query_mat) > 0, ],
+        rowSums(genes_query_mat) > 0,],
     layer_mat = genes_query_mat[!is.na(genes_query$m) &
-            rowSums(genes_query_mat) > 0, ])
+            rowSums(genes_query_mat) > 0,])
 
 ## How many of these are unique models?
 marker_genes$gene_info$models <-
@@ -101,14 +101,14 @@ dups_drop <-
         marker_genes$gene_info$ensembl %in% dups_ensembl_remove &
             marker_genes$gene_info$list == 'BM'
     )
-marker_genes$gene_info[dups_drop, ]
+marker_genes$gene_info[dups_drop,]
 #     symbol list species     m gene_name         ensembl               models
 # 84    RELN   BM      MH  8638      RELN ENSG00000189056               Layer1
 # 93    RorB   BM      MH 10825      RORB ENSG00000198963               Layer4
 # 101   cux2   BM      MH 14444      CUX2 ENSG00000111249 Layer2+Layer3+Layer4
 # 137  Foxp2   BM      MH  8689     FOXP2 ENSG00000128573               Layer6
 marker_genes <- lapply(marker_genes, function(x) {
-    x[-dups_drop, ]
+    x[-dups_drop,]
 })
 
 
@@ -117,7 +117,7 @@ marker_genes <- lapply(marker_genes, function(x) {
 mat <- assays(sce_layer)$logcounts
 
 ## Build a group model
-mod <- with(colData(sce_layer), model.matrix( ~ 0 + layer_guess))
+mod <- with(colData(sce_layer), model.matrix(~ layer_guess))
 colnames(mod) <- gsub('layer_guess', '', colnames(mod))
 ## Takes like 2 min to run
 corfit <-
@@ -126,7 +126,7 @@ corfit <-
 
 ## What is the estimated block correlation?
 corfit$consensus.correlation
-# [1] 0.07771005
+# [1] 0.07771005 ## note that ~ 0 + layer_guess vs ~ layer_guess has the same cor
 
 ## Process each marker gene (use the full gene matrix to get global stats)
 ## takes about 3 min to run
@@ -135,9 +135,9 @@ eb_markers_list <-
     lapply(seq_len(nrow(marker_genes$gene_info)), function(i) {
         res <- rep(0, ncol(sce_layer))
         layers <-
-            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i, ] > 0]
+            colnames(marker_genes$layer_mat)[marker_genes$layer_mat[i,] > 0]
         res[unlist(layer_idx[layers])] <- 1
-        m <- model.matrix( ~ res)
+        m <- model.matrix(~ res)
         eBayes(
             lmFit(
                 mat,
@@ -280,7 +280,7 @@ addmargins(do.call(
 
 ## Add mean expr
 marker_genes_summary$mean_expr <-
-    rowMeans(mat[marker_genes_summary$m, ])
+    rowMeans(mat[marker_genes_summary$m,])
 
 
 ## Find the best gene for each model
@@ -301,14 +301,14 @@ marker_genes_summary$best_gene_t_stat <-
 marker_genes_summary$best_gene_log_fc <-
     marker_extract(logFC_markers, marker_genes_summary$best_gene_m)
 marker_genes_summary$best_gene_mean_expr <-
-    rowMeans(mat[marker_genes_summary$best_gene_m, ])
+    rowMeans(mat[marker_genes_summary$best_gene_m,])
 
 ## Re-order by p-value
 marker_genes <- lapply(marker_genes, function(x) {
-    x[order(marker_genes_summary$p_value), ]
+    x[order(marker_genes_summary$p_value),]
 })
 marker_genes_summary <-
-    marker_genes_summary[order(marker_genes_summary$p_value), ]
+    marker_genes_summary[order(marker_genes_summary$p_value),]
 
 ## Save for later
 save(eb_markers_list, file = 'rda/eb_markers_list.Rdata')
@@ -341,7 +341,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered,
+        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered,
         xlab = 'Layer',
         ylab = 'logcounts',
         main = paste(
@@ -379,7 +379,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered)),
+        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -418,7 +418,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
     curr_layers <-
         strsplit(marker_genes_summary$models[i], '\\+')[[1]]
     boxplot(
-        mat[marker_genes_summary$m[i],] ~ layer_guess_reordered_short,
+        mat[marker_genes_summary$m[i], ] ~ layer_guess_reordered_short,
         xlab = '',
         ylab = '',
         main = paste(
@@ -449,7 +449,7 @@ for (i in seq_len(nrow(marker_genes_summary))) {
         )
     )
     points(
-        mat[marker_genes_summary$m[i],] ~ jitter(as.integer(layer_guess_reordered_short)),
+        mat[marker_genes_summary$m[i], ] ~ jitter(as.integer(layer_guess_reordered_short)),
         pch = 21,
         bg = ifelse(
             layer_guess_reordered %in% curr_layers,
@@ -488,7 +488,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -503,7 +503,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 ggplot(marker_genes_summary,
     aes(
@@ -518,7 +518,7 @@ ggplot(marker_genes_summary,
         color = 'grey50',
         linetype = 3
     ) +
-    facet_grid( ~ species) +
+    facet_grid(~ species) +
     scale_color_gradientn(name = '-log10\nrank\npercentile', colors = viridis(11))
 dev.off()
 
@@ -570,16 +570,17 @@ apply_GST <- function(type) {
         'type' = type,
         stringsAsFactors = FALSE
     )
-    
+
 }
 
 results_GST <- rbind(apply_GST('f_stat_full'),
     apply_GST('f_stat_noWM'))
 
+options(width = 120)
 results_GST
-#            all all_sim        mouse mouse_sim      human human_sim        type
-# 1 1.223590e-09  0.1975 8.106186e-09    0.1901 0.02276209    0.3864 f_stat_full
-# 2 1.588663e-10  0.0211 1.451169e-09    0.0200 0.01583922    0.3331 f_stat_noWM
+#            all all_sim        mouse mouse_sim        human human_sim        type
+# 1 1.225341e-41   1e-04 8.072116e-35     1e-04 1.308392e-08     1e-04 f_stat_full
+# 2 1.216983e-44   1e-04 6.685479e-36     1e-04 1.380023e-10     1e-04 f_stat_noWM
 
 
 
@@ -638,7 +639,7 @@ addmargins(with(
 # [1] 57.01754
 
 ## Lets look at those genes
-with(marker_genes_summary[dups,],
+with(marker_genes_summary[dups, ],
     table('FDR <5%' = fdr < 0.05, species, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
@@ -683,7 +684,7 @@ with(marker_genes_summary[dups,],
 #   TRUE      2
 
 options(width = 200)
-with(marker_genes_summary[dups,],
+with(marker_genes_summary[dups, ],
     table('FDR <5%' = fdr < 0.05, models, 'Gene' = gene_name))
 # , , Gene = CARTPT
 #
@@ -908,101 +909,96 @@ session_info()
 #  collate  en_US.UTF-8
 #  ctype    en_US.UTF-8
 #  tz       US/Eastern
-#  date     2020-02-18
+#  date     2020-02-21
 #
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-#  package              * version   date       lib source
-#  assertthat             0.2.1     2019-03-21 [2] CRAN (R 3.6.1)
-#  backports              1.1.5     2019-10-02 [1] CRAN (R 3.6.1)
-#  beeswarm               0.2.3     2016-04-25 [2] CRAN (R 3.6.1)
-#  Biobase              * 2.46.0    2019-10-29 [2] Bioconductor
-#  BiocGenerics         * 0.32.0    2019-10-29 [1] Bioconductor
-#  BiocNeighbors          1.4.1     2019-11-01 [2] Bioconductor
-#  BiocParallel         * 1.20.1    2019-12-21 [1] Bioconductor
-#  BiocSingular           1.2.0     2019-10-29 [2] Bioconductor
-#  bitops                 1.0-6     2013-08-17 [2] CRAN (R 3.6.1)
-#  cellranger             1.1.0     2016-07-27 [1] CRAN (R 3.6.1)
-#  cli                    2.0.0     2019-12-09 [1] CRAN (R 3.6.1)
-#  cluster              * 2.1.0     2019-06-19 [3] CRAN (R 3.6.1)
-#  colorout             * 1.2-2     2019-10-31 [1] Github (jalvesaq/colorout@641ed38)
-#  colorspace             1.4-1     2019-03-18 [2] CRAN (R 3.6.1)
-#  crayon                 1.3.4     2017-09-16 [1] CRAN (R 3.6.1)
-#  DelayedArray         * 0.12.0    2019-10-29 [2] Bioconductor
-#  DelayedMatrixStats     1.8.0     2019-10-29 [2] Bioconductor
-#  digest                 0.6.23    2019-11-23 [1] CRAN (R 3.6.1)
-#  dplyr                  0.8.3     2019-07-04 [1] CRAN (R 3.6.1)
-#  dqrng                  0.2.1     2019-05-17 [1] CRAN (R 3.6.1)
-#  edgeR                  3.28.0    2019-10-29 [1] Bioconductor
-#  fansi                  0.4.0     2018-10-05 [1] CRAN (R 3.6.1)
-#  GenomeInfoDb         * 1.22.0    2019-10-29 [1] Bioconductor
-#  GenomeInfoDbData       1.2.2     2019-10-28 [2] Bioconductor
-#  GenomicRanges        * 1.38.0    2019-10-29 [1] Bioconductor
-#  ggbeeswarm             0.6.0     2017-08-07 [2] CRAN (R 3.6.1)
-#  ggplot2              * 3.2.1     2019-08-10 [1] CRAN (R 3.6.1)
-#  glue                   1.3.1     2019-03-12 [1] CRAN (R 3.6.1)
-#  googledrive            1.0.0     2019-08-19 [1] CRAN (R 3.6.1)
-#  gridExtra              2.3       2017-09-09 [2] CRAN (R 3.6.1)
-#  gtable                 0.3.0     2019-03-25 [2] CRAN (R 3.6.1)
-#  here                 * 0.1       2017-05-28 [1] CRAN (R 3.6.1)
-#  htmltools              0.4.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  htmlwidgets            1.5.1     2019-10-08 [1] CRAN (R 3.6.1)
-#  httpuv                 1.5.2     2019-09-11 [1] CRAN (R 3.6.1)
-#  igraph                 1.2.4.1   2019-04-22 [2] CRAN (R 3.6.1)
-#  IRanges              * 2.20.1    2019-11-20 [1] Bioconductor
-#  irlba                  2.3.3     2019-02-05 [1] CRAN (R 3.6.1)
-#  jaffelab             * 0.99.29   2019-11-04 [1] Github (LieberInstitute/jaffelab@a7d87cb)
-#  jsonlite               1.6       2018-12-07 [2] CRAN (R 3.6.1)
-#  labeling               0.3       2014-08-23 [2] CRAN (R 3.6.1)
-#  later                  1.0.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  lattice                0.20-38   2018-11-04 [3] CRAN (R 3.6.1)
-#  lazyeval               0.2.2     2019-03-15 [2] CRAN (R 3.6.1)
-#  limma                * 3.42.0    2019-10-29 [1] Bioconductor
-#  locfit                 1.5-9.1   2013-04-20 [2] CRAN (R 3.6.1)
-#  magrittr               1.5       2014-11-22 [1] CRAN (R 3.6.1)
-#  Matrix                 1.2-17    2019-03-22 [3] CRAN (R 3.6.1)
-#  matrixStats          * 0.55.0    2019-09-07 [1] CRAN (R 3.6.1)
-#  munsell                0.5.0     2018-06-12 [2] CRAN (R 3.6.1)
-#  pheatmap             * 1.0.12    2019-01-04 [2] CRAN (R 3.6.1)
-#  pillar                 1.4.3     2019-12-20 [1] CRAN (R 3.6.1)
-#  pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 3.6.1)
-#  plyr                   1.8.4     2016-06-08 [2] CRAN (R 3.6.1)
-#  png                    0.1-7     2013-12-03 [2] CRAN (R 3.6.1)
-#  Polychrome           * 1.2.3     2019-08-01 [1] CRAN (R 3.6.1)
-#  promises               1.1.0     2019-10-04 [1] CRAN (R 3.6.1)
-#  purrr                  0.3.3     2019-10-18 [2] CRAN (R 3.6.1)
-#  R6                     2.4.0     2019-02-14 [2] CRAN (R 3.6.1)
-#  rafalib              * 1.0.0     2015-08-09 [1] CRAN (R 3.6.1)
-#  RColorBrewer           1.1-2     2014-12-07 [2] CRAN (R 3.6.1)
-#  Rcpp                   1.0.3     2019-11-08 [1] CRAN (R 3.6.1)
-#  RCurl                  1.95-4.12 2019-03-04 [2] CRAN (R 3.6.1)
-#  readxl               * 1.3.1     2019-03-13 [2] CRAN (R 3.6.1)
-#  reshape2               1.4.3     2017-12-11 [2] CRAN (R 3.6.1)
-#  rlang                  0.4.2     2019-11-23 [1] CRAN (R 3.6.1)
-#  rmote                * 0.3.4     2019-10-31 [1] Github (cloudyr/rmote@fbce611)
-#  rprojroot              1.3-2     2018-01-03 [2] CRAN (R 3.6.1)
-#  rsvd                   1.0.2     2019-07-29 [1] CRAN (R 3.6.1)
-#  S4Vectors            * 0.24.1    2019-12-01 [1] Bioconductor
-#  scales                 1.0.0     2018-08-09 [2] CRAN (R 3.6.1)
-#  scater               * 1.14.3    2019-11-07 [2] Bioconductor
-#  scatterplot3d          0.3-41    2018-03-14 [1] CRAN (R 3.6.1)
-#  scran                * 1.14.5    2019-11-19 [1] Bioconductor
-#  segmented              1.0-0     2019-06-17 [2] CRAN (R 3.6.1)
-#  servr                  0.15      2019-08-07 [1] CRAN (R 3.6.1)
-#  sessioninfo          * 1.1.1     2018-11-05 [1] CRAN (R 3.6.1)
-#  SingleCellExperiment * 1.8.0     2019-10-29 [2] Bioconductor
-#  statmod                1.4.32    2019-05-29 [2] CRAN (R 3.6.1)
-#  stringi                1.4.3     2019-03-12 [2] CRAN (R 3.6.1)
-#  stringr                1.4.0     2019-02-10 [1] CRAN (R 3.6.1)
-#  SummarizedExperiment * 1.16.1    2019-12-19 [1] Bioconductor
-#  tibble                 2.1.3     2019-06-06 [1] CRAN (R 3.6.1)
-#  tidyselect             0.2.5     2018-10-11 [2] CRAN (R 3.6.1)
-#  vipor                  0.4.5     2017-03-22 [2] CRAN (R 3.6.1)
-#  viridis                0.5.1     2018-03-29 [2] CRAN (R 3.6.1)
-#  viridisLite          * 0.3.0     2018-02-01 [2] CRAN (R 3.6.1)
-#  withr                  2.1.2     2018-03-15 [2] CRAN (R 3.6.1)
-#  xfun                   0.11      2019-11-12 [1] CRAN (R 3.6.1)
-#  XVector                0.26.0    2019-10-29 [1] Bioconductor
-#  zlibbioc               1.32.0    2019-10-29 [2] Bioconductor
+#  package              * version  date       lib source
+#  assertthat             0.2.1    2019-03-21 [2] CRAN (R 3.6.1)
+#  backports              1.1.5    2019-10-02 [1] CRAN (R 3.6.1)
+#  beeswarm               0.2.3    2016-04-25 [2] CRAN (R 3.6.1)
+#  Biobase              * 2.46.0   2019-10-29 [2] Bioconductor
+#  BiocGenerics         * 0.32.0   2019-10-29 [1] Bioconductor
+#  BiocNeighbors          1.4.1    2019-11-01 [2] Bioconductor
+#  BiocParallel         * 1.20.1   2019-12-21 [1] Bioconductor
+#  BiocSingular           1.2.2    2020-02-14 [2] Bioconductor
+#  bitops                 1.0-6    2013-08-17 [2] CRAN (R 3.6.1)
+#  cellranger             1.1.0    2016-07-27 [1] CRAN (R 3.6.1)
+#  cli                    2.0.0    2019-12-09 [1] CRAN (R 3.6.1)
+#  cluster              * 2.1.0    2019-06-19 [3] CRAN (R 3.6.1)
+#  colorout             * 1.2-2    2019-10-31 [1] Github (jalvesaq/colorout@641ed38)
+#  colorspace             1.4-1    2019-03-18 [2] CRAN (R 3.6.1)
+#  crayon                 1.3.4    2017-09-16 [1] CRAN (R 3.6.1)
+#  DelayedArray         * 0.12.2   2020-01-06 [2] Bioconductor
+#  DelayedMatrixStats     1.8.0    2019-10-29 [2] Bioconductor
+#  digest                 0.6.23   2019-11-23 [1] CRAN (R 3.6.1)
+#  dqrng                  0.2.1    2019-05-17 [1] CRAN (R 3.6.1)
+#  edgeR                  3.28.0   2019-10-29 [1] Bioconductor
+#  fansi                  0.4.0    2018-10-05 [1] CRAN (R 3.6.1)
+#  GenomeInfoDb         * 1.22.0   2019-10-29 [1] Bioconductor
+#  GenomeInfoDbData       1.2.2    2019-10-28 [2] Bioconductor
+#  GenomicRanges        * 1.38.0   2019-10-29 [1] Bioconductor
+#  ggbeeswarm             0.6.0    2017-08-07 [2] CRAN (R 3.6.1)
+#  ggplot2              * 3.2.1    2019-08-10 [1] CRAN (R 3.6.1)
+#  glue                   1.3.1    2019-03-12 [1] CRAN (R 3.6.1)
+#  googledrive            1.0.0    2019-08-19 [1] CRAN (R 3.6.1)
+#  gridExtra              2.3      2017-09-09 [2] CRAN (R 3.6.1)
+#  gtable                 0.3.0    2019-03-25 [2] CRAN (R 3.6.1)
+#  here                 * 0.1      2017-05-28 [1] CRAN (R 3.6.1)
+#  htmltools              0.4.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  htmlwidgets            1.5.1    2019-10-08 [1] CRAN (R 3.6.1)
+#  httpuv                 1.5.2    2019-09-11 [1] CRAN (R 3.6.1)
+#  igraph                 1.2.4.2  2019-11-27 [2] CRAN (R 3.6.1)
+#  IRanges              * 2.20.1   2019-11-20 [1] Bioconductor
+#  irlba                  2.3.3    2019-02-05 [1] CRAN (R 3.6.1)
+#  jaffelab             * 0.99.29  2019-11-04 [1] Github (LieberInstitute/jaffelab@a7d87cb)
+#  jsonlite               1.6.1    2020-02-02 [2] CRAN (R 3.6.1)
+#  later                  1.0.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  lattice                0.20-38  2018-11-04 [3] CRAN (R 3.6.1)
+#  lazyeval               0.2.2    2019-03-15 [2] CRAN (R 3.6.1)
+#  lifecycle              0.1.0    2019-08-01 [1] CRAN (R 3.6.1)
+#  limma                * 3.42.0   2019-10-29 [1] Bioconductor
+#  locfit                 1.5-9.1  2013-04-20 [2] CRAN (R 3.6.1)
+#  magrittr               1.5      2014-11-22 [1] CRAN (R 3.6.1)
+#  Matrix                 1.2-17   2019-03-22 [3] CRAN (R 3.6.1)
+#  matrixStats          * 0.55.0   2019-09-07 [1] CRAN (R 3.6.1)
+#  munsell                0.5.0    2018-06-12 [2] CRAN (R 3.6.1)
+#  pheatmap             * 1.0.12   2019-01-04 [2] CRAN (R 3.6.1)
+#  pillar                 1.4.3    2019-12-20 [1] CRAN (R 3.6.1)
+#  pkgconfig              2.0.3    2019-09-22 [1] CRAN (R 3.6.1)
+#  png                    0.1-7    2013-12-03 [2] CRAN (R 3.6.1)
+#  Polychrome           * 1.2.3    2019-08-01 [1] CRAN (R 3.6.1)
+#  promises               1.1.0    2019-10-04 [1] CRAN (R 3.6.1)
+#  R6                     2.4.1    2019-11-12 [2] CRAN (R 3.6.1)
+#  rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 3.6.1)
+#  RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 3.6.1)
+#  Rcpp                   1.0.3    2019-11-08 [1] CRAN (R 3.6.1)
+#  RCurl                  1.98-1.1 2020-01-19 [2] CRAN (R 3.6.1)
+#  readxl               * 1.3.1    2019-03-13 [2] CRAN (R 3.6.1)
+#  rlang                  0.4.2    2019-11-23 [1] CRAN (R 3.6.1)
+#  rmote                * 0.3.4    2019-10-31 [1] Github (cloudyr/rmote@fbce611)
+#  rprojroot              1.3-2    2018-01-03 [2] CRAN (R 3.6.1)
+#  rsvd                   1.0.2    2019-07-29 [1] CRAN (R 3.6.1)
+#  S4Vectors            * 0.24.1   2019-12-01 [1] Bioconductor
+#  scales                 1.1.0    2019-11-18 [2] CRAN (R 3.6.1)
+#  scater               * 1.14.6   2019-12-16 [2] Bioconductor
+#  scatterplot3d          0.3-41   2018-03-14 [1] CRAN (R 3.6.1)
+#  scran                * 1.14.5   2019-11-19 [1] Bioconductor
+#  segmented              1.1-0    2019-12-10 [2] CRAN (R 3.6.1)
+#  servr                  0.15     2019-08-07 [1] CRAN (R 3.6.1)
+#  sessioninfo          * 1.1.1    2018-11-05 [1] CRAN (R 3.6.1)
+#  SingleCellExperiment * 1.8.0    2019-10-29 [2] Bioconductor
+#  statmod                1.4.34   2020-02-17 [2] CRAN (R 3.6.1)
+#  stringi                1.4.6    2020-02-17 [2] CRAN (R 3.6.1)
+#  stringr                1.4.0    2019-02-10 [1] CRAN (R 3.6.1)
+#  SummarizedExperiment * 1.16.1   2019-12-19 [1] Bioconductor
+#  tibble                 2.1.3    2019-06-06 [1] CRAN (R 3.6.1)
+#  vipor                  0.4.5    2017-03-22 [2] CRAN (R 3.6.1)
+#  viridis                0.5.1    2018-03-29 [2] CRAN (R 3.6.1)
+#  viridisLite          * 0.3.0    2018-02-01 [2] CRAN (R 3.6.1)
+#  withr                  2.1.2    2018-03-15 [2] CRAN (R 3.6.1)
+#  xfun                   0.11     2019-11-12 [1] CRAN (R 3.6.1)
+#  XVector                0.26.0   2019-10-29 [1] Bioconductor
+#  zlibbioc               1.32.0   2019-10-29 [2] Bioconductor
 #
 # [1] /users/lcollado/R/3.6.x
 # [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/site-library
