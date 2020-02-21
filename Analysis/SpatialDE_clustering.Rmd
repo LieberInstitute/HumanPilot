@@ -1097,15 +1097,24 @@ set2 <- brewer.pal(8, "Set2")
 dark2 <- brewer.pal(8, "Dark2")
 my_palette <- set1
 my_palette[1] <- accent[6]
-my_palette[5] <- "#FF8C00"  # dark orange
-my_palette[6] <- "#FFD700"  # gold
+my_palette[6] <- "#FF8C00"  # dark orange
+my_palette[5] <- "#FFD700"  # gold
 my_palette[7] <- dark2[8]
+my_palette[8] <- "#000000"  # black
+
+print(my_palette)
 
 panel_a_ground_truth + 
     scale_color_manual(values = my_palette, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
     theme(title = element_blank(), 
           legend.position = "none")
-ggsave("../plots/figure/color_palette/color_palette_custom.pdf", width = 2.25, height = 2.5)
+ggsave("../plots/figure/color_palette/palette_7colors.pdf", width = 2.25, height = 2.5)
+
+panel_b_ii + 
+    scale_color_manual(values = my_palette[c(4, 2, 3, 5, 8, 7, 6, 1)], labels = c(paste0("cluster", 1:8))) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/color_palette/palette_8colors.pdf", width = 2.25, height = 2.5)
 ```
 
 
