@@ -6,11 +6,16 @@ Analysis/archive/SpatialDE_analyses/**/*.html
 outputs/archive/*
 plots
 plots/archive/*
+outputs/clustering/*
 Analysis/SpatialDE_subsampling_comparison_cache/
 Analysis/SpatialDE_subsampling_comparison_files/
+Analysis/SpatialDE_subsampling_comparison.html
 Analysis/SpatialDE_genes_analysis_cache/
 Analysis/SpatialDE_genes_analysis_files/
 Analysis/SpatialDE_genes_analysis.html
 Analysis/SpatialDE_clustering_cache/
 Analysis/SpatialDE_clustering_files/
 Analysis/SpatialDE_clustering.html
+Analysis/SpatialDE_statistics_cache/
+Analysis/SpatialDE_statistics_files/
+Analysis/SpatialDE_statistics.html

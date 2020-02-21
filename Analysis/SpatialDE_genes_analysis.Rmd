@@ -188,16 +188,16 @@ Plots showing the following:
 - overlap between gene sets (using pooled data from all samples combined): SpatialDE (no filtering), SpatialDE (with additional filtering), HVGs, pseudobulk layers
 - number of SpatialDE genes per sample
 
-```{r, fig.width = 6, fig.height = 6}
+```{r, fig.width = 6.5, fig.height = 6}
 # plot showing overlap between gene sets (using pooled lists)
 list_overlap <- list(
-    SpatialDE = genes_SpatialDE_pooled$gene_id, 
-    SpatialDE_filtered = genes_SpatialDE_filt_pooled$gene_id, 
+    SpatialDE_pooled = genes_SpatialDE_pooled$gene_id, 
+    SpatialDE_pooled_filtered = genes_SpatialDE_filt_pooled$gene_id, 
     HVGs = genes_HVGs$gene_id, 
     pseudobulk_layers = genes_pseudobulk$gene_id
 )
 
-#pdf("../plots/SpatialDE_genes_analysis/upset_genes_SpatialDE_SpatialDEfilt_HVGs_pseudobulk.pdf", width = 6, height = 6)
+#pdf("../plots/SpatialDE_genes_analysis/upset_genes_SpatialDE_SpatialDEfilt_HVGs_pseudobulk.pdf", width = 6.5, height = 6)
 upset(
     fromList(list_overlap), 
     nsets = length(list_overlap), 
@@ -213,12 +213,12 @@ upset(
 
 # plot showing overlap between gene sets (using pooled lists)
 list_overlap <- list(
-    SpatialDE_filtered = genes_SpatialDE_filt_pooled$gene_id, 
+    SpatialDE_pooled_filtered = genes_SpatialDE_filt_pooled$gene_id, 
     HVGs = genes_HVGs$gene_id, 
     pseudobulk_layers = genes_pseudobulk$gene_id
 )
 
-#pdf("../plots/SpatialDE_genes_analysis/upset_genes_SpatialDEfilt_HVGs_pseudobulk.pdf", width = 6, height = 6)
+#pdf("../plots/SpatialDE_genes_analysis/upset_genes_SpatialDEfilt_HVGs_pseudobulk.pdf", width = 6.5, height = 6)
 upset(
     fromList(list_overlap), 
     nsets = length(list_overlap), 
@@ -433,67 +433,73 @@ for (i in seq_along(sample_names)) {
 ```
 
 
-```{r}
+```{r, fig.width = 9, fig.height = 4}
 # ----------------------------------------------------
 # plots of 3 known marker genes (from Kristen Maynard)
 # ----------------------------------------------------
 
-# plots of 3 known marker genes (MOBP, PCP4, SNAP2)
-marker_genes_3 <- c("MOBP", "PCP4", "SNAP25")
-
-# subset original SCE object
-sce_3 <- sce[toupper(rowData(sce)$gene_name) %in% marker_genes_3, 
-             colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
-dim(sce_3)
-
-# extract x-y coordinates of spots (note: y coordinate is reversed)
-xy_coords <- data.frame(
-    x_coord = colData(sce_3)[, c("imagecol")], 
-    y_coord = -colData(sce_3)[, c("imagerow")]
-)
-
-# extract expression levels (UMI counts)
-exprs_3 <- counts(sce_3)
-dim(exprs_3)
-# replace gene IDs with gene names for plots
-stopifnot(all(rownames(exprs_3) == rowData(sce_3)$gene_id))
-rownames(exprs_3) <- rowData(sce_3)$gene_name
-# check column ordering matches spots
-stopifnot(all(colData(sce_3)$barcode == colnames(exprs_3)))
-stopifnot(length(colData(sce_3)$barcode) == length(colnames(exprs_3)))
-# order genes alphabetically
-exprs_3 <- exprs_3[order(rownames(exprs_3)), ]
-
-d_plot <- cbind(
-    barcode = colData(sce_3)$barcode, 
-    xy_coords, 
-    as.data.frame(as.matrix(t(exprs_3)))
-)
-
-d_plot <- melt(
-    d_plot, 
-    id.vars = c("barcode", "x_coord", "y_coord"), 
-    variable.name = "gene_name", 
-    value.name = "UMIs"
-)
-
-max_UMI <- max(d_plot$UMIs)
-
-ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-    facet_wrap(~ gene_name) + 
-    geom_point(size = 0.6) + 
-    scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
-                          values = rescale(c(0, 3, 15, max_UMI)), 
-                          limits = c(0, max_UMI)) + 
-    coord_fixed() + 
-    ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
-    theme_bw() + 
-    theme(panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank())
-
-filename <- paste0("../plots/SpatialDE_genes_analysis/marker_genes_3_expr_sample_", 
-                   gsub("^sample_", "", sample_names[i]), ".png")
-ggsave(filename, width = 9, height = 4)
+# for each sample
+for (i in seq_along(sample_names)) {
+    
+    # plots of 3 known marker genes (MOBP, PCP4, SNAP2)
+    marker_genes_3 <- c("MOBP", "PCP4", "SNAP25")
+    
+    # subset original SCE object
+    sce_3 <- sce[toupper(rowData(sce)$gene_name) %in% marker_genes_3, 
+                 colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
+    dim(sce_3)
+    
+    # extract x-y coordinates of spots (note: y coordinate is reversed)
+    xy_coords <- data.frame(
+        x_coord = colData(sce_3)[, c("imagecol")], 
+        y_coord = -colData(sce_3)[, c("imagerow")]
+    )
+    
+    # extract expression levels (UMI counts)
+    exprs_3 <- counts(sce_3)
+    dim(exprs_3)
+    # replace gene IDs with gene names for plots
+    stopifnot(all(rownames(exprs_3) == rowData(sce_3)$gene_id))
+    rownames(exprs_3) <- rowData(sce_3)$gene_name
+    # check column ordering matches spots
+    stopifnot(all(colData(sce_3)$barcode == colnames(exprs_3)))
+    stopifnot(length(colData(sce_3)$barcode) == length(colnames(exprs_3)))
+    # order genes alphabetically
+    exprs_3 <- exprs_3[order(rownames(exprs_3)), ]
+    
+    d_plot <- cbind(
+        barcode = colData(sce_3)$barcode, 
+        xy_coords, 
+        as.data.frame(as.matrix(t(exprs_3)))
+    )
+    
+    d_plot <- melt(
+        d_plot, 
+        id.vars = c("barcode", "x_coord", "y_coord"), 
+        variable.name = "gene_name", 
+        value.name = "UMIs"
+    )
+    
+    max_UMI <- max(d_plot$UMIs)
+    
+    print(
+        ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            facet_wrap(~ gene_name) + 
+            geom_point(size = 0.6) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 3, 15, max_UMI)), 
+                                  limits = c(0, max_UMI)) + 
+            coord_fixed() + 
+            ggtitle(paste0("UMIs of known marker genes: sample ", gsub("^sample_", "", sample_names[i]))) + 
+            theme_bw() + 
+            theme(panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+    )
+    
+    filename <- paste0("../plots/SpatialDE_genes_analysis/marker_genes_3_expr_sample_", 
+                       gsub("^sample_", "", sample_names[i]), ".png")
+    ggsave(filename, width = 9, height = 4)
+}
 ```
 
 
@@ -567,6 +573,162 @@ for (i in seq_along(sample_names)) {
                        gsub("^sample_", "", sample_names[i]), ".png")
     ggsave(filename, width = 8, height = 10)
 }
+```
+
+
+## Plots: figure
+
+Plots for final figure:
+
+- intersections of gene lists
+- expression plot for gene HBB (sample 151673)
+
+```{r, fig.width = 6, fig.height = 5}
+# get gene IDs for KRM markers
+marker_genes_KRM_IDs <- rowData(sce)$gene_id[match(toupper(marker_genes_KRM), rowData(sce)$gene_name)]
+marker_genes_KRM_IDs[is.na(marker_genes_KRM_IDs)] <- toupper(marker_genes_KRM)[is.na(marker_genes_KRM_IDs)]
+
+# upset plot for final figure
+# note: using filtered SpatialDE lists
+list_overlap <- list(
+    SpatialDE_pooled = genes_SpatialDE_filt_pooled$gene_id, 
+    SpatialDE_sample_151673 = genes_SpatialDE_filt[[9]]$gene_id, 
+    HVGs = genes_HVGs$gene_id, 
+    pseudobulk_layers = genes_pseudobulk$gene_id, 
+    markers = marker_genes_KRM_IDs
+)
+
+#pdf("../plots/SpatialDE_genes_analysis/upset_genes_combined_pooled.pdf", width = 6, height = 5)
+upset(
+    fromList(list_overlap), 
+    order.by = "degree", 
+    decreasing = FALSE, 
+    sets = rev(names(list_overlap)), 
+    set_size.show = TRUE, 
+    set_size.scale_max = 4000, 
+    keep.order = TRUE
+)
+#dev.off()
+
+
+list_overlap <- list(
+    SpatialDE_151673 = genes_SpatialDE_filt[[9]]$gene_id, 
+    HVGs = genes_HVGs$gene_id, 
+    pseudobulk_layers = genes_pseudobulk$gene_id, 
+    markers = marker_genes_KRM_IDs
+)
+
+#pdf("../plots/SpatialDE_genes_analysis/upset_genes_combined.pdf", width = 6, height = 5)
+upset(
+    fromList(list_overlap), 
+    order.by = "degree", 
+    decreasing = FALSE, 
+    sets = rev(names(list_overlap)), 
+    set_size.show = TRUE, 
+    set_size.scale_max = 2500, 
+    keep.order = TRUE
+)
+#dev.off()
+
+#system("cp ../plots/SpatialDE_genes_analysis/upset_genes_combined.pdf ../plots/figure/fig_LMW_gene_lists_intersection.pdf")
+```
+
+
+```{r, fig.width = 6.75, fig.height = 2.75}
+# select gene(s)
+genes_fig <- c("PCP4", "HBB", "IGKC")
+
+# subset original SCE object
+sce_fig <- sce[toupper(rowData(sce)$gene_name) %in% genes_fig, 
+               colData(sce)$sample_name == "151673"]
+dim(sce_fig)
+
+# extract x-y coordinates of spots (note: y coordinate is reversed)
+xy_coords <- data.frame(
+    x_coord = colData(sce_fig)[, c("imagecol")], 
+    y_coord = -colData(sce_fig)[, c("imagerow")]
+)
+
+# extract expression levels (UMI counts)
+exprs_fig <- counts(sce_fig)
+dim(exprs_fig)
+# replace gene IDs with gene names for plots
+stopifnot(all(rownames(exprs_fig) == rowData(sce_fig)$gene_id))
+rownames(exprs_fig) <- rowData(sce_fig)$gene_name
+# check column ordering matches spots
+stopifnot(all(colData(sce_fig)$barcode == colnames(exprs_fig)))
+stopifnot(length(colData(sce_fig)$barcode) == length(colnames(exprs_fig)))
+# order genes alphabetically
+exprs_fig <- exprs_fig[order(rownames(exprs_fig)), , drop = FALSE]
+
+d_plot <- cbind(
+    barcode = colData(sce_fig)$barcode, 
+    xy_coords, 
+    as.data.frame(as.matrix(t(exprs_fig)))
+)
+
+d_plot <- melt(
+    d_plot, 
+    id.vars = c("barcode", "x_coord", "y_coord"), 
+    variable.name = "gene_name", 
+    value.name = "UMIs"
+)
+
+d_plot$gene_name <- factor(d_plot$gene_name, levels = genes_fig)
+
+max_UMI <- max(d_plot$UMIs)
+
+p_selected <- 
+    ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+        facet_wrap(~ gene_name) + 
+        geom_point(size = 0.2) + 
+        scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                              values = rescale(c(0, 3, 15, max_UMI)), 
+                              limits = c(0, max_UMI), 
+                              name = "UMI counts") + 
+        coord_fixed() + 
+        ggtitle("Expression of selected genes") + 
+        theme_bw() + 
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank(), 
+                  axis.text.x = element_blank(), 
+                  axis.text.y = element_blank(), 
+                  axis.ticks.x = element_blank(), 
+                  axis.ticks.y = element_blank(), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+
+print(p_selected)
+
+filename <- paste0("../plots/figure/fig_LMW_expression_selected.pdf")
+ggsave(filename, width = 6.75, height = 2.75)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: showing PCP4 only
+d_plot %>% 
+    filter(gene_name == "PCP4") %>% 
+        ggplot(., aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            geom_point(size = 0.2) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 3, 15, max_UMI)), 
+                                  limits = c(0, max_UMI), 
+                                  name = "UMI counts") + 
+            coord_fixed() + 
+            theme_bw() + 
+            theme(legend.position = "none", 
+                  axis.title.x = element_blank(), 
+                  axis.title.y = element_blank(), 
+                  axis.text.x = element_blank(), 
+                  axis.text.y = element_blank(), 
+                  axis.ticks.x = element_blank(), 
+                  axis.ticks.y = element_blank(), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+
+filename <- paste0("../plots/figure/schematic/schematic_PCP4.pdf")
+ggsave(filename, width = 2.25, height = 2.5)
 ```
 
 

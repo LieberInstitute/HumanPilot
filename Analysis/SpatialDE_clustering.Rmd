@@ -31,6 +31,7 @@ library(ggplot2)
 library(RColorBrewer)
 library(Polychrome)
 library(patchwork)
+library(broom)
 ```
 
 
@@ -564,6 +565,8 @@ for (i in seq_along(sample_names)) {
 
 ```{r}
 # order method names and types for ARI plots
+method_names
+
 method_levels <- c(
     "SpatialDE_PCA", "SpatialDE_pool_PCA", "HVG_PCA", "pseudobulk_PCA", "markers_PCA", 
     "SpatialDE_PCA_spatial", "SpatialDE_pool_PCA_spatial", "HVG_PCA_spatial", "pseudobulk_PCA_spatial", "markers_PCA_spatial", 
@@ -571,10 +574,9 @@ method_levels <- c(
     "SpatialDE_UMAP_spatial", "SpatialDE_pool_UMAP_spatial", "HVG_UMAP_spatial", "pseudobulk_UMAP_spatial", "markers_UMAP_spatial"
 )
 
-# method types for plotting
+# method types for plotting (note: ordering from 'method_names')
 method_types_supervision <- factor(
-    rep(c("unsupervised", "unsupervised", "unsupervised", "semisupervised", "semisupervised"), 4), 
-    levels = c("unsupervised", "semisupervised"))
+    rep(c(rep("unsupervised", 3), "semisupervised", "markers"), 4), levels = c("unsupervised", "semisupervised", "markers"))
 method_types_dimension_reduction <- factor(
     rep(c(rep("PCA", 5), rep("UMAP", 5)), 2), levels = c("PCA", "UMAP"))
 method_types_SpatialDE <- factor(
@@ -593,7 +595,7 @@ rownames(method_types) <- method_types$method
 ```
 
 
-```{r, fig.width = 7, fig.height = 5}
+```{r, fig.width = 8, fig.height = 5}
 # separate plots for each sample
 p_ARI <- list()
 
@@ -603,6 +605,14 @@ for (i in seq_along(sample_names)) {
     d_plot_sub <- merge(d_plot_sub, method_types, by = "method", all = FALSE, sort = FALSE)
     d_plot_sub$method <- factor(d_plot_sub$method, levels = method_levels)
     
+    # remove PCA and UMAP from method names/levels (put in legend instead) and re-order levels
+    levels_keep <- c(
+        "SpatialDE", "SpatialDE_spatial", "SpatialDE_pool", "SpatialDE_pool_spatial", "HVG", "HVG_spatial", 
+        "pseudobulk", "pseudobulk_spatial", "markers", "markers_spatial"
+    )
+    d_plot_sub$method <- gsub("_UMAP", "", gsub("_PCA", "", d_plot_sub$method))
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = levels_keep)
+    
     d_plot_ARI <- distinct(
         d_plot_sub[, c("sample_name", "method", "ARI", 
                        "method_types_supervision", "method_types_dimension_reduction", 
@@ -611,32 +621,102 @@ for (i in seq_along(sample_names)) {
     
     p_ARI[[i]] <- 
         ggplot(d_plot_ARI, aes(x = method, y = ARI, 
-                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
-                               shape = method_types_SpatialDE)) + 
-            facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+                               color = method, shape = method_types_spatial_coords)) + 
+            facet_grid(method_types_dimension_reduction ~ method_types_supervision, 
+                       scales = "free", space = "free_x") + 
             geom_point(stroke = 1.5) + 
-            scale_shape_manual(values = c(4, 19)) + 
-            scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
+            scale_color_manual(values = brewer.pal(10, "Paired")) + 
+            scale_shape_manual(values = c(19, 4), 
+                               labels = c("without spatial coordinates", "with spatial coordinates")) + 
             ylim(c(-0.1, 0.5)) + 
             ggtitle(paste0("Adjusted Rand Index: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
-            theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+            theme(axis.text.x = element_blank(), 
                   axis.title.x = element_blank(), 
+                  axis.ticks.x = element_blank(), 
                   legend.title = element_blank())
     
     print(p_ARI[[i]])
     
     filename <- paste0("../plots/SpatialDE_clustering/ARI_sample_", 
-                       gsub("^sample_", "", sample_names[i]), ".png")
-    ggsave(filename, width = 7, height = 5)
+                       gsub("^sample_", "", sample_names[i]), ".pdf")
+    ggsave(filename, width = 8, height = 5)
 }
 ```
 
 
-```{r, fig.width = 7.5, fig.height = 5}
-# combined boxplots showing all samples for each method
+```{r}
+# for final plot: combined boxplots showing all samples for each method
 d_plot_ARI_all <- merge(d_plot, method_types, by = "method", all = FALSE, sort = FALSE)
 d_plot_ARI_all$method <- factor(d_plot_ARI_all$method, levels = method_levels)
+
+save(d_plot_ARI_all, file = "../outputs/clustering/ARI.RData")
+
+#load("../outputs/clustering/ARI.RData")
+
+
+# calculate tests for significant differences in ARI (with vs. without spatial coords)
+# 'with vs. without spatial coords', with blocking for (i) donor and (ii) spatially adjacent replicates
+
+res_ARI <- distinct(
+    d_plot_ARI_all[, c("method", "sample_name", "ARI", "method_types_spatial_coords")]
+)
+res_ARI$sample_name <- as.factor(res_ARI$sample_name)
+res_ARI$method <- factor(gsub("_spatial$", "", res_ARI$method), 
+                         levels = levels(res_ARI$method)[!grepl("_spatial$", levels(res_ARI$method))])
+str(res_ARI)
+
+# experimental design
+# note: 'location' refers to spatially adjacent replicates; factor 'location_nested' is nested within 'donor' 
+# (for mixed effects model); alternatively factor 'location_fixed' has separate levels (fixed effects)
+design <- tibble(
+    sample_name = levels(res_ARI$sample_name), 
+    donor = as.factor(paste0("donor_", rep(1:3, each = 4))), 
+    location_nested = as.factor(paste0("location_", rep(c(1, 1, 2, 2), 3))), 
+    location_fixed = as.factor(paste0("location_", rep(1:6, each = 2)))
+)
+
+# check carefully!
+design
+
+# merge data frames
+res_ARI_merged <- merge(res_ARI, design, by = "sample_name")
+head(res_ARI_merged)
+str(res_ARI_merged)
+
+# test for significant differences (with vs. without spatial coords)
+
+res_ARI_pvals <- c()
+methods_pvals <- levels(res_ARI_merged$method)
+
+for (m in seq_along(methods_pvals)) {
+    d_test <- filter(res_ARI_merged, method == methods_pvals[m])
+    # fit linear model (using fixed effects for adjacent spatial replicates)
+    lm_tidy <- tidy(
+        lm(ARI ~ method_types_spatial_coords + donor + location_fixed, data = d_test)
+    )
+    res_ARI_pvals[m] <- 
+        lm_tidy %>% 
+        filter(term == "method_types_spatial_coordsspatial") %>% 
+        select("p.value") %>% 
+        as.numeric
+}
+
+names(res_ARI_pvals) <- methods_pvals
+res_ARI_pvals
+```
+
+
+```{r, fig.width = 8, fig.height = 5}
+# plot: without p-value annotation
+
+# remove PCA and UMAP from method names/levels (put in legend instead) and re-order levels
+levels_keep <- c(
+    "SpatialDE", "SpatialDE_spatial", "SpatialDE_pool", "SpatialDE_pool_spatial", "HVG", "HVG_spatial", 
+    "pseudobulk", "pseudobulk_spatial", "markers", "markers_spatial"
+)
+d_plot_ARI_all$method <- gsub("_UMAP", "", gsub("_PCA", "", d_plot_ARI_all$method))
+d_plot_ARI_all$method <- factor(d_plot_ARI_all$method, levels = levels_keep)
 
 d_plot_ARI_all <- distinct(
     d_plot_ARI_all[, c("sample_name", "method", "ARI", 
@@ -644,32 +724,76 @@ d_plot_ARI_all <- distinct(
                        "method_types_SpatialDE", "method_types_spatial_coords")]
     )
 
+set.seed(123)
 p_ARI_all <- 
     ggplot(d_plot_ARI_all, aes(x = method, y = ARI, 
-                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
-                               shape = method_types_SpatialDE)) + 
-        facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
-        geom_boxplot(show.legend = FALSE) + 
+                               color = method, shape = method_types_spatial_coords)) + 
+        facet_grid(method_types_dimension_reduction ~ method_types_supervision, 
+                   scales = "free", space = "free_x") + 
+        geom_boxplot(width = 0.65, outlier.shape = NA, show.legend = FALSE) + 
         geom_jitter(stroke = 1.5, size = 0.5, width = 0.15, height = 0) + 
-        scale_shape_manual(values = c(4, 19)) + 
-        scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
+        scale_color_manual(values = brewer.pal(10, "Paired")) + 
+        scale_shape_manual(values = c(19, 4), 
+                           labels = c("without spatial coordinates", "with spatial coordinates")) + 
         ylim(c(-0.1, 0.5)) + 
         ggtitle("Adjusted Rand Index: all samples") + 
+        guides(color = guide_legend(override.aes = list(size = 2.5)), 
+               shape = guide_legend(override.aes = list(size = 2.5))) + 
         theme_bw() + 
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        theme(axis.text.x = element_blank(), 
               axis.title.x = element_blank(), 
+              axis.ticks.x = element_blank(), 
               legend.title = element_blank())
 
 print(p_ARI_all)
 
-filename <- "../plots/SpatialDE_clustering/ARI_all_samples.png"
-ggsave(filename, width = 7.5, height = 5)
+filename <- "../plots/SpatialDE_clustering/ARI_all_samples.pdf"
+ggsave(filename, width = 8, height = 5)
+
+# save copy of final figure for manuscript
+system("cp ../plots/SpatialDE_clustering/ARI_all_samples.pdf ../plots/figure/fig_LMW_Adjusted_Rand_Index.pdf")
+```
+
+
+```{r, fig.width = 8, fig.height = 5}
+# plot: add p-value annotation
+
+p_vals_fmt <- paste0("p = ", sprintf("%.3f", res_ARI_pvals))
+
+ann_text <- tibble(
+    method_types_supervision = factor(
+        rep(c(rep("unsupervised", 3), "semisupervised", "markers"), 2), 
+        levels = c("unsupervised", "semisupervised", "markers")), 
+    method_types_dimension_reduction = factor(
+        rep(c("PCA", "UMAP"), each = 5), 
+        levels = c("PCA", "UMAP")), 
+    method = factor(rep(c("SpatialDE", "SpatialDE_pool", "HVG", "pseudobulk", "markers"), 2), 
+                    levels = c("SpatialDE", "SpatialDE_pool", "HVG", "pseudobulk", "markers")), 
+    text = p_vals_fmt
+)
+
+p_ARI_annot <- 
+    p_ARI_all + 
+        geom_text(data = ann_text, 
+                  aes(x = method, y = 0.45, shape = NULL, label = text), 
+                  nudge_x = 0.5, 
+                  color = "black", 
+                  size = 4)
+
+print(p_ARI_annot)
+
+filename <- "../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf"
+ggsave(filename, width = 8, height = 5)
+
+# save copy of final figure for manuscript
+system("cp ../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf ../plots/figure/fig_LMW_Adjusted_Rand_Index_pvals.pdf")
 ```
 
 
 ## Plots: Normalized Mutual Information (NMI)
 
-```{r, fig.width = 7, fig.height = 5}
+```{r, fig.width = 8, fig.height = 5}
+# separate plots for each sample
 p_NMI <- list()
 
 for (i in seq_along(sample_names)) {
@@ -677,6 +801,14 @@ for (i in seq_along(sample_names)) {
     d_plot_sub <- d_plot[d_plot$sample_name == sample_names[i], ]
     d_plot_sub <- merge(d_plot_sub, method_types, by = "method", all = FALSE, sort = FALSE)
     d_plot_sub$method <- factor(d_plot_sub$method, levels = method_levels)
+    
+    # remove PCA and UMAP from method names/levels (put in legend instead) and re-order levels
+    levels_keep <- c(
+        "SpatialDE", "SpatialDE_spatial", "SpatialDE_pool", "SpatialDE_pool_spatial", "HVG", "HVG_spatial", 
+        "pseudobulk", "pseudobulk_spatial", "markers", "markers_spatial"
+    )
+    d_plot_sub$method <- gsub("_UMAP", "", gsub("_PCA", "", d_plot_sub$method))
+    d_plot_sub$method <- factor(d_plot_sub$method, levels = levels_keep)
     
     d_plot_NMI <- distinct(
         d_plot_sub[, c("sample_name", "method", "NMI", 
@@ -686,32 +818,46 @@ for (i in seq_along(sample_names)) {
     
     p_NMI[[i]] <- 
         ggplot(d_plot_NMI, aes(x = method, y = NMI, 
-                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
-                               shape = method_types_SpatialDE)) + 
-            facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
+                               color = method, shape = method_types_spatial_coords)) + 
+            facet_grid(method_types_dimension_reduction ~ method_types_supervision, 
+                       scales = "free", space = "free_x") + 
             geom_point(stroke = 1.5) + 
-            scale_shape_manual(values = c(4, 19)) + 
-            scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
+            scale_color_manual(values = brewer.pal(10, "Paired")) + 
+            scale_shape_manual(values = c(19, 4), 
+                               labels = c("without spatial coordinates", "with spatial coordinates")) + 
             ylim(c(0, 0.6)) + 
             ggtitle(paste0("Normalized Mutual Information: sample ", gsub("^sample_", "", sample_names[i]))) + 
             theme_bw() + 
-            theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+            theme(axis.text.x = element_blank(), 
                   axis.title.x = element_blank(), 
+                  axis.ticks.x = element_blank(), 
                   legend.title = element_blank())
     
-    print(p_NMI[[i]])
+    #print(p_NMI[[i]])
+    
+    p_NMI[[i]]
     
     filename <- paste0("../plots/SpatialDE_clustering/NMI_sample_", 
-                       gsub("^sample_", "", sample_names[i]), ".png")
-    ggsave(filename, width = 7, height = 5)
+                       gsub("^sample_", "", sample_names[i]), ".pdf")
+    ggsave(filename, width = 8, height = 5)
 }
 ```
 
 
-```{r, fig.width = 7.5, fig.height = 5}
+```{r, fig.width = 8, fig.height = 5}
 # combined boxplots showing all samples for each method
 d_plot_NMI_all <- merge(d_plot, method_types, by = "method", all = FALSE, sort = FALSE)
 d_plot_NMI_all$method <- factor(d_plot_NMI_all$method, levels = method_levels)
+
+save(d_plot_NMI_all, file = "../outputs/clustering/NMI.RData")
+
+# remove PCA and UMAP from method names/levels (put in legend instead) and re-order levels
+levels_keep <- c(
+    "SpatialDE", "SpatialDE_spatial", "SpatialDE_pool", "SpatialDE_pool_spatial", "HVG", "HVG_spatial", 
+    "pseudobulk", "pseudobulk_spatial", "markers", "markers_spatial"
+)
+d_plot_NMI_all$method <- gsub("_UMAP", "", gsub("_PCA", "", d_plot_NMI_all$method))
+d_plot_NMI_all$method <- factor(d_plot_NMI_all$method, levels = levels_keep)
 
 d_plot_NMI_all <- distinct(
     d_plot_NMI_all[, c("sample_name", "method", "NMI", 
@@ -719,26 +865,31 @@ d_plot_NMI_all <- distinct(
                        "method_types_SpatialDE", "method_types_spatial_coords")]
     )
 
+set.seed(123)
 p_NMI_all <- 
     ggplot(d_plot_NMI_all, aes(x = method, y = NMI, 
-                               color = interaction(method_types_spatial_coords, method_types_dimension_reduction), 
-                               shape = method_types_SpatialDE)) + 
-        facet_grid(~ method_types_supervision, scales = "free", space = "free_x") + 
-        geom_boxplot(show.legend = FALSE) + 
+                               color = method, shape = method_types_spatial_coords)) + 
+        facet_grid(method_types_dimension_reduction ~ method_types_supervision, 
+                   scales = "free", space = "free_x") + 
+        geom_boxplot(width = 0.65, outlier.shape = NA, show.legend = FALSE) + 
         geom_jitter(stroke = 1.5, size = 0.5, width = 0.15, height = 0) + 
-        scale_shape_manual(values = c(4, 19)) + 
-        scale_color_manual(values = brewer.pal(8, "Paired")[c(2, 6, 1, 5)]) + 
+        scale_color_manual(values = brewer.pal(10, "Paired")) + 
+        scale_shape_manual(values = c(19, 4), 
+                           labels = c("without spatial coordinates", "with spatial coordinates")) + 
         ylim(c(0, 0.6)) + 
         ggtitle("Normalized Mutual Information: all samples") + 
+        guides(color = guide_legend(override.aes = list(size = 2.5)), 
+               shape = guide_legend(override.aes = list(size = 2.5))) + 
         theme_bw() + 
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+        theme(axis.text.x = element_blank(), 
               axis.title.x = element_blank(), 
+              axis.ticks.x = element_blank(), 
               legend.title = element_blank())
 
 print(p_NMI_all)
 
-filename <- "../plots/SpatialDE_clustering/NMI_all_samples.png"
-ggsave(filename, width = 7.5, height = 5)
+filename <- "../plots/SpatialDE_clustering/NMI_all_samples.pdf"
+ggsave(filename, width = 8, height = 5)
 ```
 
 
@@ -860,6 +1011,68 @@ print(p_combined)
 filename <- paste0("../plots/SpatialDE_clustering/clustering_summary_sample_", 
                    gsub("^sample_", "", sample_names[i]), ".png")
 ggsave(filename, width = 13, height = 3.5)
+```
+
+
+```{r, fig.width = 7.25, fig.height = 2.75}
+# save panels for final figure (with custom formatting)
+panel_a_ground_truth <- 
+    p_ground_truth_combined + 
+        facet_wrap(NULL) + 
+        geom_point(size = 0.15) + 
+        scale_color_manual(values = colors, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
+        ggtitle("Ground truth", subtitle = NULL) + 
+        guides(color = guide_legend(override.aes = list(size = 2.5))) + 
+        theme(legend.title = element_blank(), 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
+print(panel_a_ground_truth)
+ggsave("../plots/figure/fig_LMW_ground_truth.pdf", width = 3.75, height = 2.75)
+
+panel_b_i <- 
+    p_clustering_unsupervised_best + 
+        geom_point(size = 0.15) + 
+        ggtitle("Unsupervised", subtitle = NULL) + 
+        theme(legend.position = "none", 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
+panel_b_ii <- 
+    p_clustering_semisupervised_best + 
+        geom_point(size = 0.15) + 
+        ggtitle("Semisupervised", subtitle = NULL) + 
+        theme(legend.position = "none", 
+              strip.background = element_blank(), 
+              strip.text.x = element_blank())
+panel_b_iii <- 
+    p_clustering_markers_best + 
+        geom_point(size = 0.15) + 
+        ggtitle("Known markers", subtitle = NULL) + 
+        guides(color = guide_legend(override.aes = list(color = colors, size = 2.5))) + 
+        theme(strip.background = element_blank(), 
+              strip.text.x = element_blank())
+# using 'patchwork' package
+panel_b_clustering <- panel_b_i | panel_b_ii | panel_b_iii
+print(panel_b_clustering)
+ggsave("../plots/figure/fig_LMW_clustering.pdf", width = 7.25, height = 2.75)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: ground truth
+panel_a_ground_truth + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/schematic/schematic_ground_truth.pdf", width = 2.25, height = 2.5)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: clustering
+panel_a_ground_truth + 
+    scale_color_manual(values = c(rep("gray90", 3), rep("red", 2), rep("gray90", 2))) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/schematic/schematic_clustering.pdf", width = 2.25, height = 2.5)
 ```
 
 
