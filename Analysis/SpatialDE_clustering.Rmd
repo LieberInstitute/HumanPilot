@@ -755,7 +755,7 @@ system("cp ../plots/SpatialDE_clustering/ARI_all_samples.pdf ../plots/figure/fig
 ```
 
 
-```{r}
+```{r, fig.width = 8, fig.height = 5}
 # plot: add p-value annotation
 
 p_vals_fmt <- paste0("p = ", sprintf("%.3f", res_ARI_pvals))
@@ -1067,7 +1067,7 @@ ggsave("../plots/figure/schematic/schematic_ground_truth.pdf", width = 2.25, hei
 
 
 ```{r, fig.width = 2.25, fig.height = 2.5}
-# figure for schematic: clustering (showing one cluster only)
+# figure for schematic: clustering
 panel_a_ground_truth + 
     scale_color_manual(values = c(rep("gray90", 3), rep("red", 2), rep("gray90", 2))) + 
     theme(title = element_blank(), 
