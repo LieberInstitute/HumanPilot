@@ -678,27 +678,57 @@ d_plot$gene_name <- factor(d_plot$gene_name, levels = genes_fig)
 
 max_UMI <- max(d_plot$UMIs)
 
-ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-    facet_wrap(~ gene_name) + 
-    geom_point(size = 0.2) + 
-    scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
-                          values = rescale(c(0, 3, 15, max_UMI)), 
-                          limits = c(0, max_UMI), 
-                          name = "UMI counts") + 
-    coord_fixed() + 
-    ggtitle("Expression of selected genes") + 
-    theme_bw() + 
-        theme(axis.title.x = element_blank(), 
-              axis.title.y = element_blank(), 
-              axis.text.x = element_blank(), 
-              axis.text.y = element_blank(), 
-              axis.ticks.x = element_blank(), 
-              axis.ticks.y = element_blank(), 
-              panel.grid.major = element_blank(), 
-              panel.grid.minor = element_blank())
+p_selected <- 
+    ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
+        facet_wrap(~ gene_name) + 
+        geom_point(size = 0.2) + 
+        scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                              values = rescale(c(0, 3, 15, max_UMI)), 
+                              limits = c(0, max_UMI), 
+                              name = "UMI counts") + 
+        coord_fixed() + 
+        ggtitle("Expression of selected genes") + 
+        theme_bw() + 
+            theme(axis.title.x = element_blank(), 
+                  axis.title.y = element_blank(), 
+                  axis.text.x = element_blank(), 
+                  axis.text.y = element_blank(), 
+                  axis.ticks.x = element_blank(), 
+                  axis.ticks.y = element_blank(), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+
+print(p_selected)
 
 filename <- paste0("../plots/figure/fig_LMW_expression_selected.pdf")
 ggsave(filename, width = 6.75, height = 2.75)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: showing PCP4 only
+d_plot %>% 
+    filter(gene_name == "PCP4") %>% 
+        ggplot(., aes(x = x_coord, y = y_coord, color = UMIs)) + 
+            geom_point(size = 0.2) + 
+            scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
+                                  values = rescale(c(0, 3, 15, max_UMI)), 
+                                  limits = c(0, max_UMI), 
+                                  name = "UMI counts") + 
+            coord_fixed() + 
+            theme_bw() + 
+            theme(legend.position = "none", 
+                  axis.title.x = element_blank(), 
+                  axis.title.y = element_blank(), 
+                  axis.text.x = element_blank(), 
+                  axis.text.y = element_blank(), 
+                  axis.ticks.x = element_blank(), 
+                  axis.ticks.y = element_blank(), 
+                  panel.grid.major = element_blank(), 
+                  panel.grid.minor = element_blank())
+
+filename <- paste0("../plots/figure/schematic/schematic_PCP4.pdf")
+ggsave(filename, width = 2.25, height = 2.5)
 ```
 
 

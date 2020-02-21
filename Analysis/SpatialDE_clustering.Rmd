@@ -1057,4 +1057,23 @@ ggsave("../plots/figure/fig_LMW_clustering.pdf", width = 7.25, height = 2.75)
 ```
 
 
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: ground truth
+panel_a_ground_truth + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/schematic/schematic_ground_truth.pdf", width = 2.25, height = 2.5)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: clustering (showing one cluster only)
+panel_a_ground_truth + 
+    scale_color_manual(values = c(rep("gray90", 3), rep("red", 2), rep("gray90", 2))) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/schematic/schematic_clustering.pdf", width = 2.25, height = 2.5)
+```
+
+
 
