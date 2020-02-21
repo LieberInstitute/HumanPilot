@@ -23,7 +23,9 @@ cIndexes = splitit(sce.dlpfc$PseudoSample)
 umiComb <- sapply(cIndexes, function(ii)
     rowSums(assays(sce.dlpfc)$counts[, ii, drop = FALSE]))
 
-phenoComb = colData(sce.dlpfc)[!duplicated(sce.dlpfc$PseudoSample), 13:15]
+phenoComb = colData(sce.dlpfc)[!duplicated(sce.dlpfc$PseudoSample), 
+	c("prelimCluster", "collapsedCluster", "cellType", "PseudoSample")]
+
 rownames(phenoComb) = phenoComb$PseudoSample
 phenoComb = phenoComb[colnames(umiComb), ]
 phenoComb = DataFrame(phenoComb)
