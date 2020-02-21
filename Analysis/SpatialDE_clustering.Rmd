@@ -1076,4 +1076,37 @@ ggsave("../plots/figure/schematic/schematic_clustering.pdf", width = 2.25, heigh
 ```
 
 
+```{r, fig.width = 2.25, fig.height = 2.5}
+# color palette examples
+panel_a_ground_truth + 
+    scale_color_manual(values = brewer.pal(8, "Accent"), labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/color_palette/color_palette_Accent.pdf", width = 2.25, height = 2.5)
+
+panel_a_ground_truth + 
+    scale_color_manual(values = brewer.pal(8, "Set1"), labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/color_palette/color_palette_Set1.pdf", width = 2.25, height = 2.5)
+
+# custom palette
+accent <- brewer.pal(8, "Accent")
+set1 <- brewer.pal(8, "Set1")
+set2 <- brewer.pal(8, "Set2")
+dark2 <- brewer.pal(8, "Dark2")
+my_palette <- set1
+my_palette[1] <- accent[6]
+my_palette[5] <- "#FF8C00"  # dark orange
+my_palette[6] <- "#FFD700"  # gold
+my_palette[7] <- dark2[8]
+
+panel_a_ground_truth + 
+    scale_color_manual(values = my_palette, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
+    theme(title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/color_palette/color_palette_custom.pdf", width = 2.25, height = 2.5)
+```
+
+
 
