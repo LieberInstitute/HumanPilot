@@ -222,6 +222,7 @@ my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
 dd = dist(1-cor_t_layer)
 hc = hclust(dd)
+plot(hc)
 cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
 
 pdf("pdf/mathys_snRNAseq_overlap_heatmap.pdf", width = 11)
@@ -237,3 +238,57 @@ print(
     )
 )
 dev.off()
+
+####################################
+## relabel into spatial clusters ###
+####################################
+
+sce_pseudobulk$cellLayer = as.character(sce_pseudobulk$broad.cell.type)
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("Ex", c(0,2,4,6))] = "Ex_2/3"
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("Ex", c(1,5,14))] = "Ex_5"
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("Ex", c(7,8))] = "Ex_4"
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("Ex", c(3,11,12,9))] = "Ex_6"
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("In", c(0,7,9,11,2))] = "In_4/5"
+sce_pseudobulk$cellLayer[sce_pseudobulk$Subcluster %in% paste0("In", c(10,3,6,1,4,5,8))] = "In_2/3"
+
+## re-pseudo
+sce_pseudobulk$PseudoSample_Layer = paste0(sce_pseudobulk$individualID, ":", sce_pseudobulk$cellLayer)
+
+cIndexes_layer = splitit(sce_pseudobulk$PseudoSample_Layer)
+umiComb <- sapply(cIndexes_layer, function(ii) {
+	rowSums(assays(sce_pseudobulk)$counts[, ii, drop = FALSE])
+})
+
+
+phenoComb_layer = colData(sce_pseudobulk)
+phenoComb_layer = phenoComb_layer[!duplicated(phenoComb_layer$PseudoSample_Layer),]
+rownames(phenoComb_layer) = phenoComb_layer$PseudoSample_Layer
+phenoComb_layer = phenoComb_layer[colnames(umiComb), ]
+phenoComb_layer = DataFrame(phenoComb_layer)
+
+
+sce_pseudobulk_layered <-
+    logNormCounts(SingleCellExperiment(
+        list(counts = umiComb),
+        colData = phenoComb_layer,
+        rowData = rowData(sce_pseudobulk)
+    ))
+save(sce_pseudobulk_layered, file = "rda/mathys_pseudobulked_layered.Rdata")
+
+#####################
+## Build a group model
+mat_filter <- assays(sce_pseudobulk_layered)$logcounts
+mod <- with(colData(sce_pseudobulk_layered),
+    model.matrix(~ cellLayer * Dx + age_death + msex + race))
+colnames(mod) <- gsub('cellLayer', '', colnames(mod))
+
+# ## get duplicate correlation
+corfit <- duplicateCorrelation(mat_filter, mod,
+    block = sce_pseudobulk_layered$individualID)
+save(corfit, file = "rda/mathys_pseudobulked_layered_dupCor.Rdata")
+# load("rda/mathys_pseudobulked_layered_dupCor.Rdata")
+
+fit = lmFit(mat_filter, design = mod,
+            block = sce_pseudobulk_layered$individualID,
+            correlation = corfit$consensus.correlation)
+eb = eBayes(fit)

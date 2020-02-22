@@ -183,17 +183,19 @@ signif(cor_t_layer, 3)
 theSeq = seq(-.85, .85, by = 0.01)
 my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
+ct = colData(sce_pseudobulk)
+ct = ct[!duplicated(sce_pseudobulk$prelimCluster),]
+ct = ct[order(ct$cellType, ct$prelimCluster),]
+ct$cellType = as.character(ct$cellType)
+ct$cellType[ct$cellType == "Ambig.lowNtrxts"] ="Drop"
+ct$lab = paste0(ct$prelimCluster, " (", ct$cellType,")")
+
+
 dd = dist(1-cor_t_layer)
 hc = hclust(dd)
 cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
+rownames(cor_t_layer_toPlot) = ct$lab[match(rownames(cor_t_layer_toPlot), ct$prelimCluster)]
 
-ct = colData(sce_pseudobulk)
-ct = ct[!duplicated(sce_pseudobulk$prelimCluster),]
-ct = ct[order(ct$collapsedCluster, ct$prelimCluster),]
-ct$lab = paste0(ct$prelimCluster, " (", ct$collapsedCluster,")")
-
-cor_t_layer_toPlot = cor_t_layer[as.character(ct$prelimCluster), c(1, 7:2)]
-rownames(cor_t_layer_toPlot) = ct$lab
 
 pdf("pdf/dlpfc_snRNAseq_overlap_heatmap.pdf", width = 10)
 print(
@@ -208,17 +210,6 @@ print(
     )
 )
 dev.off()
-
-pdf("pdf/dlpfc_snRNAseq_overlap_pheatmap.pdf", width = 10)
-print(
-    pheatmap(
-        cor_t_layer_toPlot,
-        ylab = "",
-        xlab = "",
-    )
-)
-dev.off()
-
 #### gene expression
 g = c("SNAP25", "CAMK2A", "GAD2", "SOX11",
 	"FOXP2", "PDGFRA", "MBP", "PLP1",

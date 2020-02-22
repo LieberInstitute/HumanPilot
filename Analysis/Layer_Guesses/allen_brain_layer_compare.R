@@ -107,6 +107,7 @@ save(sce_pseudobulk, file = "rda/allen_snRNAseq_sce_MTG_pseudobulked.Rdata")
 ## analysis ###
 ###############
 
+load("rda/allen_snRNAseq_sce_MTG_pseudobulked.Rdata")
 
 ## drop surgical
 sce_pseudobulk = sce_pseudobulk[, sce_pseudobulk$postmortem == 1]
@@ -228,18 +229,19 @@ signif(cor_t_layer, 2)
 
 
 ### heatmap
-theSeq = seq(-.81, .81, by = 0.01)
+theSeq = seq(-.85, .85, by = 0.01)
 my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
+cor_t_layer_toPlot = cor_t_layer[,c(1, 7:2)]
 pdf("pdf/allen_brain_layer_overlap_heatmap.pdf", width = 8)
 print(
     levelplot(
-        cor_t_layer,
+        cor_t_layer_toPlot,
         aspect = "fill",
         at = theSeq,
         col.regions = my.col,
-        ylab = "Spatial",
-        xlab = "Allen Brain",
+        ylab = "",
+        xlab = "",
         scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
     )
 )
