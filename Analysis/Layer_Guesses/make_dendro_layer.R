@@ -31,6 +31,7 @@ pdf('pdf/dendro_layer.pdf',
 pal <- RColorBrewer::brewer.pal(12, 'Paired')
 pal[11:12] <- c('maroon1', 'magenta3')
 palette(pal)
+par(mar = c(1.5, 5, 2, 1) + 0.1)
 myplclust(
     h,
     labels = gsub('ayer', '', sce_layer$layer_guess),
