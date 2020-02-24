@@ -291,53 +291,6 @@ enrichTab[c("DE_PE_SCZ.Up","DE_BS2_SCZ.Up"),]
 enrichTab[c("DE_PE_SCZ.Down","DE_BS2_SCZ.Down"),]
 
 
-#############################
-### GSEA #####################
-#############################
-
-## do enrichment
-gst_tab = apply(t0_contrasts, 2, function(tt) {
-	sapply(geneList_present, function(g) {
-       geneSetTest(index = rownames(t0_contrasts) %in% g,
-		statistics = tt, alternative = "up")
-    })
-})
-round(-log10(gst_tab),1)
-
-## check densities 
-mypar(ncol(t0_contrasts),1)
-g = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_ASC102.2018 
-g_asd = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_ASD53
-g_dd = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_DDID49
-for(i in 1:ncol(t0_contrasts)) {
-	plot(density(t0_contrasts[!g,i]), lwd=2,col="black",xlab="",
-		main=colnames(t0_contrasts)[i],xlim = c(-10,15))
-	lines(density(t0_contrasts[g,i]), lwd=2,col="red")
-	lines(density(t0_contrasts[g_asd,i]), lwd=2,col="red",lty=2)
-	lines(density(t0_contrasts[g_dd,i]), lwd=2,col="red",lty=3)
-	abline(v=0,lty=2)
-}
-
-pdf("pdf/ASD_genes_layer_density.pdf",h=4,useDingbats=FALSE)
-par(mar=c(5,6,1,1),cex.axis= 1.4,cex.lab=1.8)
-for(i in 1:ncol(t0_contrasts)) {
-    layer = t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.1
-	plot(density(t0_contrasts[!g,i]), lwd=3,col="black",
-		xlab=paste0(colnames(t0_contrasts)[i], ": Specificity T-stats"),
-		sub = "", main="",xlim = c(-8,8))
-	lines(density(t0_contrasts[g,i]), lwd=3,col="red")
-	lines(density(t0_contrasts[g_asd,i]), lwd=3,col="red",lty=2)
-	lines(density(t0_contrasts[g_dd,i]), lwd=3,col="red",lty=3)
-	abline(v=0,lty=2)
-	abline(v=	min(t0_contrasts[layer,i]))
-
-	ll = ifelse(i == 1, "topright", "topleft")
-	legend(ll, c("BG", "102 All", "53 ASD", "49 DDID"), bty="n",
-		col = c("black","red","red","red"),	lty = c(1,1,2,3),cex=1.5,lwd=4)
-}
-dev.off()
-
-diag(cor(t(-log10(gst_tab)),t(-log10(pMat))))
 ################
 ## make plots ##
 ################
@@ -345,8 +298,6 @@ diag(cor(t(-log10(gst_tab)),t(-log10(pMat))))
 ################
 ## dotplots ####
 ################
-
-library(ggplot2)
 
 ## make long
 enrichLong = reshape2::melt(enrichTab[,c(seq(1,19,by=3),22:26)],id.vars = 8:12)
@@ -387,23 +338,6 @@ enrichLong_ASD$LayerFac = factor(as.character(enrichLong_ASD$Layer),
 	c("WM", paste0("Layer", 6:1)))
 enrichLong_ASD = enrichLong_ASD[order(enrichLong_ASD$ID2, enrichLong_ASD$LayerFac),]
 
-#### overall ###
-pdf("pdf/clinical_gene_sets_ASDfocus_dotplot.pdf",h=9.5,w=7.5)
-print(
-	ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, size=OR, color=-log10(P_thresh))) +
-		geom_point() + scale_color_continuous(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
-			theme_dark() + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
-			scale_size(range=c(1, 10))  
-)
-dev.off()		
-
-
 ### custom heatmap
 
 midpoint = function(x) x[-length(x)] + diff(x)/2
@@ -411,7 +345,7 @@ midpoint = function(x) x[-length(x)] + diff(x)/2
 customLayerEnrichment = function(enrichTab , groups, xlabs, 
 	Pthresh = 12, ORcut = 3, enrichOnly = FALSE,
 	layerHeights = c(0,40,55,75,85,110,120,135),
-	mypal = c("white", colorRampPalette(brewer.pal(9,"BuGn"))(50))) {
+	mypal = c("white", colorRampPalette(brewer.pal(9,"YlOrRd"))(50))) {
 
 	wide_p = -log10( enrichTab[groups,grep("Pval", colnames(enrichTab))])
 	wide_p[wide_p > Pthresh] = Pthresh
@@ -461,8 +395,72 @@ text(x = c(2,6), y = 142, c("SCZD-DE", "SCZD-TWAS"), xpd=TRUE,cex=2.5,font=2)
 dev.off()
 
 
+###################
+#### overall ###
+pdf("pdf/clinical_gene_sets_ASDfocus_dotplot.pdf",h=9.5,w=7.5)
+print(
+	ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, size=OR, color=-log10(P_thresh))) +
+		geom_point() + scale_color_continuous(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
+			theme_dark() + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
+			scale_size(range=c(1, 10))  
+)
+dev.off()		
 
 
+
+#############################
+### GSEA #####################
+#############################
+
+## do enrichment
+gst_tab = apply(t0_contrasts, 2, function(tt) {
+	sapply(geneList_present, function(g) {
+       geneSetTest(index = rownames(t0_contrasts) %in% g,
+		statistics = tt, alternative = "up")
+    })
+})
+round(-log10(gst_tab),1)
+
+## check densities 
+mypar(ncol(t0_contrasts),1)
+g = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_ASC102.2018 
+g_asd = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_ASD53
+g_dd = rownames(t0_contrasts) %in% geneList_present$Gene_Satterstrom_DDID49
+for(i in 1:ncol(t0_contrasts)) {
+	plot(density(t0_contrasts[!g,i]), lwd=2,col="black",xlab="",
+		main=colnames(t0_contrasts)[i],xlim = c(-10,15))
+	lines(density(t0_contrasts[g,i]), lwd=2,col="red")
+	lines(density(t0_contrasts[g_asd,i]), lwd=2,col="red",lty=2)
+	lines(density(t0_contrasts[g_dd,i]), lwd=2,col="red",lty=3)
+	abline(v=0,lty=2)
+}
+
+pdf("pdf/ASD_genes_layer_density.pdf",h=4,useDingbats=FALSE)
+par(mar=c(5,6,1,1),cex.axis= 1.4,cex.lab=1.8)
+for(i in 1:ncol(t0_contrasts)) {
+    layer = t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.1
+	plot(density(t0_contrasts[!g,i]), lwd=3,col="black",
+		xlab=paste0(colnames(t0_contrasts)[i], ": Specificity T-stats"),
+		sub = "", main="",xlim = c(-8,8))
+	lines(density(t0_contrasts[g,i]), lwd=3,col="red")
+	lines(density(t0_contrasts[g_asd,i]), lwd=3,col="red",lty=2)
+	lines(density(t0_contrasts[g_dd,i]), lwd=3,col="red",lty=3)
+	abline(v=0,lty=2)
+	abline(v=	min(t0_contrasts[layer,i]))
+
+	ll = ifelse(i == 1, "topright", "topleft")
+	legend(ll, c("BG", "102 All", "53 ASD", "49 DDID"), bty="n",
+		col = c("black","red","red","red"),	lty = c(1,1,2,3),cex=1.5,lwd=4)
+}
+dev.off()
+
+diag(cor(t(-log10(gst_tab)),t(-log10(pMat))))
 
 
 

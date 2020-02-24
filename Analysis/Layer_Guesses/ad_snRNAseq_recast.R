@@ -292,3 +292,5 @@ fit = lmFit(mat_filter, design = mod,
             block = sce_pseudobulk_layered$individualID,
             correlation = corfit$consensus.correlation)
 eb = eBayes(fit)
+
+colSums(apply(eb$p.value,2,p.adjust,"fdr") < 0.05)
