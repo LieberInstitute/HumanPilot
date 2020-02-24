@@ -10,6 +10,9 @@ library('org.Hs.eg.db')
 library('GenomicFeatures')
 library('scran')
 library('here')
+library('RColorBrewer')
+library('ggplot2')
+library('fields')
 
 ## load sce object
 sce_layer_file <-
@@ -194,8 +197,6 @@ twas_geneList = list(TWAS_BS2_SCZ.Up = tt_dlpfc$ensemblID[tt_dlpfc$TWAS.Z > 0 & 
 			TWAS_PE_SCZBD.Up = twas_bpdscz$ID[twas_bpdscz$TWAS.Z > 0 & twas_bpdscz$TWAS.FDR < 0.05],
 			TWAS_PE_SCZBD.Down = twas_bpdscz$ID[twas_bpdscz$TWAS.Z < 0 & twas_bpdscz$TWAS.FDR < 0.05])
 
-
-
 ###############
 ### combine ###
 ###############
@@ -348,18 +349,147 @@ diag(cor(t(-log10(gst_tab)),t(-log10(pMat))))
 library(ggplot2)
 
 ## make long
-enrichLong = reshape2::melt(enrichTab[,c(1,3,5,7,9,11,13,15:18)],id.vars = 8:11)
-colnames(enrichLong)[5:6] = c("Layer", "OR")
-enrichLong_P = reshape2::melt(enrichTab[,c(2,4,6,8,10,12,14,15:18)],id.vars = 8:11)
+enrichLong = reshape2::melt(enrichTab[,c(seq(1,19,by=3),22:26)],id.vars = 8:12)
+colnames(enrichLong)[6:7] = c("Layer", "OR")
+enrichLong_P = reshape2::melt(enrichTab[,c(seq(2,20,by=3),22:26)],id.vars = 8:12)
 identical(enrichLong$ID, enrichLong_P$ID)
 enrichLong$P = enrichLong_P$value
 enrichLong$Layer = ss(as.character(enrichLong$Layer), "\\.")
 enrichLong$ID = factor(enrichLong$ID, levels=rev(rownames(enrichTab)))
 enrichLong$Set = factor(enrichLong$Set, levels=unique(rev(enrichTab$Set)))
+enrichLong$FDR = p.adjust(enrichLong$P, "fdr")
+
+## what p-value controls FDR?
+enrichLongSort = enrichLong[order(enrichLong$P),]
+max(enrichLongSort$P[enrichLongSort$FDR < 0.05] )
+# 0.01009034
 
 ## overall ##
 enrichLong$P_thresh = enrichLong$P
 enrichLong$P_thresh[enrichLong$P_thresh < 2.2e-16] = 2.2e-16
+
+### ASD focus
+enrichLong_ASD = enrichLong[enrichLong$ID %in% 
+	c("Gene_SFARI_all", "Gene_Satterstrom_ASC102.2018",
+	"Gene_Satterstrom_ASD53", "Gene_Satterstrom_DDID49",
+	"DE_PE_ASD.Down", "DE_PE_ASD.Up",
+	"TWAS_PE_ASD.Up", "TWAS_PE_ASD.Down"),]
+enrichLong_ASD$ID2 =  as.character(droplevels(enrichLong_ASD$Set))
+enrichLong_ASD$ID2[enrichLong_ASD$ID2 == "all"] = "SFARI"
+enrichLong_ASD$ID2[enrichLong_ASD$ID2 == "ASC102.2018"] = "ASC102"
+enrichLong_ASD$ID2[enrichLong_ASD$ID == "DE_PE_ASD.Up"] = "DE.Up"
+enrichLong_ASD$ID2[enrichLong_ASD$ID == "DE_PE_ASD.Down"] = "DE.Down"
+enrichLong_ASD$ID2[enrichLong_ASD$ID == "TWAS_PE_ASD.Up"] = "TWAS.Up"
+enrichLong_ASD$ID2[enrichLong_ASD$ID == "TWAS_PE_ASD.Down"] = "TWAS.Down"
+enrichLong_ASD$ID2 = factor(enrichLong_ASD$ID2, unique(enrichLong_ASD$ID2))
+
+enrichLong_ASD$LayerFac = factor(as.character(enrichLong_ASD$Layer), 
+	c("WM", paste0("Layer", 6:1)))
+enrichLong_ASD = enrichLong_ASD[order(enrichLong_ASD$ID2, enrichLong_ASD$LayerFac),]
+
+#### overall ###
+pdf("pdf/clinical_gene_sets_ASDfocus_dotplot.pdf",h=9.5,w=7.5)
+print(
+	ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, size=OR, color=-log10(P_thresh))) +
+		geom_point() + scale_color_continuous(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
+			theme_dark() + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
+			scale_size(range=c(1, 10))  
+)
+dev.off()		
+
+
+### custom heatmap
+
+midpoint = function(x) x[-length(x)] + diff(x)/2
+
+customLayerEnrichment = function(enrichTab , groups, xlabs, 
+	Pthresh = 12, ORcut = 3, enrichOnly = FALSE,
+	layerHeights = c(0,40,55,75,85,110,120,135),
+	mypal = c("white", colorRampPalette(brewer.pal(9,"BuGn"))(50))) {
+
+	wide_p = -log10( enrichTab[groups,grep("Pval", colnames(enrichTab))])
+	wide_p[wide_p > Pthresh] = Pthresh
+	wide_p = t(round(wide_p[,
+		c("WM.Pval", "Layer6.Pval", "Layer5.Pval", "Layer4.Pval", "Layer3.Pval","Layer2.Pval", "Layer1.Pval")],2))
+
+	wide_or = enrichTab[groups,grep("OR", colnames(enrichTab))]
+	wide_or= round(t(wide_or[,
+		c("WM.OR", "Layer6.OR", "Layer5.OR", "Layer4.OR", "Layer3.OR", "Layer2.OR", "Layer1.OR")]),1)
+	if(enrichOnly) wide_p[wide_or < 1] = 0
+	wide_or[wide_p < ORcut] = ""
+
+	image.plot(x = seq(0,ncol(wide_p),by=1), y = layerHeights, z = as.matrix(t(wide_p)),
+		col = mypal,xaxt="n", yaxt="n",xlab = "", ylab="")
+	axis(2, c("WM", paste0("L", 6:1)), at = midpoint(layerHeights),las=1)
+	axis(1, rep("", ncol(wide_p)), at = seq(0.5,ncol(wide_p)-0.5))
+	text(x = seq(0.5,ncol(wide_p)-0.5), y=-1*max(nchar(xlabs))/2, xlabs,
+		xpd=TRUE, srt=45,cex=2,adj= 1)
+	abline(h=layerHeights,v=0:ncol(wide_p))
+	text(x = rep(seq(0.5,ncol(wide_p)-0.5),each = nrow(wide_p)), 
+		y = rep(midpoint(layerHeights), ncol(wide_p)),
+		as.character(wide_or),cex=1.5,font=2)
+}
+	
+pdf("pdf/asd_geneSet_heatmap.pdf",w=6)
+par(mar=c(8,4.5,2.5,1), cex.axis=2,cex.lab=2)
+groups = unique(as.character(enrichLong_ASD$ID))[1:6]
+xlabs  = as.character(enrichLong_ASD$ID2[match(groups, enrichLong_ASD$ID)])
+customLayerEnrichment(enrichTab, groups,xlabs, enrichOnly=TRUE)
+abline(v=4,lwd=3)
+text(x = 3, y = 142, c("ASD"), xpd=TRUE,cex=2.5,font=2)
+
+dev.off()
+
+
+pdf("pdf/sczd_geneSet_heatmap.pdf",w=8)
+par(mar=c(8,4.5,2.5,1), cex.axis=2,cex.lab=2)
+
+groups =c("DE_PE_SCZ.Up", "DE_PE_SCZ.Down", 
+	"DE_BS2_SCZ.Up", "DE_BS2_SCZ.Down", 
+	"TWAS_BS2_SCZ.Up", "TWAS_BS2_SCZ.Down", "TWAS_PE_SCZ.Up",
+	"TWAS_PE_SCZ.Down")
+xlabs = ss(gsub("_SCZ", "", groups), "_", 2)
+customLayerEnrichment(enrichTab, groups,xlabs, enrichOnly=TRUE)
+abline(v=4,lwd=3)
+text(x = c(2,6), y = 142, c("SCZD-DE", "SCZD-TWAS"), xpd=TRUE,cex=2.5,font=2)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################
+## old ggplot 2 code ##
+#######################
+
+enrichLong_ASD$P_thresh[enrichLong_ASD$P_thresh < 1e-12] = 1e-12
+ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, fill =-log10(P_thresh))) +
+		geom_tile(height = rep(c(5,3,4,1,4,1,2),times=8)) + 
+		scale_fill_gradient(low="white", high="darkred", 
+			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
+			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
+			theme(text = element_text(size = 20),
+				axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.key = element_rect(colour = "transparent", fill = "white")) +	
+			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
+			scale_size(range=c(1, 10))  
+dev.off()
+
 
 #### overall ###
 pdf("pdf/clinical_gene_sets_all_dotplot.pdf",h=9.5,w=7.5)
@@ -424,44 +554,3 @@ for(i in seq(along=enrichLong_groupList)) {
 dev.off()
 
 
-
-## ggplot2 style?
-negp_long = reshape2::melt(-log10(pMat))
-
-theSeq = seq(0, 12, by = 0.1)
-my.col <- colorRampPalette(c("white", "red"))(length(theSeq))
-
-## overall
-
-negPmat[negPmat > 12] = 12
-
-## ASD
-negPmat_ASD = negPmat[c(7:9, 4:6, 24:25), ]
-rownames(negPmat_ASD)[7:8] = c("DE_ASD_Up", "DE_ASD_Down")
-
-negPmat_ASD = as.matrix(negPmat_ASD)
-negPmat_ASD = negPmat_ASD[, c(2:7, 1)]
-negPmat_ASD = negPmat_ASD[nrow(negPmat_ASD):1, ]
-
-pdf("pdf/ASD_risk_gene_heatmap.pdf", width = 8)
-print(
-    levelplot(
-        t(negPmat_ASD),
-        asPEct = "fill",
-        at = theSeq,
-        col.regions = my.col,
-        ylab = "",
-        xlab = "",
-        scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
-    )
-)
-dev.off()
-
-enrichTab_harm = enrichTab[enrichTab$Group == "Harmonizome", ]
-fdrTab_harm = apply(enrichTab_harm[, grep("Pval", colnames(enrichTab_harm))], 2, p.adjust, "fdr")
-colSums(fdrTab_harm < 0.05)
-colSums(enrichTab_harm[, grep("Pval", colnames(enrichTab_harm))] < 1e-10)
-colSums(enrichTab_harm[, grep("Pval", colnames(enrichTab_harm))] < 1e-20)
-harm_top10 = apply(enrichTab_harm[, grep("Pval", colnames(enrichTab_harm))], 2,
-    function(x)
-        gsub("Harmonizome_", "", rownames(enrichTab_harm)[order(x)[1:10]]))
