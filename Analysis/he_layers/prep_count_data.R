@@ -4,34 +4,27 @@ library(jaffelab)
 library(readxl)
 library(VariantAnnotation)
 library(rtracklayer)
+library(janitor)
+
+# read in sra and supp table info
+pd = read.csv("he_SraRunTable.txt",as.is=TRUE,row.names=1)
+pheno = read_excel("41593_2017_BFnn4548_MOESM254_ESM.xlsx", sheet=1)
+pheno = as.data.frame( clean_names(pheno))
+pheno = pheno[pheno$species == "Human",]
+
+mm = match(pd$Sample.Name, pheno$sample_id)
+pheno = pheno[mm,]
+pheno$Run = pd$Run
+rownames(pheno) = pheno$Run
+
 
 ## load rses
 load("rse_gene_hypoxia_brady_n8.Rdata")
-load("rse_exon_hypoxia_brady_n8.Rdata")
-load("rse_jx_hypoxia_brady_n8.Rdata")
-load("rse_tx_hypoxia_brady_n8.Rdata")
-
-# read in pheno
-pd = read.csv("SraRunTable.txt",as.is=TRUE,row.names=1)
-pd = pd[colnames(rse_gene),]
-
-rse_gene$Hypoxia = ifelse(pd$source_name == "normoxia", 0 ,1)
-rse_exon$Hypoxia = ifelse(pd$source_name == "normoxia", 0 ,1)
-rse_jx$Hypoxia = ifelse(pd$source_name == "normoxia", 0 ,1)
-rse_tx$Hypoxia = ifelse(pd$source_name == "normoxia", 0 ,1)
-
-boxplot(mitoRate ~ Hypoxia, data = colData(rse_gene))
-boxplot(concordMapRate ~ Hypoxia, data = colData(rse_gene))
-boxplot(totalAssignedGene ~ Hypoxia, data = colData(rse_gene))
-
-## drop junctions to get under file limit
-rse_jx = rse_jx[rowSums(assays(rse_jx)$counts) > 1,]
+pheno = pheno[colnames(rse_gene),]
+colData(rse_gene) = cbind(DataFrame(pheno), colData(rse_gene))
 
 ## save
-save(rse_gene, file="../count_data/rse_gene_hypoxia_brady_n8_annotated.Rdata")
-save(rse_exon, file="../count_data/rse_exon_hypoxia_brady_n8_annotated.Rdata")
-save(rse_jx, file="../count_data/rse_jx_hypoxia_brady_n8_annotated.Rdata")
-save(rse_tx, file="../count_data/rse_tx_hypoxia_brady_n8_annotated.Rdata")
+save(rse_gene, file="rse_gene_hypoxia_brady_n8_annotated.Rdata")
 
 ###########################
 #### check genotypes ####

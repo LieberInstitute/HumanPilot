@@ -12,23 +12,29 @@ library(pheatmap)
 ## read in sce.dlpfca
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_DLPFC-n2_cleaned-combined_SCE_MNTFeb2020.rda")
 
-########################
-### broad clusters #####
-########################
+## drop ambig clusters
+sce.dlpfc = sce.dlpfc[,sce.dlpfc$cellType != "Ambig.lowNtrxts"]
+
+## numbers for paper
+dim(sce.dlpfc)
+length(unique(sce.dlpfc$prelimCluster))
 
 ## get pseudobulk
-sce.dlpfc$PseudoSample = paste0(sce.dlpfc$sample, ":", sce.dlpfc$prelimCluster)
+sce.dlpfc$PseudoSample = paste0(sce.dlpfc$sample,
+			":", sce.dlpfc$prelimCluster)
 
+## sum counts
 cIndexes = splitit(sce.dlpfc$PseudoSample)
 umiComb <- sapply(cIndexes, function(ii)
     rowSums(assays(sce.dlpfc)$counts[, ii, drop = FALSE]))
 
+## filter pheno
 phenoComb = colData(sce.dlpfc)[!duplicated(sce.dlpfc$PseudoSample), 
 	c("prelimCluster", "collapsedCluster", "cellType", "PseudoSample")]
-
 rownames(phenoComb) = phenoComb$PseudoSample
 phenoComb = phenoComb[colnames(umiComb), ]
 phenoComb = DataFrame(phenoComb)
+phenoComb$prelimCluster = droplevels(phenoComb$prelimCluster)
 
 sce_pseudobulk <-
     logNormCounts(SingleCellExperiment(
@@ -97,37 +103,37 @@ data.frame(
 )
 
    # FDRsig Pval10.6sig Pval10.8sig
-# 1    1646         770         557
-# 2     346         147         103
-# 3     315         153         127
-# 4     306         118          66
-# 5     846         288         165
-# 6     247          92          48
-# 7     965         281         170
-# 8     308         183         142
-# 9     302         136          94
-# 10    381         159          96
-# 11    218          91          51
-# 12    356         174         123
-# 13    307         177         129
-# 14    292         133         104
-# 15    207          96          48
-# 16    312         114          65
-# 17    251         179          31
-# 18    198          94          65
-# 19    426         149          98
-# 20    192          57          17
-# 21    173          56          27
-# 22    229          86          39
-# 23    192          69          39
-# 24    609         177         105
-# 25    408         153          84
-# 26    236          71          28
-# 27    274         111          63
-# 28    261         119          81
-# 29    178          64          33
-# 30    318         106          60
-# 31    396         157          96
+# 1    1685         825         600
+# 2     330         143         103
+# 3     313         152         126
+# 4     291         107          64
+# 5     855         292         163
+# 6     241          83          42
+# 7     949         282         160
+# 8     311         184         142
+# 9     305         131          94
+# 10    377         142          94
+# 11    211          86          46
+# 12    349         158         121
+# 13    301         173         130
+# 14    267         130         100
+# 15    190          91          42
+# 16    288         104          61
+# 17    248         178          31
+# 18    185          91          66
+# 19    394         140          88
+# 20    195          51          14
+# 21    169          51          22
+# 22    222          75          32
+# 23    183          68          36
+# 25    384         147          75
+# 26    230          67          22
+# 27    251         101          60
+# 28    267         116          82
+# 29    173          60          32
+# 30    303         103          53
+# 31    380         147          94
+
 
 ############################
 ### correlate to layer?? ###
@@ -195,7 +201,7 @@ dd = dist(1-cor_t_layer)
 hc = hclust(dd)
 cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
 rownames(cor_t_layer_toPlot) = ct$lab[match(rownames(cor_t_layer_toPlot), ct$prelimCluster)]
-
+colnames(cor_t_layer_toPlot) = gsub("ayer", "", colnames(cor_t_layer_toPlot))
 
 pdf("pdf/dlpfc_snRNAseq_overlap_heatmap.pdf", width = 10)
 print(
@@ -210,36 +216,3 @@ print(
     )
 )
 dev.off()
-#### gene expression
-g = c("SNAP25", "CAMK2A", "GAD2", "SOX11",
-	"FOXP2", "PDGFRA", "MBP", "PLP1",
-	"AQP4", "GFAP", "CD74")
-t0_contrasts_cell_markers = t0_contrasts_cell[g,]
-
-cc_cell_layer = cor(t(t0_contrasts_cell_markers), cor_t_layer)
-signif(cc_cell_layer,3)
-
-### heatmap
-theSeq2 = seq(-5, 5, by = 0.01)
-my.col2 <- colorRampPalette(brewer.pal(7, "RdBu"))(length(theSeq2))
-t0_contrasts_cell_markers_plot = t(t0_contrasts_cell_markers)
-t0_contrasts_cell_markers_plot[t0_contrasts_cell_markers_plot > 5] = 5
-t0_contrasts_cell_markers_plot = t0_contrasts_cell_markers_plot[,ncol(t0_contrasts_cell_markers_plot):1]
-
-pdf("pdf/dlpfc_snRNAseq_marker_heatmap.pdf", width = 10)
-print(
-    levelplot(
-        t0_contrasts_cell_markers_plot,
-        aspect = "fill",
-        at = theSeq2,
-        col.regions = my.col2,
-        ylab = "",
-        xlab = "",
-        scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
-    )
-)
-dev.off()
-
-########################################
-#### specific /collapsed clusters ######
-########################################

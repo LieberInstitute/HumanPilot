@@ -233,6 +233,8 @@ theSeq = seq(-.85, .85, by = 0.01)
 my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
 cor_t_layer_toPlot = cor_t_layer[,c(1, 7:2)]
+colnames(cor_t_layer_toPlot) = gsub("ayer", "", colnames(cor_t_layer_toPlot))
+
 pdf("pdf/allen_brain_layer_overlap_heatmap.pdf", width = 8)
 print(
     levelplot(

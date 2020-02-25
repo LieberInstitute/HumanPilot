@@ -247,6 +247,10 @@ enrichTab$Set = ss(rownames(enrichTab), "_", 3)
 enrichTab$ID = rownames(enrichTab)
 enrichTab$SetSize = sapply(geneList_present, length)
 
+### save a copy as a supp table
+enrichTabOut = enrichTab[,c(25, 22:24,26, 1:21)]
+write.csv(enrichTabOut, file = "SupplementaryTableXX_clinical_enrichment.csv",row.names=FALSE)
+
 ## look at enrichment
 pMat = enrichTab[, grep("Pval", colnames(enrichTab))]
 orMat = enrichTab[, grep("OR", colnames(enrichTab))]
@@ -295,10 +299,6 @@ enrichTab[c("DE_PE_SCZ.Down","DE_BS2_SCZ.Down"),]
 ## make plots ##
 ################
 
-################
-## dotplots ####
-################
-
 ## make long
 enrichLong = reshape2::melt(enrichTab[,c(seq(1,19,by=3),22:26)],id.vars = 8:12)
 colnames(enrichLong)[6:7] = c("Layer", "OR")
@@ -345,7 +345,7 @@ midpoint = function(x) x[-length(x)] + diff(x)/2
 customLayerEnrichment = function(enrichTab , groups, xlabs, 
 	Pthresh = 12, ORcut = 3, enrichOnly = FALSE,
 	layerHeights = c(0,40,55,75,85,110,120,135),
-	mypal = c("white", colorRampPalette(brewer.pal(9,"YlOrRd"))(50))) {
+	mypal = c("white", colorRampPalette(brewer.pal(9,"YlOrRd"))(50)), ...) {
 
 	wide_p = -log10( enrichTab[groups,grep("Pval", colnames(enrichTab))])
 	wide_p[wide_p > Pthresh] = Pthresh
@@ -359,7 +359,7 @@ customLayerEnrichment = function(enrichTab , groups, xlabs,
 	wide_or[wide_p < ORcut] = ""
 
 	image.plot(x = seq(0,ncol(wide_p),by=1), y = layerHeights, z = as.matrix(t(wide_p)),
-		col = mypal,xaxt="n", yaxt="n",xlab = "", ylab="")
+		col = mypal,xaxt="n", yaxt="n",xlab = "", ylab="", ...)
 	axis(2, c("WM", paste0("L", 6:1)), at = midpoint(layerHeights),las=1)
 	axis(1, rep("", ncol(wide_p)), at = seq(0.5,ncol(wide_p)-0.5))
 	text(x = seq(0.5,ncol(wide_p)-0.5), y=-1*max(nchar(xlabs))/2, xlabs,
@@ -395,23 +395,13 @@ text(x = c(2,6), y = 142, c("SCZD-DE", "SCZD-TWAS"), xpd=TRUE,cex=2.5,font=2)
 dev.off()
 
 
-###################
-#### overall ###
-pdf("pdf/clinical_gene_sets_ASDfocus_dotplot.pdf",h=9.5,w=7.5)
-print(
-	ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, size=OR, color=-log10(P_thresh))) +
-		geom_point() + scale_color_continuous(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
-			theme_dark() + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
-			scale_size(range=c(1, 10))  
-)
-dev.off()		
-
+pdf("pdf/suppXX_birnbaum_geneSet_heatmap.pdf",w=8)
+par(mar=c(12,5.5,2.5,1), cex.axis=2,cex.lab=2)
+groups =grep(enrichTab$ID, pattern = "Birnbaum", value=TRUE)
+xlabs = ss(groups, "_", 3)
+customLayerEnrichment(enrichTab, groups,xlabs, enrichOnly=TRUE,
+	breaks = seq(0,12,len = 51))
+dev.off()
 
 
 #############################
@@ -462,93 +452,5 @@ dev.off()
 
 diag(cor(t(-log10(gst_tab)),t(-log10(pMat))))
 
-
-
-
-
-
-
-
-
-
-#######################
-## old ggplot 2 code ##
-#######################
-
-enrichLong_ASD$P_thresh[enrichLong_ASD$P_thresh < 1e-12] = 1e-12
-ggplot(enrichLong_ASD, aes(y=LayerFac, x=ID2, fill =-log10(P_thresh))) +
-		geom_tile(height = rep(c(5,3,4,1,4,1,2),times=8)) + 
-		scale_fill_gradient(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle("ASD Gene Enrichment") + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
-			scale_size(range=c(1, 10))  
-dev.off()
-
-
-#### overall ###
-pdf("pdf/clinical_gene_sets_all_dotplot.pdf",h=9.5,w=7.5)
-print(
-	ggplot(enrichLong, aes(x=Layer, y=ID, size=OR, color=-log10(P_thresh))) +
-		geom_point() + scale_color_continuous(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle("Clinical Gene Enrichment") + 
-			theme_dark() + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			# guides(size = guide_legend(override.aes = list(color = "white"))) + 				
-			scale_size(range=c(1, 10))  
-)
-dev.off()		
-
-#### ASD focus ###
-enrichLong_typeList = split(enrichLong, enrichLong$Type)
-enrichLong_typeList = lapply(enrichLong_typeList, function(x) {
-	x$ID = paste0(x$Group, ":", x$Set)
-	x$ID = factor(x$ID, unique(rev(paste0(enrichTab$Group, ":", enrichTab$Set))))
-	return(x)
-})
-
-pdf("pdf/clinical_gene_sets_byType_dotplot.pdf",h=6,w=7.5)
-for(i in seq(along=enrichLong_typeList)) {
-	print(
-		ggplot(enrichLong_typeList[[i]], aes(x=Layer, y=ID, size=OR, color=-log10(P_thresh))) +
-			geom_point() + scale_color_continuous(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle(paste(names(enrichLong_typeList)[i],
-				"Enrichment")) + 
-			theme_dark() + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			scale_size(range=c(1, 10))
-		)
-}		
-dev.off()
-
-enrichLong_groupList = split(enrichLong, paste(enrichLong$Type, enrichLong$Group))
-names(enrichLong_groupList)[3] = "Birnbaum Gene"
-
-pdf("pdf/clinical_gene_sets_byGroup_dotplot.pdf",h=6,w=7.5)
-for(i in seq(along=enrichLong_groupList)) {
-	print(
-		ggplot(enrichLong_groupList[[i]],
-			aes(x=Layer, y=Set, size=OR, color=-log10(P_thresh))) +
-			geom_point() + scale_color_continuous(low="white", high="darkred", 
-			name = "-log10(p)", guide=guide_colorbar(reverse=TRUE))+ 
-			ylab(NULL) +xlab(NULL) + ggtitle(paste(names(enrichLong_groupList)[i],
-				"Enrichment")) + 
-			theme_dark() + 
-			theme(text = element_text(size = 20),
-				axis.text.x = element_text(angle = 90, hjust = 1),
-				legend.key = element_rect(colour = "transparent", fill = "white")) +	
-			scale_size(range=c(1, 10)) + guides(fill = "white") 
-		)
-}		
-dev.off()
 
 

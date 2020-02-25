@@ -224,6 +224,7 @@ dd = dist(1-cor_t_layer)
 hc = hclust(dd)
 plot(hc)
 cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
+colnames(cor_t_layer_toPlot) = gsub("ayer", "", colnames(cor_t_layer_toPlot))
 
 pdf("pdf/mathys_snRNAseq_overlap_heatmap.pdf", width = 11)
 print(

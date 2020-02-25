@@ -38,7 +38,6 @@ save(sce_pseudobulk, file = "rda/velmeshev_pseudobulked.Rdata")
 ##### get mean expression  ####
 
 load("rda/velmeshev_pseudobulked.Rdata")
-
 mat <- assays(sce_pseudobulk)$logcounts
 
 ## filter
@@ -175,6 +174,8 @@ my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 dd = dist(1-cor_t_layer)
 hc = hclust(dd)
 cor_t_layer_toPlot = cor_t_layer[hc$order, c(1, 7:2)]
+colnames(cor_t_layer_toPlot) = gsub("ayer", "", colnames(cor_t_layer_toPlot))
+rownames(cor_t_layer_toPlot)[rownames(cor_t_layer_toPlot) == "Oligodendrocytes"] = "OLIGO"
 
 pdf("pdf/velmeshev_snRNAseq_overlap_heatmap.pdf", width = 8)
 print(

@@ -18,7 +18,6 @@ library('janitor')
 library('org.Hs.eg.db')
 library('GenomicFeatures')
 library('SparseM')
-library('MatrixModels')
 library('biomaRt')
 
 ## Load data
@@ -122,12 +121,12 @@ ens = select(org.Hs.eg.db, key=as.character(neuropil$entrez_hs),
 	columns="ENSEMBL", keytype="ENTREZID")
 neuropil$ensembl_hs = ens$ENSEMBL[match(neuropil$entrez_hs, ens$ENTREZID)]
 
-#### my stats recaluclated
-neuropil_2 = read.csv("../hafner_vglut/vglut1_de_stats.csv",
-	row.names=1, as.is=TRUE)
-neuropil_2$symbol_hs = hom2$symbol_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
-neuropil_2$entrez_hs = hom2$entrez_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
-neuropil_2$ensembl_hs = ens$ENSEMBL[match(neuropil_2$entrez_hs, ens$ENTREZID)]
+# #### my stats recaluclated
+# neuropil_2 = read.csv("../hafner_vglut/vglut1_de_stats.csv",
+	# row.names=1, as.is=TRUE)
+# neuropil_2$symbol_hs = hom2$symbol_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
+# neuropil_2$entrez_hs = hom2$entrez_hs[match(neuropil_2$EntrezID, hom2$entrez_mm)]
+# neuropil_2$ensembl_hs = ens$ENSEMBL[match(neuropil_2$entrez_hs, ens$ENTREZID)]
 
 # ensembl=useMart("ensembl",dataset = 'mmusculus_gene_ensembl')
 # MMtoHG = getBM(attributes = c('ensembl_gene_id','hsapiens_homolog_ensembl_gene'),mart = ensembl)
@@ -147,17 +146,11 @@ neuropil_2$ensembl_hs = ens$ENSEMBL[match(neuropil_2$entrez_hs, ens$ENTREZID)]
 
 ## human anno
 load("rda/linear_model_zerospot.Rdata")
-stats_2 = stats # for second dataset
 
 stats$in_neuropil = rownames(stats) %in% neuropil$ensembl_hs[neuropil$padj < 0.05]
 stats$neuropil_padj = neuropil$padj[match(rownames(stats), neuropil$ensembl_hs)]
 stats$neuropil_stat = neuropil$stat[match(rownames(stats), neuropil$ensembl_hs)]
 stats$neuropil_logFC = neuropil$Log2FoldChange[match(rownames(stats), neuropil$ensembl_hs)]
-
-stats_2$in_neuropil = rownames(stats) %in% neuropil_2$ensembl_hs[neuropil_2$adj.P.Val < 0.05]
-stats_2$neuropil_padj = neuropil_2$adj.P.Val[match(rownames(stats_2), neuropil_2$ensembl_hs)]
-stats_2$neuropil_stat = neuropil_2$t[match(rownames(stats_2), neuropil_2$ensembl_hs)]
-stats_2$neuropil_logFC = neuropil_2$logFC[match(rownames(stats_2), neuropil_2$ensembl_hs)]
 
 ## plots
 ct = cor.test(stats$logFC, stats$neuropil_logFC)
@@ -176,7 +169,7 @@ plot(logFC ~ neuropil_logFC, data=stats,
 legend("topleft", paste0("r=", signif(ct$estimate, 3)),cex=1.5)
 plot(logFC ~ neuropil_logFC, 
 	data=stats[which(stats$neuropil_padj < 0.05),],
-	main = paste(n_sig, "vGLUT1+ Significat Homologs"),
+	main = paste(n_sig, "vGLUT1+ Significant Homologs"),
 	pch = 21, bg = "grey",
 	xlab = "vGLUT1+ Enrichment (log2FC)",
 	ylab = "Visium Zero Cell Enrichment (logFC)")
