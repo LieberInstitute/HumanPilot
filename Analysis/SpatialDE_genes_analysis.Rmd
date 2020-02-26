@@ -144,7 +144,12 @@ for (i in seq_along(sample_names)) {
     stopifnot(length(ix_mito) == nrow(sce_sub_SpatialDE))
     
     # apply filtering
-    sce_filt <- sce_sub_SpatialDE[(!ix_low_UMI) & (!ix_mito), ]
+    ix_keep <- (!ix_low_UMI) & (!ix_mito)
+    
+    print(sample_names[i])
+    print(table(ix_keep))
+    
+    sce_filt <- sce_sub_SpatialDE[ix_keep, ]
     dim(sce_filt)
     
     sce_filt_list[[i]] <- sce_filt
@@ -629,14 +634,12 @@ upset(
     keep.order = TRUE
 )
 #dev.off()
-
-#system("cp ../plots/SpatialDE_genes_analysis/upset_genes_combined.pdf ../plots/figure/fig_LMW_gene_lists_intersection.pdf")
 ```
 
 
-```{r, fig.width = 6.75, fig.height = 2.75}
+```{r, fig.width = 5.25, fig.height = 3.75}
 # select gene(s)
-genes_fig <- c("PCP4", "HBB", "IGKC")
+genes_fig <- c("MOBP", "PCP4", "SNAP25", "HBB", "IGKC", "NPY")
 
 # subset original SCE object
 sce_fig <- sce[toupper(rowData(sce)$gene_name) %in% genes_fig, 
@@ -680,14 +683,14 @@ max_UMI <- max(d_plot$UMIs)
 
 p_selected <- 
     ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-        facet_wrap(~ gene_name) + 
-        geom_point(size = 0.2) + 
+        facet_wrap(~ gene_name, nrow = 2) + 
+        geom_point(size = 0.05) + 
         scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
                               values = rescale(c(0, 3, 15, max_UMI)), 
                               limits = c(0, max_UMI), 
                               name = "UMI counts") + 
         coord_fixed() + 
-        ggtitle("Expression of selected genes") + 
+        #ggtitle("Expression of selected genes") + 
         theme_bw() + 
             theme(axis.title.x = element_blank(), 
                   axis.title.y = element_blank(), 
@@ -700,8 +703,8 @@ p_selected <-
 
 print(p_selected)
 
-filename <- paste0("../plots/figure/fig_LMW_expression_selected.pdf")
-ggsave(filename, width = 6.75, height = 2.75)
+filename <- paste0("../plots/figure/Fig7_spatialDE_expression_selected.pdf")
+ggsave(filename, width = 5.25, height = 3.75)
 ```
 
 

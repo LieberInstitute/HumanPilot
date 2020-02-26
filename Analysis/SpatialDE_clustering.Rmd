@@ -24,6 +24,7 @@ library(scater)
 library(readr)
 library(readxl)
 library(dplyr)
+library(tidyr)
 library(uwot)
 library(mclust)
 library(aricode)
@@ -462,14 +463,66 @@ method_names_semisupervised <- method_names[!ix_unsupervised]
 ```
 
 
+## Export cluster labels
+
+Export cluster labels for Shiny app.
+
+```{r}
+# separate spreadsheet for each sample
+
+for (i in seq_along(sample_names)) {
+    out <- 
+        d_plot %>% 
+        as_tibble() %>% 
+        filter(sample_name == sample_names[i]) %>% 
+        mutate(key = paste(gsub("^sample_", "", sample_name), spot_name, sep = "_")) %>%
+        select(c("key", "method", "cluster")) %>% 
+        mutate(method = factor(method, levels = method_names)) %>% 
+        spread(key = method, value = cluster)
+    
+    sce_sub <- sce[, colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
+    stopifnot(nrow(out) == ncol(sce_sub))
+    stopifnot(all(out$key == colData(sce_sub)$key))
+    stopifnot(all(colData(sce_sub)$key == out$key))
+    
+    file_out <- paste0("../outputs/SpatialDE_clustering/cluster_labels_", 
+                       gsub("^sample_", "", sample_names[i]), ".csv")
+    write.csv(out, file_out, row.names = FALSE)
+}
+```
+
+
 ## Plots: clustering
+
+```{r}
+# color palette
+library(RColorBrewer)
+
+set1 <- brewer.pal(8, "Set1")
+accent <- brewer.pal(8, "Accent")
+
+my_palette <- set1
+my_palette[1] <- accent[6]
+my_palette[6] <- "darkorange1"
+my_palette[5] <- "gold"
+my_palette[8] <- "gray40"
+my_palette[7] <- "gray10"
+
+my_palette
+
+library(gplots)
+my_palette <- col2hex(my_palette)
+
+my_palette
+```
+
 
 ```{r, fig.width = 12.75, fig.height = 5.5}
 # separate plots for each sample
 p_clustering_unsupervised <- list()
 p_clustering_semisupervised <- list()
 
-colors <- rep(c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black"), 2)
+colors <- rep(my_palette, 2)
 
 for (i in seq_along(sample_names)) {
     
@@ -751,7 +804,7 @@ filename <- "../plots/SpatialDE_clustering/ARI_all_samples.pdf"
 ggsave(filename, width = 8, height = 5)
 
 # save copy of final figure for manuscript
-system("cp ../plots/SpatialDE_clustering/ARI_all_samples.pdf ../plots/figure/fig_LMW_Adjusted_Rand_Index.pdf")
+system("cp ../plots/SpatialDE_clustering/ARI_all_samples.pdf ../plots/figure/Fig7_spatialDE_ARI.pdf")
 ```
 
 
@@ -786,7 +839,7 @@ filename <- "../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf"
 ggsave(filename, width = 8, height = 5)
 
 # save copy of final figure for manuscript
-system("cp ../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf ../plots/figure/fig_LMW_Adjusted_Rand_Index_pvals.pdf")
+system("cp ../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf ../plots/figure/Fig7_spatialDE_ARI_pvals.pdf")
 ```
 
 
@@ -904,7 +957,7 @@ Summary plot for sample 151673 showing:
 
 ```{r, fig.width = 13, fig.height = 3.5}
 # color palette
-colors <- c(Polychrome::palette36.colors(7)[c(2:7, 1)], "black")
+colors <- my_palette
 
 # select sample 151673
 i <- 9
@@ -1027,7 +1080,7 @@ panel_a_ground_truth <-
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 print(panel_a_ground_truth)
-ggsave("../plots/figure/fig_LMW_ground_truth.pdf", width = 3.75, height = 2.75)
+ggsave("../plots/figure/Fig7_spatialDE_ground_truth.pdf", width = 3.75, height = 2.75)
 
 panel_b_i <- 
     p_clustering_unsupervised_best + 
@@ -1053,7 +1106,7 @@ panel_b_iii <-
 # using 'patchwork' package
 panel_b_clustering <- panel_b_i | panel_b_ii | panel_b_iii
 print(panel_b_clustering)
-ggsave("../plots/figure/fig_LMW_clustering.pdf", width = 7.25, height = 2.75)
+ggsave("../plots/figure/Fig7_spatialDE_clustering.pdf", width = 7.25, height = 2.75)
 ```
 
 
@@ -1082,13 +1135,13 @@ panel_a_ground_truth +
     scale_color_manual(values = brewer.pal(8, "Accent"), labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
     theme(title = element_blank(), 
           legend.position = "none")
-ggsave("../plots/figure/color_palette/color_palette_Accent.pdf", width = 2.25, height = 2.5)
+ggsave("../plots/color_palette/color_palette_Accent.pdf", width = 2.25, height = 2.5)
 
 panel_a_ground_truth + 
     scale_color_manual(values = brewer.pal(8, "Set1"), labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
     theme(title = element_blank(), 
           legend.position = "none")
-ggsave("../plots/figure/color_palette/color_palette_Set1.pdf", width = 2.25, height = 2.5)
+ggsave("../plots/color_palette/color_palette_Set1.pdf", width = 2.25, height = 2.5)
 
 
 # custom palette
@@ -1116,13 +1169,13 @@ panel_a_ground_truth +
     scale_color_manual(values = my_palette, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
     theme(title = element_blank(), 
           legend.position = "none")
-ggsave("../plots/figure/color_palette/palette_7colors.pdf", width = 2.25, height = 2.5)
+ggsave("../plots/color_palette/palette_7colors.pdf", width = 2.25, height = 2.5)
 
 panel_b_ii + 
     scale_color_manual(values = my_palette[c(4, 2, 3, 5, 8, 7, 6, 1)], labels = c(paste0("cluster", 1:8))) + 
     theme(title = element_blank(), 
           legend.position = "none")
-ggsave("../plots/figure/color_palette/palette_8colors.pdf", width = 2.25, height = 2.5)
+ggsave("../plots/color_palette/palette_8colors.pdf", width = 2.25, height = 2.5)
 ```
 
 
