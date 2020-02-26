@@ -24,6 +24,7 @@ library(scater)
 library(readr)
 library(readxl)
 library(dplyr)
+library(tidyr)
 library(uwot)
 library(mclust)
 library(aricode)
@@ -459,6 +460,35 @@ method_names <- c(
 ix_unsupervised <- !(grepl("pseudobulk", method_names) | grepl("markers", method_names))
 method_names_unsupervised <- method_names[ix_unsupervised]
 method_names_semisupervised <- method_names[!ix_unsupervised]
+```
+
+
+## Export cluster labels
+
+Export cluster labels for Shiny app.
+
+```{r}
+# separate spreadsheet for each sample
+
+for (i in seq_along(sample_names)) {
+    out <- 
+        d_plot %>% 
+        as_tibble() %>% 
+        filter(sample_name == sample_names[i]) %>% 
+        mutate(key = paste(gsub("^sample_", "", sample_name), spot_name, sep = "_")) %>%
+        select(c("key", "method", "cluster")) %>% 
+        mutate(method = factor(method, levels = method_names)) %>% 
+        spread(key = method, value = cluster)
+    
+    sce_sub <- sce[, colData(sce)$sample_name == gsub("^sample_", "", sample_names[i])]
+    stopifnot(nrow(out) == ncol(sce_sub))
+    stopifnot(all(out$key == colData(sce_sub)$key))
+    stopifnot(all(colData(sce_sub)$key == out$key))
+    
+    file_out <- paste0("../outputs/SpatialDE_clustering/cluster_labels_", 
+                       gsub("^sample_", "", sample_names[i]), ".csv")
+    write.csv(out, file_out, row.names = FALSE)
+}
 ```
 
 
