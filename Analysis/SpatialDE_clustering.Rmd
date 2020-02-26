@@ -476,7 +476,8 @@ for (i in seq_along(sample_names)) {
         as_tibble() %>% 
         filter(sample_name == sample_names[i]) %>% 
         mutate(key = paste(gsub("^sample_", "", sample_name), spot_name, sep = "_")) %>%
-        select(c("key", "method", "cluster")) %>% 
+        mutate(ground_truth = factor(truth, levels = c(paste0("Layer_", 1:6), "WM"))) %>% 
+        select(c("key", "method", "ground_truth", "cluster")) %>% 
         mutate(method = factor(method, levels = method_names)) %>% 
         spread(key = method, value = cluster)
     
