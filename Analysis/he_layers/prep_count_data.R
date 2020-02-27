@@ -13,18 +13,17 @@ pheno = as.data.frame( clean_names(pheno))
 pheno = pheno[pheno$species == "Human",]
 
 mm = match(pd$Sample.Name, pheno$sample_id)
-pheno = pheno[mm,]
-pheno$Run = pd$Run
+pheno = pheno[mm,1:12]
+pheno$Run = rownames(pd)
 rownames(pheno) = pheno$Run
 
-
 ## load rses
-load("rse_gene_hypoxia_brady_n8.Rdata")
+load("rse_gene_He_Layers_n102.Rdata")
 pheno = pheno[colnames(rse_gene),]
 colData(rse_gene) = cbind(DataFrame(pheno), colData(rse_gene))
 
 ## save
-save(rse_gene, file="rse_gene_hypoxia_brady_n8_annotated.Rdata")
+save(rse_gene, file="rse_gene_He_Layers_n102_annotated.Rdata")
 
 ###########################
 #### check genotypes ####
@@ -56,14 +55,21 @@ snps[snps == "1/1"] = 2
 class(snps) = "numeric"
 snpCor = cor(snps, use="pairwise.complete.obs")
 
+dd = as.dist(1-snpCor)
+palette(brewer.pal(8,"Dark2"))
+myplclust(hclust(dd),lab = rse_gene$Run, 
+	lab.col = as.numeric(factor(rse_gene$individuals)))
 ### PLOT ####
 library(pheatmap)
 library(RColorBrewer)
 col.pal = brewer.pal(9,"Blues")
 
-pdf("pdfs/pheatmap_genotypes.pdf",h=10,w=10)
+lab = paste0( rse_gene$individuals, "_",colnames(rse_gene))
+colnames(snpCor) = rownames(snpCor) = lab
+pdf("pheatmap_genotypes.pdf",h=13,w=13)
 pheatmap(snpCor, 
 		cluster_rows=TRUE, 
 		cluster_cols=TRUE,
 		color=col.pal)
 dev.off()
+

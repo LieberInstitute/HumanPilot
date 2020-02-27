@@ -18,6 +18,7 @@ sce.dlpfc = sce.dlpfc[,sce.dlpfc$cellType != "Ambig.lowNtrxts"]
 ## numbers for paper
 dim(sce.dlpfc)
 length(unique(sce.dlpfc$prelimCluster))
+length(unique(sce.dlpfc$collapsedCluster))
 
 ## get pseudobulk
 sce.dlpfc$PseudoSample = paste0(sce.dlpfc$sample,
