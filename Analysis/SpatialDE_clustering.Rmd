@@ -469,7 +469,6 @@ Export cluster labels for Shiny app.
 
 ```{r}
 # separate spreadsheet for each sample
-
 for (i in seq_along(sample_names)) {
     out <- 
         d_plot %>% 
@@ -709,8 +708,7 @@ save(d_plot_ARI_all, file = "../outputs/clustering/ARI.RData")
 #load("../outputs/clustering/ARI.RData")
 
 
-# calculate tests for significant differences in ARI (with vs. without spatial coords)
-# 'with vs. without spatial coords', with blocking for (i) donor and (ii) spatially adjacent replicates
+# linear model testing for differences in ARI with vs. without spatial coords
 
 res_ARI <- distinct(
     d_plot_ARI_all[, c("method", "sample_name", "ARI", "method_types_spatial_coords")]
@@ -720,37 +718,27 @@ res_ARI$method <- factor(gsub("_spatial$", "", res_ARI$method),
                          levels = levels(res_ARI$method)[!grepl("_spatial$", levels(res_ARI$method))])
 str(res_ARI)
 
-# experimental design
-# note: 'location' refers to spatially adjacent replicates; factor 'location_nested' is nested within 'donor' 
-# (for mixed effects model); alternatively factor 'location_fixed' has separate levels (fixed effects)
+# experimental design ('location' refers to spatially adjacent replicates)
 design <- tibble(
     sample_name = levels(res_ARI$sample_name), 
     donor = as.factor(paste0("donor_", rep(1:3, each = 4))), 
-    location_nested = as.factor(paste0("location_", rep(c(1, 1, 2, 2), 3))), 
-    location_fixed = as.factor(paste0("location_", rep(1:6, each = 2)))
+    location = as.factor(paste0("location_", rep(c(1, 1, 2, 2), 3)))
 )
-
-# check carefully!
+design$donor_location = as.factor(paste(design$donor, design$location, sep = "_"))
 design
 
-# merge data frames
 res_ARI_merged <- merge(res_ARI, design, by = "sample_name")
-head(res_ARI_merged)
-str(res_ARI_merged)
 
-# test for significant differences (with vs. without spatial coords)
-
+# fit linear models and calculate tests
 res_ARI_pvals <- c()
 methods_pvals <- levels(res_ARI_merged$method)
 
 for (m in seq_along(methods_pvals)) {
     d_test <- filter(res_ARI_merged, method == methods_pvals[m])
-    # fit linear model (using fixed effects for adjacent spatial replicates)
     lm_tidy <- tidy(
-        lm(ARI ~ method_types_spatial_coords + donor + location_fixed, data = d_test)
+        lm(ARI ~ method_types_spatial_coords + donor_location, data = d_test)
     )
-    res_ARI_pvals[m] <- 
-        lm_tidy %>% 
+    res_ARI_pvals[m] <- lm_tidy %>% 
         filter(term == "method_types_spatial_coordsspatial") %>% 
         select("p.value") %>% 
         as.numeric
@@ -758,10 +746,20 @@ for (m in seq_along(methods_pvals)) {
 
 names(res_ARI_pvals) <- methods_pvals
 res_ARI_pvals
+
+# overall model (across all methods)
+lm_tidy_overall <- tidy(
+    lm(ARI ~ method_types_spatial_coords + donor_location + method, data = res_ARI_merged)
+)
+res_ARI_pval_overall <- lm_tidy_overall %>% 
+    filter(term == "method_types_spatial_coordsspatial") %>% 
+    select("p.value") %>% 
+    as.numeric
+res_ARI_pval_overall
 ```
 
 
-```{r, fig.width = 8, fig.height = 5}
+```{r, fig.width = 8.75, fig.height = 5.25}
 # plot: without p-value annotation
 
 # remove PCA and UMAP from method names/levels (put in legend instead) and re-order levels
@@ -775,8 +773,10 @@ d_plot_ARI_all$method <- factor(d_plot_ARI_all$method, levels = levels_keep)
 d_plot_ARI_all <- distinct(
     d_plot_ARI_all[, c("sample_name", "method", "ARI", 
                        "method_types_supervision", "method_types_dimension_reduction", 
-                       "method_types_SpatialDE", "method_types_spatial_coords")]
-    )
+                       "method_types_SpatialDE", "method_types_spatial_coords")])
+
+d_plot_ARI_all$method_types_supervision <- recode(
+    d_plot_ARI_all$method_types_supervision, semisupervised = "semi-\nsupervised")
 
 set.seed(123)
 p_ARI_all <- 
@@ -790,34 +790,39 @@ p_ARI_all <-
         scale_shape_manual(values = c(19, 4), 
                            labels = c("without spatial coordinates", "with spatial coordinates")) + 
         ylim(c(-0.1, 0.5)) + 
-        ggtitle("Adjusted Rand Index: all samples") + 
+        ylab("Adjusted Rand Index") + 
         guides(color = guide_legend(override.aes = list(size = 2.5)), 
                shape = guide_legend(override.aes = list(size = 2.5))) + 
         theme_bw() + 
-        theme(axis.text.x = element_blank(), 
+        theme(strip.text.x = element_text(size = 14), 
+              strip.text.y = element_text(size = 14), 
+              axis.title.y = element_text(size = 14), 
+              axis.text.y = element_text(size = 12), 
+              axis.text.x = element_blank(), 
               axis.title.x = element_blank(), 
               axis.ticks.x = element_blank(), 
-              legend.title = element_blank())
+              legend.title = element_blank(), 
+              legend.text = element_text(size = 11))
 
 print(p_ARI_all)
 
 filename <- "../plots/SpatialDE_clustering/ARI_all_samples.pdf"
-ggsave(filename, width = 8, height = 5)
+ggsave(filename, width = 8.75, height = 5.25)
 
 # save copy of final figure for manuscript
 system("cp ../plots/SpatialDE_clustering/ARI_all_samples.pdf ../plots/figure/Fig7_spatialDE_ARI.pdf")
 ```
 
 
-```{r, fig.width = 8, fig.height = 5}
+```{r, fig.width = 8.75, fig.height = 5.25}
 # plot: add p-value annotation
 
 p_vals_fmt <- paste0("p = ", sprintf("%.3f", res_ARI_pvals))
 
 ann_text <- tibble(
     method_types_supervision = factor(
-        rep(c(rep("unsupervised", 3), "semisupervised", "markers"), 2), 
-        levels = c("unsupervised", "semisupervised", "markers")), 
+        rep(c(rep("unsupervised", 3), "semi-\nsupervised", "markers"), 2), 
+        levels = c("unsupervised", "semi-\nsupervised", "markers")), 
     method_types_dimension_reduction = factor(
         rep(c("PCA", "UMAP"), each = 5), 
         levels = c("PCA", "UMAP")), 
@@ -829,15 +834,15 @@ ann_text <- tibble(
 p_ARI_annot <- 
     p_ARI_all + 
         geom_text(data = ann_text, 
-                  aes(x = method, y = 0.45, shape = NULL, label = text), 
+                  aes(x = method, y = 0.46, shape = NULL, label = text), 
                   nudge_x = 0.5, 
                   color = "black", 
-                  size = 4)
+                  size = 4.5)
 
 print(p_ARI_annot)
 
 filename <- "../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf"
-ggsave(filename, width = 8, height = 5)
+ggsave(filename, width = 8.75, height = 5.25)
 
 # save copy of final figure for manuscript
 system("cp ../plots/SpatialDE_clustering/ARI_all_samples_pvals.pdf ../plots/figure/Fig7_spatialDE_ARI_pvals.pdf")
@@ -1068,7 +1073,11 @@ ggsave(filename, width = 13, height = 3.5)
 ```
 
 
-```{r, fig.width = 7.25, fig.height = 2.75}
+## Plots: manuscript
+
+Plots with additional formatting for manuscript.
+
+```{r, fig.width = 4, fig.height = 3}
 # save panels for final figure (with custom formatting)
 panel_a_ground_truth <- 
     p_ground_truth_combined + 
@@ -1077,58 +1086,81 @@ panel_a_ground_truth <-
         scale_color_manual(values = colors, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
         ggtitle("Ground truth", subtitle = NULL) + 
         guides(color = guide_legend(override.aes = list(size = 2.5))) + 
-        theme(legend.title = element_blank(), 
+        theme(plot.title = element_text(size = 16), 
+              legend.text = element_text(size = 12), 
+              legend.title = element_blank(), 
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 print(panel_a_ground_truth)
-ggsave("../plots/figure/Fig7_spatialDE_ground_truth.pdf", width = 3.75, height = 2.75)
+ggsave("../plots/figure/Fig7_spatialDE_ground_truth.pdf", width = 4, height = 3)
+```
 
+
+```{r, fig.width = 3.4, fig.height = 9.25}
 panel_b_i <- 
     p_clustering_unsupervised_best + 
         geom_point(size = 0.15) + 
         ggtitle("Unsupervised", subtitle = NULL) + 
-        theme(legend.position = "none", 
+        theme(plot.title = element_text(size = 16), 
+              legend.position = "none", 
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 panel_b_ii <- 
     p_clustering_semisupervised_best + 
         geom_point(size = 0.15) + 
         ggtitle("Semisupervised", subtitle = NULL) + 
-        theme(legend.position = "none", 
+        guides(color = guide_legend(override.aes = list(color = colors, size = 2.5))) + 
+        theme(plot.title = element_text(size = 16), 
+              legend.title = element_text(size = 12), 
+              legend.text = element_text(size = 12), 
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 panel_b_iii <- 
     p_clustering_markers_best + 
         geom_point(size = 0.15) + 
         ggtitle("Known markers", subtitle = NULL) + 
-        guides(color = guide_legend(override.aes = list(color = colors, size = 2.5))) + 
-        theme(strip.background = element_blank(), 
+        theme(plot.title = element_text(size = 16), 
+              legend.position = "none", 
+              strip.background = element_blank(), 
               strip.text.x = element_blank())
 # using 'patchwork' package
-panel_b_clustering <- panel_b_i | panel_b_ii | panel_b_iii
+panel_b_clustering <- panel_b_i / panel_b_ii / panel_b_iii
 print(panel_b_clustering)
-ggsave("../plots/figure/Fig7_spatialDE_clustering.pdf", width = 7.25, height = 2.75)
+ggsave("../plots/figure/Fig7_spatialDE_clustering.pdf", width = 3.4, height = 9.25)
 ```
 
 
 ```{r, fig.width = 2.25, fig.height = 2.5}
 # figure for schematic: ground truth
 panel_a_ground_truth + 
-    theme(title = element_blank(), 
+    theme(plot.title = element_blank(), 
           legend.position = "none")
 ggsave("../plots/figure/schematic/schematic_ground_truth.pdf", width = 2.25, height = 2.5)
 ```
 
 
 ```{r, fig.width = 2.25, fig.height = 2.5}
-# figure for schematic: clustering
+# figure for schematic: clustering (one layer only)
 panel_a_ground_truth + 
     scale_color_manual(values = c(rep("gray90", 3), rep("red", 2), rep("gray90", 2))) + 
-    theme(title = element_blank(), 
+    theme(plot.title = element_blank(), 
+          legend.position = "none")
+ggsave("../plots/figure/schematic/schematic_clustering_one_layer.pdf", width = 2.25, height = 2.5)
+```
+
+
+```{r, fig.width = 2.25, fig.height = 2.5}
+# figure for schematic: clustering
+panel_b_ii + 
+    theme(plot.title = element_blank(), 
           legend.position = "none")
 ggsave("../plots/figure/schematic/schematic_clustering.pdf", width = 2.25, height = 2.5)
 ```
 
+
+## Plots: color palette
+
+Examples of color palettes for clustering plots.
 
 ```{r, fig.width = 2.25, fig.height = 2.5}
 # color palette examples

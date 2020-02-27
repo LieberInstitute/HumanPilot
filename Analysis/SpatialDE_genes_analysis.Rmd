@@ -27,6 +27,7 @@ library(ggplot2)
 library(RColorBrewer)
 library(scales)
 library(UpSetR)
+library(patchwork)
 ```
 
 
@@ -637,7 +638,7 @@ upset(
 ```
 
 
-```{r, fig.width = 5.25, fig.height = 3.75}
+```{r, fig.width = 5.75, fig.height = 4.25}
 # select gene(s)
 genes_fig <- c("MOBP", "PCP4", "SNAP25", "HBB", "IGKC", "NPY")
 
@@ -679,20 +680,27 @@ d_plot <- melt(
 
 d_plot$gene_name <- factor(d_plot$gene_name, levels = genes_fig)
 
+d_plot$gene_type <- NA
+d_plot$gene_type[d_plot$gene_name %in% c("MOBP", "PCP4", "SNAP25")] <- "laminar"
+d_plot$gene_type[d_plot$gene_name %in% c("HBB", "IGKC", "NPY")] <- "non-laminar"
+d_plot$gene_type <- factor(d_plot$gene_type, levels = c("laminar", "non-laminar"))
+
 max_UMI <- max(d_plot$UMIs)
 
 p_selected <- 
     ggplot(d_plot, aes(x = x_coord, y = y_coord, color = UMIs)) + 
-        facet_wrap(~ gene_name, nrow = 2) + 
-        geom_point(size = 0.05) + 
+        facet_wrap(~ gene_name) + 
+        geom_point(size = 0.1) + 
         scale_color_gradientn(colors = c("gray95", "deepskyblue", "blue", "black"), 
                               values = rescale(c(0, 3, 15, max_UMI)), 
                               limits = c(0, max_UMI), 
-                              name = "UMI counts") + 
+                              name = "UMIs") + 
         coord_fixed() + 
-        #ggtitle("Expression of selected genes") + 
         theme_bw() + 
-            theme(axis.title.x = element_blank(), 
+            theme(strip.text.x = element_text(size = 13), 
+                  legend.title = element_text(size = 13), 
+                  legend.text = element_text(size = 13), 
+                  axis.title.x = element_blank(), 
                   axis.title.y = element_blank(), 
                   axis.text.x = element_blank(), 
                   axis.text.y = element_blank(), 
@@ -704,7 +712,7 @@ p_selected <-
 print(p_selected)
 
 filename <- paste0("../plots/figure/Fig7_spatialDE_expression_selected.pdf")
-ggsave(filename, width = 5.25, height = 3.75)
+ggsave(filename, width = 5.75, height = 4.25)
 ```
 
 

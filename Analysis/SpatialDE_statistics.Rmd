@@ -232,7 +232,9 @@ ggsave(paste0("../plots/SpatialDE_statistics/SpatialDE_statistics_WM_stats_selec
 p + 
     xlab("manually guided (F-statistic)") + 
     ylab("SpatialDE statistic (LLR)") + 
-    theme(panel.grid.major = element_blank(), 
+    theme(axis.title.x = element_text(size = 10), 
+          axis.title.y = element_text(size = 10), 
+          panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank())
 
 ggsave(paste0("../plots/figure/Fig7_spatialDE_stats.pdf"), width = 3.75, height = 2.5)
