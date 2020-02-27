@@ -469,7 +469,6 @@ Export cluster labels for Shiny app.
 
 ```{r}
 # separate spreadsheet for each sample
-
 for (i in seq_along(sample_names)) {
     out <- 
         d_plot %>% 
@@ -709,8 +708,7 @@ save(d_plot_ARI_all, file = "../outputs/clustering/ARI.RData")
 #load("../outputs/clustering/ARI.RData")
 
 
-# calculate tests for significant differences in ARI (with vs. without spatial coords)
-# 'with vs. without spatial coords', with blocking for (i) donor and (ii) spatially adjacent replicates
+# linear model testing for differences in ARI with vs. without spatial coords
 
 res_ARI <- distinct(
     d_plot_ARI_all[, c("method", "sample_name", "ARI", "method_types_spatial_coords")]
@@ -720,37 +718,27 @@ res_ARI$method <- factor(gsub("_spatial$", "", res_ARI$method),
                          levels = levels(res_ARI$method)[!grepl("_spatial$", levels(res_ARI$method))])
 str(res_ARI)
 
-# experimental design
-# note: 'location' refers to spatially adjacent replicates; factor 'location_nested' is nested within 'donor' 
-# (for mixed effects model); alternatively factor 'location_fixed' has separate levels (fixed effects)
+# experimental design ('location' refers to spatially adjacent replicates)
 design <- tibble(
     sample_name = levels(res_ARI$sample_name), 
     donor = as.factor(paste0("donor_", rep(1:3, each = 4))), 
-    location_nested = as.factor(paste0("location_", rep(c(1, 1, 2, 2), 3))), 
-    location_fixed = as.factor(paste0("location_", rep(1:6, each = 2)))
+    location = as.factor(paste0("location_", rep(c(1, 1, 2, 2), 3)))
 )
-
-# check carefully!
+design$donor_location = as.factor(paste(design$donor, design$location, sep = "_"))
 design
 
-# merge data frames
 res_ARI_merged <- merge(res_ARI, design, by = "sample_name")
-head(res_ARI_merged)
-str(res_ARI_merged)
 
-# test for significant differences (with vs. without spatial coords)
-
+# fit linear models and calculate tests
 res_ARI_pvals <- c()
 methods_pvals <- levels(res_ARI_merged$method)
 
 for (m in seq_along(methods_pvals)) {
     d_test <- filter(res_ARI_merged, method == methods_pvals[m])
-    # fit linear model (using fixed effects for adjacent spatial replicates)
     lm_tidy <- tidy(
-        lm(ARI ~ method_types_spatial_coords + donor + location_fixed, data = d_test)
+        lm(ARI ~ method_types_spatial_coords + donor_location, data = d_test)
     )
-    res_ARI_pvals[m] <- 
-        lm_tidy %>% 
+    res_ARI_pvals[m] <- lm_tidy %>% 
         filter(term == "method_types_spatial_coordsspatial") %>% 
         select("p.value") %>% 
         as.numeric
@@ -758,6 +746,16 @@ for (m in seq_along(methods_pvals)) {
 
 names(res_ARI_pvals) <- methods_pvals
 res_ARI_pvals
+
+# overall model (across all methods)
+lm_tidy_overall <- tidy(
+    lm(ARI ~ method_types_spatial_coords + donor_location + method, data = res_ARI_merged)
+)
+res_ARI_pval_overall <- lm_tidy_overall %>% 
+    filter(term == "method_types_spatial_coordsspatial") %>% 
+    select("p.value") %>% 
+    as.numeric
+res_ARI_pval_overall
 ```
 
 
