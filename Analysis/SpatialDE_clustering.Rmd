@@ -1077,13 +1077,13 @@ ggsave(filename, width = 13, height = 3.5)
 
 Plots with additional formatting for manuscript.
 
-```{r, fig.width = 4, fig.height = 3}
+```{r, fig.width = 3.75, fig.height = 3}
 # save panels for final figure (with custom formatting)
 panel_a_ground_truth <- 
     p_ground_truth_combined + 
         facet_wrap(NULL) + 
         geom_point(size = 0.15) + 
-        scale_color_manual(values = colors, labels = c(paste0("Layer ", 1:6), "White matter", "NA")) + 
+        scale_color_manual(values = colors, labels = c(paste0("Layer ", 1:6), "WM", "NA")) + 
         ggtitle("Ground truth", subtitle = NULL) + 
         guides(color = guide_legend(override.aes = list(size = 2.5))) + 
         theme(plot.title = element_text(size = 16), 
@@ -1092,7 +1092,7 @@ panel_a_ground_truth <-
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 print(panel_a_ground_truth)
-ggsave("../plots/figure/Fig7_spatialDE_ground_truth.pdf", width = 4, height = 3)
+ggsave("../plots/figure/Fig7_spatialDE_ground_truth.pdf", width = 3.75, height = 3)
 ```
 
 
@@ -1101,16 +1101,16 @@ panel_b_i <-
     p_clustering_unsupervised_best + 
         geom_point(size = 0.15) + 
         ggtitle("Unsupervised", subtitle = NULL) + 
-        theme(plot.title = element_text(size = 16), 
+        theme(plot.title = element_text(size = 15), 
               legend.position = "none", 
               strip.background = element_blank(), 
               strip.text.x = element_blank())
 panel_b_ii <- 
     p_clustering_semisupervised_best + 
         geom_point(size = 0.15) + 
-        ggtitle("Semisupervised", subtitle = NULL) + 
+        ggtitle("Semi-supervised", subtitle = NULL) + 
         guides(color = guide_legend(override.aes = list(color = colors, size = 2.5))) + 
-        theme(plot.title = element_text(size = 16), 
+        theme(plot.title = element_text(size = 15), 
               legend.title = element_text(size = 12), 
               legend.text = element_text(size = 12), 
               strip.background = element_blank(), 
@@ -1118,8 +1118,8 @@ panel_b_ii <-
 panel_b_iii <- 
     p_clustering_markers_best + 
         geom_point(size = 0.15) + 
-        ggtitle("Known markers", subtitle = NULL) + 
-        theme(plot.title = element_text(size = 16), 
+        ggtitle("Markers", subtitle = NULL) + 
+        theme(plot.title = element_text(size = 15), 
               legend.position = "none", 
               strip.background = element_blank(), 
               strip.text.x = element_blank())

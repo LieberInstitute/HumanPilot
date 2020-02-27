@@ -211,7 +211,7 @@ head(df_merged[[i]])
 p <- 
     ggplot(df_merged[[i]], aes(x = full_f, y = LLR, color = selected_genes, stroke = point_size, alpha = alpha)) + 
         geom_point() + 
-        scale_color_manual(values = c("gray50", "deepskyblue", "dodgerblue2", "dodgerblue4", "firebrick1", "red3", "darkred")) + 
+        scale_color_manual(values = c("gray50", "gold", "goldenrod2", "goldenrod3", "firebrick1", "red3", "darkred")) + 
         xlab("manually guided (with white matter): F-statistic") + 
         ylab("SpatialDE: log-likelihood ratio (LLR)") + 
         guides(color = guide_legend(override.aes = list(stroke = 1.5)), 
