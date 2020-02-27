@@ -28,6 +28,7 @@ library(tidyr)
 library(uwot)
 library(mclust)
 library(aricode)
+library(nlme)
 library(ggplot2)
 library(RColorBrewer)
 library(Polychrome)
@@ -742,6 +743,10 @@ for (m in seq_along(methods_pvals)) {
         filter(term == "method_types_spatial_coordsspatial") %>% 
         select("p.value") %>% 
         as.numeric
+    
+    # alternatively: linear mixed models using 'nlme' (gives very similar p-values)
+    #lme_out <- lme(ARI ~ method_types_spatial_coords, random = ~1|donor/location, data = d_test)
+    #res_ARI_pvals[m] <- summary(lme_out)$tTable["method_types_spatial_coordsspatial", "p-value"]
 }
 
 names(res_ARI_pvals) <- methods_pvals
@@ -756,6 +761,10 @@ res_ARI_pval_overall <- lm_tidy_overall %>%
     select("p.value") %>% 
     as.numeric
 res_ARI_pval_overall
+
+# alternatively: linear mixed models using 'nlme' (gives very similar p-values)
+#lme_out_overall <- lme(ARI ~ method_types_spatial_coords + method, random = ~1|donor/location, data = res_ARI_merged)
+#res_ARI_pval_overall <- summary(lme_out_overall)$tTable["method_types_spatial_coordsspatial", "p-value"]
 ```
 
 
