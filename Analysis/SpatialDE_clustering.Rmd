@@ -593,16 +593,20 @@ for (i in seq_along(sample_names)) {
 
 
 ```{r}
-# paste together for supplementary figures for manuscript (format as 2 samples per page) 
+# paste together for supplementary figures for manuscript (format as 2 samples per page)
 
 pages <- list(1:2, 3:4, 5:6, 7:8, 9:10, 11:12)
 
 for (i in seq_along(pages)) {
     
-    file1 <- paste0("../plots/SpatialDE_clustering/clustering_unsupervised_", sample_names[pages[[i]][1]], ".png")
-    file2 <- paste0("../plots/SpatialDE_clustering/clustering_semisupervised_", sample_names[pages[[i]][1]], ".png")
-    file3 <- paste0("../plots/SpatialDE_clustering/clustering_unsupervised_", sample_names[pages[[i]][2]], ".png")
-    file4 <- paste0("../plots/SpatialDE_clustering/clustering_semisupervised_", sample_names[pages[[i]][2]], ".png")
+    file1 <- paste0("../plots/SpatialDE_clustering/clustering_unsupervised_", 
+                    sample_names[pages[[i]][1]], ".png")
+    file2 <- paste0("../plots/SpatialDE_clustering/clustering_semisupervised_", 
+                    sample_names[pages[[i]][1]], ".png")
+    file3 <- paste0("../plots/SpatialDE_clustering/clustering_unsupervised_", 
+                    sample_names[pages[[i]][2]], ".png")
+    file4 <- paste0("../plots/SpatialDE_clustering/clustering_semisupervised_", 
+                    sample_names[pages[[i]][2]], ".png")
     
     file_out <- paste0("../plots/supp_figures/supp_clustering_page_", i, ".pdf")
     
