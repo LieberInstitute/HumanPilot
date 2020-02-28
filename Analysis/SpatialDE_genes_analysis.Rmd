@@ -187,6 +187,37 @@ write_csv(genes_SpatialDE_filt_pooled, file_out)
 ```
 
 
+## Export supplementary table
+
+Export supplementary table showing number of SpatialDE genes per sample (before and after filtering).
+
+```{r}
+# supplementary table showing number of SpatialDE genes per sample
+
+supp_table <- data.frame(
+    sample = gsub("^sample_", "", sample_names), 
+    n_SpatialDE_genes_before_filt = sapply(genes_SpatialDE, nrow), 
+    n_SpatialDE_genes_after_filt = sapply(genes_SpatialDE_filt, nrow), 
+    stringsAsFactors = FALSE
+)
+
+colnames(supp_table) <- 
+    c("Sample", 
+      "Number of significant SpatialDE genes (before filtering)", 
+      "Number of significant SpatialDE genes (after filtering)")
+
+supp_table <- rbind(
+    supp_table, 
+    c("Total number of unique genes", 
+      nrow(genes_SpatialDE_pooled), 
+      nrow(genes_SpatialDE_filt_pooled)))
+
+rownames(supp_table) <- NULL
+
+write.csv(supp_table, "../outputs/supp_tables/SuppTable_SpatialDE_genes.csv", row.names = FALSE)
+```
+
+
 ## Plots: gene sets
 
 Plots showing the following:
