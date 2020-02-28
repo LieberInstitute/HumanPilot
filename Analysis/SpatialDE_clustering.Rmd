@@ -741,8 +741,7 @@ for (m in seq_along(methods_pvals)) {
     )
     res_ARI_pvals[m] <- lm_tidy %>% 
         filter(term == "method_types_spatial_coordsspatial") %>% 
-        select("p.value") %>% 
-        as.numeric
+        pull("p.value")
     
     # alternatively: linear mixed models using 'nlme' (gives very similar p-values)
     #lme_out <- lme(ARI ~ method_types_spatial_coords, random = ~1|donor/location, data = d_test)
@@ -758,13 +757,13 @@ lm_tidy_overall <- tidy(
 )
 res_ARI_pval_overall <- lm_tidy_overall %>% 
     filter(term == "method_types_spatial_coordsspatial") %>% 
-    select("p.value") %>% 
-    as.numeric
+    pull("p.value")
 res_ARI_pval_overall
 
 # alternatively: linear mixed models using 'nlme' (gives very similar p-values)
 #lme_out_overall <- lme(ARI ~ method_types_spatial_coords + method, random = ~1|donor/location, data = res_ARI_merged)
 #res_ARI_pval_overall <- summary(lme_out_overall)$tTable["method_types_spatial_coordsspatial", "p-value"]
+#res_ARI_pval_overall
 ```
 
 
