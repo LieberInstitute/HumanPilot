@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![DOI](https://zenodo.org/badge/225913568.svg)](https://zenodo.org/badge/latestdoi/225913568)
+[![DOI](https://zenodo.org/badge/225910046.svg)](https://zenodo.org/badge/latestdoi/225910046)
 <!-- badges: end -->
 
 Welcome to the `spatialLIBD` project\! It is composed of the
