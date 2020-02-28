@@ -43,10 +43,6 @@ the <code>\#spatialLIBD</code> hashtag. You can find previous tweets
 that way as shown
 <a href="https://twitter.com/search?q=%23spatialLIBD&src=typed_query">here</a>.
 Thank you\!
-<a href="https://twitter.com/intent/tweet?button_hashtag=spatialLIBD&ref_src=twsrc%5Etfw" class="twitter-hashtag-button" data-show-count="false">Tweet
-\#spatialLIBD</a>
-
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 ## Study design
 
@@ -340,6 +336,8 @@ gene marker based and other clustering results. The analysis code that
 generates these CSV files is located inside R Markdown files at the
 [Analysis](Analysis/) directory such as
 [SpatialDE\_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
+
+<a href="https://www.libd.org/"><img src="http://aejaffe.com/media/LIBD_logo.jpg" width="250px"></a>
 
 # Bibliography
 
