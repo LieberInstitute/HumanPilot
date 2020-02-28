@@ -198,7 +198,7 @@ df_merged[[i]]$selected_genes[df_merged[[i]]$gene == "NPY"] <- "NPY"
 
 df_merged[[i]]$selected_genes <- factor(
     df_merged[[i]]$selected_genes, 
-    levels = c("other", "MOBP", "PCP4", "SNAP25", "HBB", "IGKC", "NPY")
+    levels = c("MOBP", "PCP4", "SNAP25", "HBB", "IGKC", "NPY", "other")
 )
 
 df_merged[[i]]$point_size <- ifelse(df_merged[[i]]$selected_genes == "other", 0.5, 1.25)
@@ -211,7 +211,7 @@ head(df_merged[[i]])
 p <- 
     ggplot(df_merged[[i]], aes(x = full_f, y = LLR, color = selected_genes, stroke = point_size, alpha = alpha)) + 
         geom_point() + 
-        scale_color_manual(values = c("gray50", "gold", "goldenrod2", "goldenrod3", "firebrick1", "red3", "darkred")) + 
+        scale_color_manual(values = c("gold", "goldenrod2", "goldenrod3", "firebrick1", "red3", "darkred", "gray50")) + 
         xlab("manually guided (with white matter): F-statistic") + 
         ylab("SpatialDE: log-likelihood ratio (LLR)") + 
         guides(color = guide_legend(override.aes = list(stroke = 1.5)), 
