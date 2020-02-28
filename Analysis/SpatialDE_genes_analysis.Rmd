@@ -743,4 +743,11 @@ ggsave(filename, width = 2.25, height = 2.5)
 ```
 
 
+## Session information
+
+```{r}
+sessionInfo()
+```
+
+
 

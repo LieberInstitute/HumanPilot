@@ -315,4 +315,11 @@ gene_list[, 1]
 ```
 
 
+## Session information
+
+```{r}
+sessionInfo()
+```
+
+
 
