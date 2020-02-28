@@ -25,7 +25,7 @@ library('readr')
 library('R.utils')
 library('RColorBrewer')
 library('spatialLIBD')
-library('M3C')
+library('Rtshe')
 
 ## Load data
 load(here(
@@ -84,19 +84,27 @@ sce = sce[exprsIndex,]
 ## fit model of 0 cell bodies vs all others
 sce$zero_cell = as.numeric(sce$cell_count  == 0)
 
+## add chrm rate
+ix_mito <- grep("^MT-", rowData(sce)$gene_name)
+expr_chrM <- colSums(assays(sce)$counts[ix_mito,])
+sce$chrM_ratio <- expr_chrM / sce$sum_umi
+
 ###############################
 ##### EDA on Neuropil spots ###
 ###############################
 sce0 = sce[,sce$zero_cell == 1]
 sce0_hvg_logcounts = as.matrix(assays(sce0)$logcounts[top.hvgs,])
 sce0_logcounts = as.matrix(assays(sce0)$logcounts)
+var_genes = order(rowSds(sce0_logcounts),decreasing=TRUE)[1:1000]
 
-g_pre = toupper(c("Bsn", "Rims1", "Rims2", "Rims3", "Stx6", "Rapgef4"))
-g_post = toupper(c("Arc", "Bdnf", "Grin1", "SLC17A7"))
-g_other = toupper(c("Dlg4", "Grin2a", "Limk1"))
+## supervised
+g_pre = toupper(c("Bsn", "Rims1", "Rims2", "Rims3", "Stx6", "Snap25","Rapgef4"))
+g_post = toupper(c("Arc", "Bdnf", "Grin1", "SLC17A7", "Gria1"))
+g_other = toupper(c("Dlg4", "Grin2a", "Limk1", "Fmr1"))
 g_ecm = toupper(c("HAPLN1", "ACAN", "BCAN", "TNR"))
 g_my = toupper(c("Mobp", "Mbp", "Aqp4"))
-g = c(g_pre, g_post,g_other,g_ecm,g_my)
+g_mito = rowData(sce0)$gene_name[ix_mito]
+g = c(g_pre, g_post,g_other,g_ecm,g_my,g_mito)
 g %in% rowData(sce0)$gene_name
 
 sce0_logcounts_syn = sce0_logcounts[match(g, rowData(sce0)$gene_name),]
@@ -109,27 +117,22 @@ palette(libd_layer_colors[1:7])
 plot(pca_marker$x, pch = 21, bg = sce0$layer_guess)
 round(pca_marker$rot[,1:3],3)
 
-plot(pca_marker$x[,3:2], pch = 21, bg = sce0$layer_guess)
-
-plot(pca_marker$x[,2:3], pch = 21, bg = sce0$layer_guess)
-plot(pca_marker$x[,c(1,3)], pch = 21, bg = sce0$layer_guess)
-
-### 
-tsne(t(sce0_logcounts_syn))
-
+###############
 dd = dist(t(sce0_logcounts_syn))
 hc = hclust(dd)
 myplclust(hc, lab.col = as.numeric(sce0$layer_guess),cex=0.33)
-table(cutree(hc, h=8.25))
+table(cutree(hc, h=10))
 
-g = cutree(hc, h=8.25) 
-g[g==7] = NA
-palette(brewer.pal(6,"Dark2"))
-myplclust(hc, lab.col = g,cex=0.33)
+groups = cutree(hc, h=9.5) 
+# palette(brewer.pal(7,"Dark2"))
+# myplclust(hc, lab.col = groups,cex=0.33)
+gIndexes = splitit(groups)
+meanMat = sapply(gIndexes, function(ii) rowMeans(sce0_logcounts_syn[,ii,drop=FALSE]))
 
-plot(pca0$x[,1], sce0$sum_umi, pch = 21, bg = sce0$layer_guess)
-legend("bottomright", levels(sce0$layer_guess), col = 1:7, pch = 15)
-cc = cor(sce0_hvg_logcounts)
+rownames(meanMat) = g
+signif(meanMat,2)
+pheatmap(meanMat, color = c("white",colorRampPalette(brewer.pal(7,"Blues"))(100)))
+lengths(gIndexes)
 
 
 #########################
@@ -273,21 +276,55 @@ statList = lapply(statList_layer, function(x) {
 	x 
 })
 
+###################
+## load modeling outputs
+load("rda/eb_contrasts.Rdata")
+load("rda/eb0_list.Rdata")
+
+## Extract the p-values
+pvals0_contrasts <- sapply(eb0_list, function(x) {
+    x$p.value[, 2, drop = FALSE]
+})
+rownames(pvals0_contrasts) = rownames(eb_contrasts)
+fdrs0_contrasts = apply(pvals0_contrasts, 2, p.adjust, "fdr")
+
+## Extract the t-stats
+t0_contrasts <- sapply(eb0_list, function(x) {
+    x$t[, 2, drop = FALSE]
+})
+rownames(t0_contrasts) = rownames(eb_contrasts)
+
+### just layer specific genes from ones left
+geneList_layers = mapply(function(t, p) {
+    rownames(t0_contrasts)[t > 0 & p < 0.1]
+},
+    as.data.frame(t0_contrasts),
+    as.data.frame(fdrs0_contrasts))
+
 ## get out genes
 geneList_enr = lapply(statList, function(x) {
 	rownames(x)[x$adj.P.Val < 0.1 & x$t > 0]
 })
-geneList_dep = lapply(statList, function(x) {
-	rownames(x)[x$adj.P.Val < 0.1 & x$t < 0]
-})
 
 ## combine
-names(geneList_enr) = paste0(names(geneList_enr), "_Enriched")
-names(geneList_dep) = paste0(names(geneList_dep), "_Depleted")
-geneList = c(geneList_enr, geneList_dep)
+names(geneList_enr) = paste0(names(geneList_enr), "_Neuropil")
+geneList = c(geneList_enr, geneList_layers)
 lengths(geneList)
 
-
+## write out for MAGMA
+geneDf = do.call("rbind", lapply(geneList, function(x) data.frame(Gene = x,stringsAsFactors=FALSE)))
+geneDf$Set = ss(rownames(geneDf), "\\.")
+geneDf = geneDf[,c("Set", "Gene")]
+write.table(geneDf, file = "MAGMA/laminar_sets.txt", 
+	sep="\t", quote=FALSE, row.names=FALSE,col.names=FALSE)
+	
+cat(rownames(stats), file = "MAGMA/background_genes.txt", sep="\n")
+ens = read.delim("/dcl02/lieber/ajaffe/Nick_Clifton/magma/GRCh37_ensembl_GENES.gene.loc",
+	header=FALSE,as.is=TRUE)
+ens = ens[ens$V1 %in% rownames(stats),]
+write.table(ens, file = "MAGMA/GRCh37_ensembl_GENES_SpatialExprs.gene.loc",
+	col.names=FALSE, row.names=FALSE, quote=FALSE, sep="\t")
+	
 ## get coordinates, hg19 for LDSC
 gtf = import("/dcl01/ajaffe/data/lab/singleCell/refdata-cellranger-GRCh38-3.0.0/genes/genes.gtf")
 gtf = gtf[gtf$type == "gene"]
@@ -295,22 +332,12 @@ seqlevels(gtf)[1:25] = paste0("chr", seqlevels(gtf)[1:25])
 names(gtf) = gtf$gene_id
 gtf = gtf[rownames(stats)]
 
-## we should add some random gene lists
-set.seed(34135)
-n = rep(c(10,50,100,200,300,500,1000,2000,3000), each=3)
-grListNull = GRangesList(lapply(n, function(nn) 
-	granges(gtf[sample(1:length(gtf), nn)])))
-names(grListNull) = paste0("null_", n, "_rep", rep(1:3, times = 9))
-
 ## list of GRanges for all real genes
 grList = GRangesList(lapply(geneList, function(g) granges(gtf[g])))
 
-## combine
-grList = c(grList, grListNull)
-
 ## pad with promoter sequence
-grList = endoapply(grList, promoters, upstream = 5000,
-		downstream = 2000,  use.names=TRUE)
+grList = endoapply(grList, promoters, upstream = 10000,
+		downstream =5000,  use.names=TRUE)
 
 ## lift to hg19
 path = system.file(package="liftOver", "extdata", "hg38ToHg19.over.chain")
