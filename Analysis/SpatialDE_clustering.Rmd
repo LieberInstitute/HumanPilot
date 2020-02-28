@@ -545,7 +545,7 @@ for (i in seq_along(sample_names)) {
             coord_fixed() + 
             scale_color_manual(values = colors) + 
             ggtitle(paste0("Sample ", gsub("^sample_", "", sample_names[i]), 
-                           ": Unsupervised clustering")) + 
+                           ": Clustering (unsupervised)")) + 
             guides(color = guide_legend(override.aes = list(size = 2))) + 
             theme_bw() + 
             theme(axis.title.x = element_blank(), 
@@ -571,7 +571,7 @@ for (i in seq_along(sample_names)) {
             coord_fixed() + 
             scale_color_manual(values = colors) + 
             ggtitle(paste0("Sample ", gsub("^sample_", "", sample_names[i]), 
-                           ": Semi-supervised and markers clustering")) + 
+                           ": Clustering (semi-supervised and markers)")) + 
             guides(color = guide_legend(override.aes = list(size = 2))) + 
             theme_bw() + 
             theme(axis.title.x = element_blank(), 
@@ -593,7 +593,7 @@ for (i in seq_along(sample_names)) {
 
 
 ```{r}
-# paste together for supplementary figures for manuscript (format as 2 samples per page)
+# paste together for supplementary figures for manuscript (format as 2 samples per page) 
 
 pages <- list(1:2, 3:4, 5:6, 7:8, 9:10, 11:12)
 
@@ -654,6 +654,25 @@ for (i in seq_along(sample_names)) {
                        gsub("^sample_", "", sample_names[i]), ".png")
     ggsave(filename, width = 3.75, height = 3.25)
 }
+```
+
+
+```{r}
+# combined version for supplementary figures for manuscript (using 'patchwork')
+
+p_ground_truth <- lapply(p_ground_truth, function(p) {
+   p + geom_point(size = 0.1)
+})
+
+p_truth_combined <- 
+    p_ground_truth[[1]] + p_ground_truth[[2]] + p_ground_truth[[3]] + p_ground_truth[[4]] + 
+    p_ground_truth[[5]] + p_ground_truth[[6]] + p_ground_truth[[7]] + p_ground_truth[[8]] + 
+    p_ground_truth[[9]] + p_ground_truth[[10]] + p_ground_truth[[11]] + p_ground_truth[[12]] + 
+    plot_layout(nrow = 3)
+
+file_out <- paste0("../plots/supp_figures/supp_clustering_page_0.pdf")
+
+ggsave(file_out, width = 16, height = 10)
 ```
 
 
