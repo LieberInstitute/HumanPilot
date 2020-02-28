@@ -1,15 +1,65 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r 'setup', include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+library('BiocStyle')
+library('spatialLIBD')
+## Bib setup
+library('knitcitations')
+
+## Load knitcitations with a clean bibliography
+cleanbib()
+cite_options(hyperlink = 'to.doc', citation_format = 'text', style = 'html')
+# Note links won't show for now due to the following issue
+# https://github.com/cboettig/knitcitations/issues/63
+
+## Write bibliography information
+bib <- c(
+    R = citation(),
+    AnnotationHub = citation('AnnotationHub'),
+    BiocStyle = citation('BiocStyle'),
+    cowplot = citation('cowplot'),
+    DT = citation('DT'),
+    ExperimentHub = citation('ExperimentHub'),
+    fields = citation('fields'),
+    ggplot2 = citation('ggplot2'),
+    golem = citation('golem'),
+    IRanges = citation('IRanges'),
+    knitcitations = citation('knitcitations'),
+    knitr = citation('knitr')[3],
+    plotly = citation('plotly'),
+    Polychrome = citation('Polychrome'),
+    RColorBrewer = citation('RColorBrewer'),
+    rmarkdown = citation('rmarkdown')[1],
+    S4Vectors = citation('S4Vectors'),
+    scater = citation('scater'),
+    sessioninfo = citation('sessioninfo'),
+    SingleCellExperiment = citation('SingleCellExperiment'),
+    shiny = citation('shiny'),
+    SummarizedExperiment = citation('SummarizedExperiment'),
+    testthat = citation('testthat'),
+    viridisLite = citation('viridisLite'),
+    spatialLIBD = citation('spatialLIBD')[1],
+    spatialLIBDpaper = citation('spatialLIBD')[2]
+)
+```
 
 # HumanPilot <img src="http://research.libd.org/spatialLIBD/reference/figures/logo.png" align="right" />
 
 <!-- badges: start -->
-
 [![DOI](https://zenodo.org/badge/225913568.svg)](https://zenodo.org/badge/latestdoi/225913568)
 <!-- badges: end -->
 
-Welcome to the `spatialLIBD` project\! It is composed of the
-`HumanPilot` described here as well as:
+Welcome to the `spatialLIBD` project! It is composed of the `HumanPilot` described here as well as:
 
   - a [shiny](https://shiny.rstudio.com/) web application that we are
     hosting at
@@ -26,8 +76,7 @@ Welcome to the `spatialLIBD` project\! It is composed of the
     article](https://www.biorxiv.org/search/maynard%252Bcollado%252Bweber%252Bhicks%252Bmartinowich%252Bjaffe)
     with the scientific knowledge we drew from this dataset. The
     analysis code for our project is available
-    [here](https://github.com/LieberInstitute/HumanPilot/) that you are
-    looking at right now.
+    [here](https://github.com/LieberInstitute/HumanPilot/) that you are looking at right now.
 
 This web application allows you to browse the LIBD human dorsolateral
 pre-frontal cortex (DLPFC) spatial transcriptomics data generated with
@@ -74,7 +123,7 @@ If you are interested in running this web application locally, you can
 do so thanks to the `spatialLIBD` R/Bioconductor package that powers
 this web application as shown below.
 
-``` r
+```{r run_app, eval = FALSE}
 ## Run this web application locally
 spatialLIBD::run_app()
 
@@ -92,10 +141,10 @@ spatialLIBD::run_app()
   - [Main shiny application
     website](http://spatial.libd.org/spatialLIBD)
   - [Shinyapps](https://jhubiostatistics.shinyapps.io/spatialLIBD/)
-  - [Shinyapps Mirror
-    1](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror01/)
-  - [Shinyapps Mirror
-    2](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror02/)
+  - [Shinyapps
+    Mirror 1](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror01/)
+  - [Shinyapps
+    Mirror 2](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror02/)
 
 ## R/Bioconductor package
 
@@ -122,7 +171,7 @@ Get the latest stable `R` release from
 [CRAN](http://cran.r-project.org/). Then install `spatialLIBD` using
 from [Bioconductor](http://bioconductor.org/) the following code:
 
-``` r
+```{r 'install', eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -142,7 +191,7 @@ transcriptomics data from the 10x Genomics Visium platform. For example,
 this is the code you can use to access the layer-level data. For more
 details, check the help file for `fetch_data()`.
 
-``` r
+```{r 'access_data', message=FALSE, fig.height = 8, fig.width = 9, eval = FALSE}
 ## Load the package
 library('spatialLIBD')
 
@@ -211,152 +260,52 @@ Below is the citation output from using `citation('spatialLIBD')` in R.
 Please run this yourself to check for any updates on how to cite
 **spatialLIBD**.
 
-``` r
+```{r 'citation'}
 citation('spatialLIBD')
-#> 
-#> Collado-Torres L, Maynard KR, Jaffe AE (2020). _LIBD Visium spatial
-#> transcriptomics human pilot data inspector_. doi:
-#> 10.18129/B9.bioc.spatialLIBD (URL:
-#> https://doi.org/10.18129/B9.bioc.spatialLIBD),
-#> https://github.com/LieberInstitute/spatialLIBD - R package version
-#> 0.99.8, <URL: http://www.bioconductor.org/packages/spatialLIBD>.
-#> 
-#> Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Williams SR, II
-#> JLC, Barry BK, Tran MN, Besich Z, Tippani M, Chew J, Yin Y, Hyde TM,
-#> Rao N, Hicks SC, Martinowich K, Jaffe AE (2020). "Transcriptome-scale
-#> spatial gene expression in the human dorsolateral prefrontal cortex."
-#> _bioRxiv_. doi: 10.1101/xxxyyy (URL: https://doi.org/10.1101/xxxyyy),
-#> <URL: https://doi.org/10.1101/xxxyyy>.
-#> 
-#> To see these entries in BibTeX format, use 'print(<citation>,
-#> bibtex=TRUE)', 'toBibtex(.)', or set
-#> 'options(citation.bibtex.max=999)'.
 ```
 
 # `HumanPilot` code
 
+
+
 ## Re-shaping your data to our structure
 
-As described in the `spatialLIBD` vignette, you can see the scripts in
-this repository for re-shaping your data to look like ours. That is.
+As described in the `spatialLIBD` vignette, you can see the scripts in this repository for re-shaping your data to look like ours. That is.
 
-  - `reorganize_folder.R` available
-    [here](https://github.com/LieberInstitute/HumanPilot/blob/master/reorganize_folder.R)
-    re-organizes the raw data we were sent by 10x Genomics.
-  - `Layer_Notebook.R` available
-    [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/Layer_Notebook.R)
-    reads in the Visium data and builds a list of
-    `RangeSummarizedExperiment()` objects from
-    *[SummarizedExperiment](https://bioconductor.org/packages/3.10/SummarizedExperiment)*,
-    one per sample (image) that is eventually saved as
-    `Human_DLPFC_Visium_processedData_rseList.rda`.
-  - `convert_sce.R` available
-    [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/convert_sce.R)
-    reads in `Human_DLPFC_Visium_processedData_rseList.rda` and builds
-    an initial `sce` object with image data under `metadata(sce)$image`
-    which is a single data.frame. Subsetting doesn’t automatically
-    subset the image, so you have to do it yourself when plotting as is
-    done by `sce_image_clus_p()` and `sce_image_gene_p()`. Having the
-    data from all images in a single object allows you to use the
-    spot-level data from all images to compute clusters and do other
-    similar analyses to the ones you would do with sc/snRNA-seq data.
-    The script creates the `Human_DLPFC_Visium_processedData_sce.Rdata`
-    file.
-  - `sce_scran.R` available
-    [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/sce_scran.R)
-    then uses *[scran](https://bioconductor.org/packages/3.10/scran)* to
-    read in `Human_DLPFC_Visium_processedData_sce.Rdata`, compute the
-    highly variable genes (stored in our final `sce` object at
-    `rowData(sce)$is_top_hvg`), perform dimensionality reduction (PCA,
-    TSNE, UMAP) and identify clusters using the data from all images.
-    The resulting data is then stored as
-    `Human_DLPFC_Visium_processedData_sce_scran.Rdata` and is the main
-    object used throughout our analysis code
-    <a id='cite-Maynard_2020'></a>(<a href='https://doi.org/10.1101/xxxyyy'>Maynard,
-    Collado-Torres, Weber, Uytingco, et al., 2020</a>).
-  - `make-data_spatialLIBD.R` available in the source version of
-    `spatialLIBD` and [online
-    here](https://github.com/LieberInstitute/spatialLIBD/blob/master/inst/scripts/make-data_spatialLIBD.R)
-    is the script that reads in
-    `Human_DLPFC_Visium_processedData_sce_scran.Rdata` as well as some
-    other outputs from our analysis and combines them into the final
-    `sce` and `sce_layer` objects provided by
-    *[spatialLIBD](https://bioconductor.org/packages/3.10/spatialLIBD)*
-    <a id='cite-Collado-Torres_2020'></a>(<a href='http://www.bioconductor.org/packages/spatialLIBD'>Collado-Torres,
-    Maynard, and Jaffe, 2020</a>). This script simplifies some
-    operations in order to simplify the code behind the
-    *[shiny](https://CRAN.R-project.org/package=shiny)* application
-    provided by
-    *[spatialLIBD](https://bioconductor.org/packages/3.10/spatialLIBD)*.
+* `reorganize_folder.R` available [here](https://github.com/LieberInstitute/HumanPilot/blob/master/reorganize_folder.R) re-organizes the raw data we were sent by 10x Genomics.
+* `Layer_Notebook.R` available [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/Layer_Notebook.R) reads in the Visium data and builds a list of `RangeSummarizedExperiment()` objects from `r Biocpkg('SummarizedExperiment')`, one per sample (image) that is eventually saved as `Human_DLPFC_Visium_processedData_rseList.rda`.
+* `convert_sce.R` available [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/convert_sce.R) reads in `Human_DLPFC_Visium_processedData_rseList.rda` and builds an initial `sce` object with image data under `metadata(sce)$image` which is a single data.frame. Subsetting doesn't automatically subset the image, so you have to do it yourself when plotting as is done by `sce_image_clus_p()` and `sce_image_gene_p()`. Having the data from all images in a single object allows you to use the spot-level data from all images to compute clusters and do other similar analyses to the ones you would do with sc/snRNA-seq data. The script creates the `Human_DLPFC_Visium_processedData_sce.Rdata` file.
+* `sce_scran.R` available [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/sce_scran.R) then uses `r Biocpkg('scran')` to read in `Human_DLPFC_Visium_processedData_sce.Rdata`, compute the highly variable genes (stored in our final `sce` object at `rowData(sce)$is_top_hvg`), perform dimensionality reduction (PCA, TSNE, UMAP) and identify clusters using the data from all images. The resulting data is then stored as `Human_DLPFC_Visium_processedData_sce_scran.Rdata` and is the main object used throughout our analysis code `r citep(bib[['spatialLIBDpaper']])`.
+* `make-data_spatialLIBD.R` available in the source version of `spatialLIBD` and [online here](https://github.com/LieberInstitute/spatialLIBD/blob/master/inst/scripts/make-data_spatialLIBD.R) is the script that reads in `Human_DLPFC_Visium_processedData_sce_scran.Rdata` as well as some other outputs from our analysis and combines them into the final `sce` and `sce_layer` objects provided by `r Biocpkg('spatialLIBD')` `r citep(bib[['spatialLIBD']])`. This script simplifies some operations in order to simplify the code behind the `r CRANpkg('shiny')` application provided by `r Biocpkg('spatialLIBD')`.
 
 ## [10X](10X/) directory
 
-Contains some of the raw files provided by 10X. Given their size, we
-only included the small ones here. \#\# [Analysis](Analysis/) directory
+Contains some of the raw files provided by 10X. Given their size, we only included the small ones here. 
+## [Analysis](Analysis/) directory
 
-The `README.md` was the one we initially prepared for our collaborators
-at an early stage of the project. That README file described some of our
-initial explorations using packages such as
-*[scran](https://bioconductor.org/packages/3.10/scran)*,
-*[zinbwave](https://bioconductor.org/packages/3.10/zinbwave)* and other
-approaches such as using k-means with X/Y spatial information. These
-analyses were not used for our manuscript beyond creating the `sce`
-object we previously described.
+The `README.md` was the one we initially prepared for our collaborators at an early stage of the project. That README file described some of our initial explorations using packages such as `r Biocpkg('scran')`, `r Biocpkg('zinbwave')` and other approaches such as using k-means with X/Y spatial information. These analyses were not used for our manuscript beyond creating the `sce` object we previously described.
 
-The 10x Genomics file structure is replicated inside
-[Histology](Analysis/Histology/) where we saved the image segmentation
-analysis output to estimate the number of cells per spot. This involved
-running some [histology image segmentation
-software](https://www.mathworks.com/help/images/color-based-segmentation-using-k-means-clustering.html)
-and the [counting code](Analysis/Histology/code) that requires our file
-structure (`sgeID` input).
+The 10x Genomics file structure is replicated inside [Histology](Analysis/Histology/) where we saved the image segmentation analysis output to estimate the number of cells per spot. This involved running some [histology image segmentation software](https://www.mathworks.com/help/images/color-based-segmentation-using-k-means-clustering.html) and the [counting code](Analysis/Histology/code) that requires our file structure (`sgeID` input).
 
-The main layer-level analysis code is located at
-[Layer\_Guesses](Analysis/Layer_Guesses), for example
-[layer\_specificity.R](Analysis/Layer_Guesses/layer_specificity.R) is
-the R script for pseudo-bulking the spot-level data to create the
-layer-level data. The `spatialLIBD` layer annotation files are saved in
-the [First\_Round](Analysis/Layer_Guesses/First_Round/) and
-[Second\_Round](Analysis/Layer_Guesses/Second_Round) directories which
-you can upload to the shiny web application.
+The main layer-level analysis code is located at [Layer_Guesses](Analysis/Layer_Guesses), for example [layer_specificity.R](Analysis/Layer_Guesses/layer_specificity.R) is the R script for pseudo-bulking the spot-level data to create the layer-level data. The `spatialLIBD` layer annotation files are saved in the [First_Round](Analysis/Layer_Guesses/First_Round/) and [Second_Round](Analysis/Layer_Guesses/Second_Round) directories which  you can upload to the shiny web application.
 
-We also include directories with code for processing external datasets
-such as [he\_layers](Analysis/he_layers),
-[allen\_data](Analysis/allen_data/),
-[hafner\_vglut](Analysis/hafner_vglut/).
+We also include directories with code for processing external datasets such as [he_layers](Analysis/he_layers), [allen_data](Analysis/allen_data/), [hafner_vglut](Analysis/hafner_vglut/).
 
-We would like to highlight that a lot of the plotting code and
-functionality from these scripts has been implemented in
-*[spatialLIBD](https://bioconductor.org/packages/3.10/spatialLIBD)*
-which would make a lot of our analysis simpler. Finally, for
-reproducibility purposes we included the R session information in many
-of our R scripts. Although in general we used R 3.6.1 and 3.6.2 with
-Bioconductor release 3.10.
+We would like to highlight that a lot of the plotting code and functionality from these scripts has been implemented in `r Biocpkg('spatialLIBD')` which would make a lot of our analysis simpler. Finally, for reproducibility purposes we included the R session information in many of our R scripts. Although in general we used R 3.6.1 and 3.6.2 with Bioconductor release 3.10.
 
 ## [outputs](outputs/) directory
 
-Contains outputs from the different unsupervised, semi-supervised, known
-gene marker based and other clustering results. The analysis code that
-generates these CSV files is located inside R Markdown files at the
-[Analysis](Analysis/) directory such as
-[SpatialDE\_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
+Contains outputs from the different unsupervised, semi-supervised, known gene marker based and other clustering results. The analysis code that generates these CSV files is located inside R Markdown files at the [Analysis](Analysis/) directory such as [SpatialDE_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
+
 
 # Bibliography
 
-\[1\] L. Collado-Torres, K. R. Maynard, and A. E. Jaffe. *LIBD Visium
-spatial transcriptomics human pilot data inspector*.
-<https://github.com/LieberInstitute/spatialLIBD> - R package version
-0.99.8. 2020. DOI: 10.18129/B9.bioc.spatialLIBD. \<URL:
-<http://www.bioconductor.org/packages/spatialLIBD>\>.
-
-\[2\] K. R. Maynard, L. Collado-Torres, L. M. Weber, C. Uytingco, et al.
-“Transcriptome-scale spatial gene expression in the human dorsolateral
-prefrontal cortex”. In: *bioRxiv* (2020). DOI: 10.1101/xxxyyy. \<URL:
-<https://doi.org/10.1101/xxxyyy>\>.
+```{r bibliography, results = 'asis', echo = FALSE, warning = FALSE, message = FALSE}
+## Print bibliography
+bibliography()
+```
 
 # Internal
 
-  - JHPCE location:
-    `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot`
-  - Main `sce` R object file:
-    `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.
+* JHPCE location: `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot`
+* Main `sce` R object file: `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.
