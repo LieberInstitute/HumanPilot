@@ -23,7 +23,7 @@ Welcome to the `spatialLIBD` project\! It is composed of the
     you analyze the data and run a local version of our web application
     (with our data or yours),
   - and a [research
-    article](https://www.biorxiv.org/search/maynard%252Bcollado%252Bweber%252Bhicks%252Bmartinowich%252Bjaffe)
+    article](https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1)
     with the scientific knowledge we drew from this dataset. The
     analysis code for our project is available
     [here](https://github.com/LieberInstitute/HumanPilot/) that you are
@@ -35,7 +35,7 @@ the 10x Genomics Visium platform. Through the [R/Bioconductor
 package](https://bioconductor.org/packages/spatialLIBD) you can also
 download the data as well as visualize your own datasets using this web
 application. Please check the [bioRxiv
-pre-print](https://www.biorxiv.org/search/maynard%252Bcollado%252Bweber%252Bhicks%252Bmartinowich%252Bjaffe)
+pre-print](https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1)
 for more details about this project.
 
 If you tweet about this website, the data or the R package please use
@@ -215,14 +215,15 @@ citation('spatialLIBD')
 #> 10.18129/B9.bioc.spatialLIBD (URL:
 #> https://doi.org/10.18129/B9.bioc.spatialLIBD),
 #> https://github.com/LieberInstitute/spatialLIBD - R package version
-#> 0.99.8, <URL: http://www.bioconductor.org/packages/spatialLIBD>.
+#> 0.99.9, <URL: http://www.bioconductor.org/packages/spatialLIBD>.
 #> 
-#> Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Williams SR, II
-#> JLC, Barry BK, Tran MN, Besich Z, Tippani M, Chew J, Yin Y, Hyde TM,
-#> Rao N, Hicks SC, Martinowich K, Jaffe AE (2020). "Transcriptome-scale
-#> spatial gene expression in the human dorsolateral prefrontal cortex."
-#> _bioRxiv_. doi: 10.1101/xxxyyy (URL: https://doi.org/10.1101/xxxyyy),
-#> <URL: https://doi.org/10.1101/xxxyyy>.
+#> Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Barry BK, Williams
+#> SR, II JLC, Tran MN, Besich Z, Tippani M, Chew J, Yin Y, Kleinman JE,
+#> Hyde TM, Rao N, Hicks SC, Martinowich K, Jaffe AE (2020).
+#> "Transcriptome-scale spatial gene expression in the human dorsolateral
+#> prefrontal cortex." _bioRxiv_. doi: 10.1101/2020.02.28.969931 (URL:
+#> https://doi.org/10.1101/2020.02.28.969931), <URL:
+#> https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1>.
 #> 
 #> To see these entries in BibTeX format, use 'print(<citation>,
 #> bibtex=TRUE)', 'toBibtex(.)', or set
@@ -268,7 +269,7 @@ this repository for re-shaping your data to look like ours. That is.
     The resulting data is then stored as
     `Human_DLPFC_Visium_processedData_sce_scran.Rdata` and is the main
     object used throughout our analysis code
-    <a id='cite-Maynard_2020'></a>(<a href='https://doi.org/10.1101/xxxyyy'>Maynard,
+    <a id='cite-Maynard_2020'></a>(<a href='https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1'>Maynard,
     Collado-Torres, Weber, Uytingco, et al., 2020</a>).
   - `make-data_spatialLIBD.R` available in the source version of
     `spatialLIBD` and [online
@@ -344,13 +345,14 @@ generates these CSV files is located inside R Markdown files at the
 \[1\] L. Collado-Torres, K. R. Maynard, and A. E. Jaffe. *LIBD Visium
 spatial transcriptomics human pilot data inspector*.
 <https://github.com/LieberInstitute/spatialLIBD> - R package version
-0.99.8. 2020. DOI: 10.18129/B9.bioc.spatialLIBD. \<URL:
+0.99.9. 2020. DOI: 10.18129/B9.bioc.spatialLIBD. \<URL:
 <http://www.bioconductor.org/packages/spatialLIBD>\>.
 
 \[2\] K. R. Maynard, L. Collado-Torres, L. M. Weber, C. Uytingco, et al.
 “Transcriptome-scale spatial gene expression in the human dorsolateral
-prefrontal cortex”. In: *bioRxiv* (2020). DOI: 10.1101/xxxyyy. \<URL:
-<https://doi.org/10.1101/xxxyyy>\>.
+prefrontal cortex”. In: *bioRxiv* (2020). DOI:
+10.1101/2020.02.28.969931. \<URL:
+<https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1>\>.
 
 # Internal
 
