@@ -6,3 +6,5 @@ CellSegmentations
 20190925_JHU_Lieber_HumanBrain_LP
 */*.cloupe
 */*web_summary.html
+*/Layers
+subset-bam-1.0*
