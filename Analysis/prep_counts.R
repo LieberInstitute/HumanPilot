@@ -48,6 +48,7 @@ geneMap = read.delim(geneFn[1], skip=1, as.is=TRUE)[,1:6]
 
 ## organize gene map
 geneMap$Chr = ss(geneMap$Chr, ";")
+geneMap$Chr = paste0("chr", geneMap$Chr)
 geneMap$Start = as.numeric(ss(geneMap$Start, ";"))
 tmp = strsplit(geneMap$End, ";")
 geneMap$End = as.numeric(sapply(tmp, function(x) x[length(x)]))
@@ -56,69 +57,50 @@ rownames(geneMap) = geneMap$Geneid
 geneMap$gencodeID = geneMap$Geneid
 geneMap$ensemblID = ss(geneMap$Geneid, "\\.")
 geneMap$Geneid = NULL
-geneMap$gene_type = gencodeGENES[geneMap$gencodeID,"gene_type"]
+geneMap$gene_type = gencodeGENES[geneMap$gencodeID,"gene_biotype"]
 geneMap$Symbol = gencodeGENES[geneMap$gencodeID,"gene_name"]
 
-######### biomart 
-if (opt$organism=="hg19") {
-	# VERSION 75, GRCh37.p13
-	ensembl = useMart("ENSEMBL_MART_ENSEMBL", 
-		dataset="hsapiens_gene_ensembl", host="feb2014.archive.ensembl.org")
-	sym = getBM(attributes = c("ensembl_gene_id","hgnc_symbol","entrezgene"), 
-		values=geneMap$ensemblID, mart=ensembl)
-} else if (opt$organism=="hg38") {
-	# VERSION 85, GRCh38.p7
-	ensembl = useMart("ENSEMBL_MART_ENSEMBL",  
-		dataset="hsapiens_gene_ensembl", host="jul2016.archive.ensembl.org")
-	sym = getBM(attributes = c("ensembl_gene_id","hgnc_symbol","entrezgene"), 
-			values=geneMap$ensemblID, mart=ensembl)
-}
-#########
-
-# geneMap$Symbol = sym$hgnc_symbol[match(geneMap$ensemblID, sym$ensembl_gene_id)]
-geneMap$EntrezID = sym$entrezgene[match(geneMap$ensemblID, sym$ensembl_gene_id)]
 
 ## counts
 geneCountList = mclapply(geneFn, function(x) {
 	cat(".")
 	read.delim(pipe(paste("cut -f7", x)), as.is=TRUE,skip=1)[,1]
-}, mc.cores=opt$cores)
+}, mc.cores=4)
 geneCounts = do.call("cbind", geneCountList)
 rownames(geneCounts) = rownames(geneMap)
-geneCounts = geneCounts[,metrics$SAMPLE_ID] # put in order
+geneCounts = geneCounts[,manifest$SampleID] # put in order
+
+# check
+colSums(geneCounts)/1e6
 
 # number of reads assigned
-geneStatList = lapply(paste0(geneFn, ".summary"), 
-	read.delim,row.names=1)
+geneStatList = mclapply(paste0(geneFn, ".summary"), 
+	read.delim,row.names=1, mc.cores=4)
 geneStats = do.call("cbind", geneStatList)
-colnames(geneStats) = metrics$SAMPLE_ID
-metrics$totalAssignedGene = as.numeric(geneStats[1,] / colSums(geneStats))
+colnames(geneStats) = manifest$SampleID
 ## Add all the other stats from featureCounts at the gene level
 geneStats_t <- t(geneStats)
 colnames(geneStats_t) <- paste0('gene_', colnames(geneStats_t))
-metrics <- cbind(metrics, geneStats_t)
+manifest <- cbind(manifest, geneStats_t[,1:4])
+manifest$totalAssignedGene = as.numeric(geneStats[1,] / colSums(geneStats))
 
-# rna Rate
-metrics$rRNA_rate = colSums(geneCounts[which(geneMap$gene_type == "rRNA"),])/colSums(geneCounts)
+## Create gene,exon RangedSummarizedExperiment objects
+gr_genes <- GRanges(seqnames = geneMap$Chr,
+    IRanges(geneMap$Start, geneMap$End), strand = geneMap$Strand)
+names(gr_genes) <- rownames(geneMap)
+mcols(gr_genes) <- DataFrame(geneMap[, - which(colnames(geneMap) %in%
+    c('Chr', 'Start', 'End', 'Strand'))])
 
-
-# make RPKM
-bg = matrix(rep(as.numeric(geneStats["Assigned",])), nc = nrow(metrics), 
-	nr = nrow(geneCounts),	byrow=TRUE)
-widG = matrix(rep(geneMap$Length), nr = nrow(geneCounts), 
-	nc = nrow(metrics),	byrow=FALSE)
-geneRpkm = geneCounts/(widG/1000)/(bg/1e6)
-
-## save metrics
-write.csv(metrics, file = file.path(opt$maindir,
-    paste0('read_and_alignment_metrics_', opt$experiment, '_', opt$prefix,
-    '.csv')))
+rse_gene <- SummarizedExperiment(assays = list('counts' = geneCounts),
+    rowRanges = gr_genes, colData = manifest)
+save(rse_gene, file = 'rse_gene_layerLevel_n76.Rdata')
 
 
 ###############
 ### exon counts
-exonFn <- file.path(opt$maindir, 'Counts', 'exon', paste0(metrics$SAMPLE_ID, filename, '_Exons.counts'))
-names(exonFn) = metrics$SAMPLE_ID
+exonFn <- paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+	manifest$SlideID, "/Layers/", manifest$SampleID, ".exons.counts")
+names(exonFn) = manifest$SampleID
 stopifnot(all(file.exists(exonFn)))
 
 ### read in annotation ##
@@ -127,23 +109,20 @@ exonMap$gencodeID = exonMap$Geneid
 exonMap$ensemblID = ss(exonMap$Geneid, "\\.")
 rownames(exonMap) = paste0("e", rownames(exonMap))
 exonMap$Geneid = NULL
-exonMap$gene_type = gencodeGENES[exonMap$gencodeID,"gene_type"]
+exonMap$gene_type = gencodeGENES[exonMap$gencodeID,"gene_biotype"]
 exonMap$Symbol = gencodeGENES[exonMap$gencodeID,"gene_name"]
-
-# exonMap$Symbol = sym$hgnc_symbol[match(exonMap$ensemblID, sym$ensembl_gene_id)]
-exonMap$EntrezID = sym$entrezgene[match(exonMap$ensemblID, sym$ensembl_gene_id)]
-
 ## add gencode exon id
 exonMap = join(exonMap, gencodeEXONS, type="left", match="first")
+exonMap$Chr = paste0("chr", exonMap$Chr)
 
 ## counts
 exonCountList = mclapply(exonFn, function(x) {
 	cat(".")
 	read.delim(pipe(paste("cut -f7", x)), as.is=TRUE,skip=1)[,1]
-}, mc.cores=opt$cores)
+}, mc.cores=4)
 exonCounts = do.call("cbind", exonCountList)
 rownames(exonCounts) = rownames(exonMap)
-exonCounts = exonCounts[,metrics$SAMPLE_ID] # put in order
+exonCounts = exonCounts[,manifest$SampleID] # put in order
 
 ## remove duplicated
 eMap = GRanges(exonMap$Chr, IRanges(exonMap$Start, exonMap$End))
@@ -165,84 +144,6 @@ exonMap = exonMap[keepIndex,]
 exonMap$exon_libdID = rownames(exonMap)
 # rownames(exonMap) = rownames(exonCounts) = exonMap$exon_gencodeID # not always unique
 
-# number of reads assigned
-exonStatList = lapply(paste0(exonFn, ".summary"), 
-                      read.delim,row.names=1)
-exonStats = do.call("cbind", exonStatList)
-colnames(exonStats) = metrics$SAMPLE_ID
-
-## make RPKM
-bgE = matrix(rep(colSums(exonCounts)), nc = nrow(metrics), 
-	nr = nrow(exonCounts),	byrow=TRUE)
-widE = matrix(rep(exonMap$Length), nr = nrow(exonCounts), 
-	nc = nrow(metrics),	byrow=FALSE)
-exonRpkm = exonCounts/(widE/1000)/(bgE/1e6)
-
-
-############################
-### add transcript maps ####
-if (opt$organism == "hg19") { 
-	load(file.path(RDIR, "feature_to_Tx_hg19_gencode_v25lift37.rda"))
-} else if (opt$organism == "hg38") { 
-	load(file.path(RDIR, "feature_to_Tx_hg38_gencode_v25.rda")) 
-	load(file.path(RDIR, "exonMaps_by_coord_hg38_gencode_v25.rda"))
-}
-
-## gene annotation
-geneMap$Class = "InGen"
-geneMap$meanExprs = rowMeans(geneRpkm)
-mmTx = match(geneMap$gencodeID, names(allTx))
-tx = CharacterList(vector("list", nrow(geneMap)))
-tx[!is.na(mmTx)] = allTx[mmTx[!is.na(mmTx)]]
-geneMap$NumTx = elementNROWS(tx)
-geneMap$gencodeTx = sapply(tx,paste0,collapse=";")
-
-## exon annotation
-exonMap$Class = "InGen"
-exonMap$meanExprs = rowMeans(exonRpkm)
-exonMap$coord = paste0(exonMap$Chr,":",exonMap$Start,"-",exonMap$End,"(",exonMap$Strand,")")
-if (opt$organism == "hg19") {
-	mmTx = match(exonMap$exon_libdID, names(allTx))
-	tx = CharacterList(vector("list", nrow(exonMap)))
-	tx[!is.na(mmTx)] = allTx[mmTx[!is.na(mmTx)]]
-	exonMap$NumTx = elementNROWS(tx)
-	exonMap$gencodeTx = sapply(tx,paste0,collapse=";")
-	
-} else if (opt$organism == "hg38") { 
-	exonMap = exonMap[,-which(colnames(exonMap) %in% c("exon_gencodeID","exon_libdID"))]
-
-	mmENSE = match(exonMap$coord, names(coordToENSE))
-	ENSE = CharacterList(vector("list", nrow(exonMap)))
-	ENSE[!is.na(mmENSE)] = coordToENSE[mmENSE[!is.na(mmENSE)]]
-	exonMap$NumENSE = elementNROWS(ENSE)
-	exonMap$exon_gencodeID = sapply(ENSE,paste0,collapse=";")
-	
-	mmLIBD = match(exonMap$coord, names(coordToEid))
-	libdID = CharacterList(vector("list", nrow(exonMap)))
-	libdID[!is.na(mmLIBD)] = coordToEid[mmLIBD[!is.na(mmLIBD)]]
-	exonMap$NumLIBD = elementNROWS(libdID)
-	exonMap$exon_libdID = sapply(libdID,paste0,collapse=";")
-	
-	mmTx = match(exonMap$coord, names(coordToTX))
-	tx = CharacterList(vector("list", nrow(exonMap)))
-	tx[!is.na(mmTx)] = coordToTX[mmTx[!is.na(mmTx)]]
-	exonMap$NumTx = elementNROWS(tx)
-	exonMap$gencodeTx = sapply(tx,paste0,collapse=";")
-}
-
-
-## Create gene,exon RangedSummarizedExperiment objects
-
-gr_genes <- GRanges(seqnames = geneMap$Chr,
-    IRanges(geneMap$Start, geneMap$End), strand = geneMap$Strand)
-names(gr_genes) <- rownames(geneMap)
-mcols(gr_genes) <- DataFrame(geneMap[, - which(colnames(geneMap) %in%
-    c('Chr', 'Start', 'End', 'Strand'))])
-
-rse_gene <- SummarizedExperiment(assays = list('counts' = geneCounts),
-    rowRanges = gr_genes, colData = metrics)
-save(rse_gene, file = paste0('rse_gene_', EXPNAME, '_n', N, '.Rdata'))
-
 gr_exons <- GRanges(seqnames = exonMap$Chr,
     IRanges(exonMap$Start, exonMap$End), strand = exonMap$Strand)
 names(gr_exons) <- rownames(exonMap)
@@ -250,43 +151,89 @@ mcols(gr_exons) <- DataFrame(exonMap[, - which(colnames(exonMap) %in%
     c('Chr', 'Start', 'End', 'Strand'))])
     
 rse_exon <- SummarizedExperiment(assays = list('counts' = exonCounts),
-    rowRanges = gr_exons, colData = metrics)
-save(rse_exon, file = paste0('rse_exon_', EXPNAME, '_n', N, '.Rdata'))
-
-
+    rowRanges = gr_exons, colData = manifest)
+save(rse_exon, file = 'rse_exon_layerLevel_n76.Rdata')
 
 ###################
 ##### junctions
 
-## import theJunctions annotation
-if (opt$organism == "hg19") { 
-	load(file.path(RDIR, "junction_annotation_hg19_gencode_v25lift37.rda"))
-} else if (opt$organism == "hg38") { 
-	load(file.path(RDIR, "junction_annotation_hg38_gencode_v25.rda"))
+junctionCount = function (junctionFiles, sampleNames = names(junctionFiles),
+    output = c("Count", "Rail"), minOverhang = 0, strandSpecific = FALSE,
+    illuminaStranded = FALSE, minCount = 1, maxCores = 1) {
+    
+	theData <- mclapply(junctionFiles, function(x) {
+       y <- read.delim(x, skip = 1, header = FALSE,
+		  col.names = c("chr", "start", "end", "strand",
+			"count"), colClasses = c("character", "integer",
+			"integer", "character", "integer"))
+        y <- y[y$count >= minCount, ]
+        weird <- which(y$strand == "?")
+        if (length(weird) > 0) y$strand[weird] = "*"
+        gr <- GRanges(y$chr, IRanges(y$start, y$end), strand = y$strand,
+					count = y$count)
+        return(gr)
+        }, mc.cores = maxCores)
+  
+    
+    message(paste(Sys.time(), "creating master table of junctions"))
+    grList <- GRangesList(theData)
+    if (illuminaStranded & strandSpecific) {
+        grList <- GRangesList(mclapply(grList, function(x) {
+            strand(x) = ifelse(strand(x) == "+", "-", "+")
+            return(x)
+        }, mc.cores = maxCores))
+    }
+    fullGR <- unlist(grList)
+    if (!strandSpecific)
+        strand(fullGR) <- "*"
+    fullGR <- fullGR[!duplicated(fullGR)]
+    fullGR <- sort(fullGR)
+    fullGR$count <- NULL
+    message(paste(Sys.time(), "there are", length(fullGR), "total junctions"))
+    message(paste(Sys.time(), "populating count matrix"))
+    jNames <- paste0(as.character(seqnames(fullGR)), ":", start(fullGR),
+        "-", end(fullGR), "(", as.character(strand(fullGR)),
+        ")")
+    options(warn = -1)
+    mList <- mclapply(grList, match, fullGR, ignore.strand = !strandSpecific,
+        mc.cores = maxCores)
+    options(warn = 0)
+    countList <- mList
+    M <- length(jNames)
+    message(paste(Sys.time(), "filling in the count matrix"))
+    for (i in seq(along = grList)) {
+        if (i%%25 == 0)
+            cat(".")
+        cc <- rep(0, M)
+        cc[mList[[i]]] <- theData[[i]]$count
+        countList[[i]] <- Rle(cc)
+    }
+    countDF <- DataFrame(countList, row.names = jNames, check.names = FALSE)
+    names(fullGR) <- jNames
+    out <- list(countDF = countDF, anno = fullGR)
+    return(out)
 }
+
 
 ## via primary alignments only
-junctionFiles <- file.path(opt$maindir, 'Counts', 'junction', paste0(metrics$SAMPLE_ID, '_junctions_primaryOnly_regtools.count'))
-stopifnot(all(file.exists(junctionFiles))) #  TRUE
+junctionFiles <- paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+	manifest$SlideID, "/Layers/", manifest$SampleID, ".junctions.count")
+names(junctionFiles) = manifest$SampleID
+	k= file.exists(junctionFiles)
 
-if (opt$stranded %in% c('forward', 'reverse')) {
-	juncCounts = junctionCount(junctionFiles, metrics$SAMPLE_ID,
-		output = "Count", maxCores=opt$cores,strandSpecific=TRUE)
-} else {
-	juncCounts = junctionCount(junctionFiles, metrics$SAMPLE_ID,
-		output = "Count", maxCores=opt$cores,strandSpecific=FALSE)
-}
-## filter junction counts - drop jxns in <1% of samples
-n = max(1, floor(N/100))
-jCountsLogical = DataFrame(sapply(juncCounts$countDF, function(x) x > 0))
-jIndex = which(rowSums(as.data.frame(jCountsLogical)) >= n) 
-juncCounts = lapply(juncCounts, function(x) x[jIndex,])
-
+## Read in counts
+juncCounts = junctionCount(junctionFiles, manifest$SampleID,
+	output = "Count", maxCores=4,strandSpecific=FALSE)
 
 ############ anno/jMap
 anno = juncCounts$anno
 # seqlevels(anno, force=TRUE) = paste0("chr", c(1:22,"X","Y","M"))
-seqlevels(anno, pruning.mode="coarse") = paste0("chr", c(1:22,"X","Y","M"))  # for updated R 3.5
+seqlevels(anno, pruning.mode="coarse") = c(1:22,"X","Y","MT") # for updated R 3.
+seqlevels(anno) = paste0("chr", seqlevels(anno))
+
+## load annotation
+load("/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/junction_txdb/junction_annotation_hg38_cellranger.rda")
+seqlevels(theJunctions)[25] = "chrMT"
 
 ## add additional annotation
 anno$inGencode = countOverlaps(anno, theJunctions, type="equal") > 0
@@ -295,8 +242,7 @@ anno$inGencodeEnd = countOverlaps(anno, theJunctions, type="end") > 0
 
 oo = findOverlaps(anno, theJunctions, type="equal")
 anno$gencodeGeneID = NA
-anno$gencodeGeneID[queryHits(oo)] = as.character(theJunctions$gencodeID[subjectHits(oo)])
-anno$ensemblID = ss(anno$gencodeGeneID, "\\.")
+anno$gencodeGeneID[queryHits(oo)] = as.character(theJunctions$cellrangerID[subjectHits(oo)])
 anno$Symbol = NA
 anno$Symbol[queryHits(oo)] = theJunctions$symbol[subjectHits(oo)]
 anno$gencodeStrand = NA
@@ -350,51 +296,18 @@ anno$newGeneID[anno$code =="InGen"] = anno$gencodeGeneID[anno$code =="InGen"]
 ## extract out jMap
 jMap = anno
 colnames(mcols(jMap))[which(colnames(mcols(jMap))=="code")] = "Class"
-rm(anno)
 
 ############ jCounts
 jCounts = as.matrix(as.data.frame(juncCounts$countDF))
-jCounts = jCounts[names(jMap),metrics$SAMPLE_ID] # ensure lines up
-colnames(jCounts) = metrics$SAMPLE_ID  # change from '.' to hyphens if needed
+jCounts = jCounts[names(jMap),match(manifest$SampleID, colnames(jCounts))] # ensure lines up
+colnames(jCounts) = manifest$SampleID  # change from '.' to hyphens if needed
 
-############ jRpkm
-bgJ = matrix(rep(colSums(jCounts)), nc = nrow(metrics), 
-	nr = nrow(jCounts),	byrow=TRUE)
-jRpkm = jCounts/(bgJ/10e6)
-
-rownames(jCounts) = rownames(jRpkm) = names(jMap)
-colnames(jRpkm)  = metrics$SAMPLE_ID 
-jMap$meanExprs = rowMeans(jRpkm)
-
-
-# ## sequence of acceptor/donor sites
-# left = right = jMap
-# end(left) = start(left) +1
-# start(right) = end(right) -1
-# jMap$leftSeq  = getSeq(Hsapiens, left)
-# jMap$rightSeq = getSeq(Hsapiens, right)
-
-
-
-### save counts
-
-tosaveCounts = c("metrics", "geneCounts", "geneMap", "exonCounts", "exonMap", "jCounts", "jMap", 
-					"txNumReads", "txMap" )
-tosaveRpkm = c("metrics", "geneRpkm", "geneMap", "exonRpkm", "exonMap", "jRpkm", "jMap", 
-					"txTpm", "txNumReads", "txMap" )
-
-if (exists("erccTPM")) {
-	tosaveCounts = c("erccTPM", tosaveCounts)
-	tosaveRpkm = c("erccTPM", tosaveRpkm)
-}
-
-save(list=ls()[ls() %in% tosaveCounts], compress=TRUE,
-	file= file.path(opt$maindir, paste0('rawCounts_', EXPNAME, '_n', N, '.rda')))
-save(list=ls()[ls() %in% tosaveRpkm], compress=TRUE,
-	file= file.path(opt$maindir, paste0('rpkmCounts_', EXPNAME, '_n', N, '.rda')))
-
+rownames(jCounts) = names(jMap) =  paste0("chr", names(jMap))
 	
 ## Create RangedSummarizedExperiment objects
 rse_jx <- SummarizedExperiment(assays = list('counts' = jCounts),
-    rowRanges = jMap, colData = metrics)
-save(rse_jx, file = paste0('rse_jx_', EXPNAME, '_n', N, '.Rdata'))
+    rowRanges = jMap, colData = manifest)
+	
+## light filter
+keep_jxn = rowSums(assays(rse_jx)$counts) > 1
+save(rse_jx, file = 'rse_jx_layerLevel_n76.Rdata')

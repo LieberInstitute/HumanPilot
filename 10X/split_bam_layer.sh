@@ -2,13 +2,13 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=30G,h_vmem=32G,h_fsize=100G
-#$ -pe local 4
+#$ -pe local 1
 #$ -N bam_split
 #$ -o logs_split_layer/bam_split.$TASK_ID.txt
 #$ -e logs_split_layer/bam_split.$TASK_ID.txt
 #$ -m e
-#$ -t 41,46
-#$ -tc 5
+#$ -t 1-76
+#$ -tc 16
 
 module load samtools
 module load python/3.6.9
@@ -42,7 +42,7 @@ samtools index $NEWBAM
 # ## dedup
 NEWBAM_DEDUP=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/$SAMPLE/Layers/${SAMPLE}_${LAYER}_dedup.bam
 
-umi_tools dedup --umi-tag=UB --cell-tag=CB \
+umi_tools dedup --umi-tag=UB --cell-tag=CB --temp-dir=$TMPDIR --method=unique \
 	--extract-umi-method=tag --stdin=$NEWBAM --stdout=$NEWBAM_DEDUP
 	
 samtools index $NEWBAM_DEDUP
@@ -66,5 +66,12 @@ OUTJXN=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/$SAMPLE/Layers
 OUTCOUNT=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/$SAMPLE/Layers/${SAMPLE}_${LAYER}.junctions.count
 
 module load python/2.7.9
+
 /dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Software/regtools/build/regtools junctions extract -i 9 -o ${OUTJXN} ${NEWBAM_DEDUP}
 /dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Software/bed_to_juncs_withCount < ${OUTJXN} > ${OUTCOUNT}
+
+module load ucsctools
+BW=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/$SAMPLE/Layers/${SAMPLE}_${LAYER}
+python ~/.local/bin/bam2wig.py -s /dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/hg38.chrom.sizes.cellRanger.hg38 \
+	-i $NEWBAM_DEDUP -t 4000000000 -o $BW
+rm $BW.wig

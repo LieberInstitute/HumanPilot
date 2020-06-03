@@ -234,8 +234,9 @@ my.col <- colorRampPalette(brewer.pal(7, "PRGn"))(length(theSeq))
 
 cor_t_layer_toPlot = cor_t_layer[,c(1, 7:2)]
 colnames(cor_t_layer_toPlot) = gsub("ayer", "", colnames(cor_t_layer_toPlot))
+rownames(cor_t_layer_toPlot) = paste0("Layer", 1:6)
 
-pdf("pdf/allen_brain_layer_overlap_heatmap.pdf")
+pdf("pdf/allen_brain_layer_overlap_heatmap.pdf", width = 6)
 print(
     levelplot(
         cor_t_layer_toPlot,
@@ -244,7 +245,7 @@ print(
         col.regions = my.col,
         ylab = "",
         xlab = "",
-        scales = list(x = list(rot = 90, cex = 2), y = list(cex = 2))
+        scales = list(x = list(rot = 90, cex = 1.5), y = list(cex = 1.5))
     )
 )
 dev.off()
