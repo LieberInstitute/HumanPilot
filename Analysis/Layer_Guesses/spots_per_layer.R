@@ -185,20 +185,24 @@ group_by(as.data.frame(colData(sce)), sample_name) %>% summarize(mean_cells = me
 
 layer_guess_tab$cell_count = sce$cell_count[match(layer_guess_tab$key, sce$key)]
 
-group_by(layer_guess_tab, layer) %>%
+layer_guess_tab$layer_guess = layer_guess_tab$layer
+layer_guess_tab$layer_guess[layer_guess_tab$layer_guess == 'Layer 2/3'] <- 'Layer 3'
+
+## This is supp table 2
+group_by(layer_guess_tab, layer_guess) %>%
     summarize(prop0 = mean(cell_count == 0),
         prop1 = mean(cell_count == 1))
 # # A tibble: 8 x 3
-#   layer      prop0  prop1
-#   <chr>      <dbl>  <dbl>
-# 1 Layer 1   0.334  0.217
-# 2 Layer 2   0.142  0.179
-# 3 Layer 2/3 0.0945 0.189
-# 4 Layer 3   0.112  0.166
-# 5 Layer 4   0.0313 0.118
-# 6 Layer 5   0.0344 0.119
-# 7 Layer 6   0.0484 0.128
-# 8 WM        0.0385 0.0594
+  # layer_guess  prop0  prop1
+  # <chr>        <dbl>  <dbl>
+# 1 Layer 1     0.334  0.217
+# 2 Layer 2     0.142  0.179
+# 3 Layer 3     0.104  0.176
+# 4 Layer 4     0.0313 0.118
+# 5 Layer 5     0.0344 0.119
+# 6 Layer 6     0.0484 0.128
+# 7 WM          0.0385 0.0594
+
 
 group_by(layer_guess_tab, layer) %>%
     summarize(prop0 = mean(cell_count == 0),
