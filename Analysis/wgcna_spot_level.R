@@ -55,3 +55,17 @@ sftthresh_list <- mclapply(exprs_list, function(geneExprs) {
 		pickSoftThreshold(t(geneExprs), powerVector = powers,
            networkType = "signed", verbose = 5)
 }, mc.cores=6)
+sapply(sftthresh_list, "[[", "powerEstimate")
+
+
+## run wgcna
+net_list = mclapply(exprs_list, function(geneExprs) {
+	
+	blockwiseModules(t(geneExprs), power = 16,
+					networkType = "signed", minModuleSize = 30,
+					corType="bicor", reassignThreshold = 0, 
+					mergeCutHeight = 0.25, numericLabels = TRUE, 
+					pamRespectsDendro = FALSE,verbose = 5)
+}, mc.cores=6)
+
+save(net_list, sftthresh_list, file = "constructed_network_signed_bicor_spotLevel.rda")
