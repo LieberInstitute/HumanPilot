@@ -43,6 +43,26 @@ t0_contrasts <- sapply(eb0_list, function(x) {
 })
 rownames(t0_contrasts) = rownames(eb_contrasts)
 
+## Expand https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/Layer_Guesses/layer_specificity.R#L1445-L1457
+do.call(rbind, lapply(seq_len(ncol(fdrs0_contrasts)), function(i) {
+    data.frame(
+        Layer = colnames(fdrs0_contrasts)[i],
+        FDR5_positiveT = sum(t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.05),
+        FDR10_positiveT = sum(t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.1)
+    )
+}))
+# Layer FDR5_positiveT FDR10_positiveT
+# 1     WM           4406            5010
+# 2 Layer1           1404            1876
+# 3 Layer2           1093            1512
+# 4 Layer3            139             270
+# 5 Layer4            348             610
+# 6 Layer5            537             794
+# 7 Layer6            264             432
+
+## Total genes: 22331
+
+
 #########################
 ## load in gene sets ####
 #########################
