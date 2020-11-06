@@ -292,7 +292,7 @@ We would like to highlight that a lot of the plotting code and functionality fro
 
 Contains outputs from the different unsupervised, semi-supervised, known gene marker based and other clustering results. The analysis code that generates these CSV files is located inside R Markdown files at the [Analysis](Analysis/) directory such as [SpatialDE_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
 
-<a href="https://www.libd.org/"><img src="http://aejaffe.com/media/LIBD_logo.jpg" width="250px"></a>
+<a href="https://www.libd.org/"><img src="http://lcolladotor.github.io/img/LIBD_logo.jpg" width="250px"></a>
 
 # Bibliography
 

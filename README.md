@@ -340,7 +340,7 @@ generates these CSV files is located inside R Markdown files at the
 [Analysis](Analysis/) directory such as
 [SpatialDE\_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
 
-<a href="https://www.libd.org/"><img src="http://aejaffe.com/media/LIBD_logo.jpg" width="250px"></a>
+<a href="https://www.libd.org/"><img src="http://lcolladotor.github.io/img/LIBD_logo.jpg" width="250px"></a>
 
 # Bibliography
 
