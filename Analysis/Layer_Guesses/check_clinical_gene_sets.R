@@ -47,18 +47,20 @@ rownames(t0_contrasts) = rownames(eb_contrasts)
 do.call(rbind, lapply(seq_len(ncol(fdrs0_contrasts)), function(i) {
     data.frame(
         Layer = colnames(fdrs0_contrasts)[i],
+        FDR5_anyT = sum(fdrs0_contrasts[, i] < 0.05),
         FDR5_positiveT = sum(t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.05),
         FDR10_positiveT = sum(t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.1)
     )
 }))
-# Layer FDR5_positiveT FDR10_positiveT
-# 1     WM           4406            5010
-# 2 Layer1           1404            1876
-# 3 Layer2           1093            1512
-# 4 Layer3            139             270
-# 5 Layer4            348             610
-# 6 Layer5            537             794
-# 7 Layer6            264             432
+   # Layer FDR5_anyT FDR5_positiveT FDR10_positiveT
+# 1     WM      9124           4406            5010
+# 2 Layer1      3033           1404            1876
+# 3 Layer2      1562           1093            1512
+# 4 Layer3       183            139             270
+# 5 Layer4       740            348             610
+# 6 Layer5       643            537             794
+# 7 Layer6       379            264             432
+
 
 ## Total genes: 22331
 
@@ -279,6 +281,40 @@ colnames(orMat) = ss(colnames(orMat), "\\.")
 pMat < 0.05 / nrow(pMat)
 pMat < 0.001
 round(-log10(pMat),1)
+
+# #######################
+# # FDR < 0.05 version ##
+# #######################
+
+# # do enrichment
+# enrich_stat_list_05 = eb0_list
+# for (i in seq(along = eb0_list)) {
+    # layer = t0_contrasts[, i] > 0 & fdrs0_contrasts[, i] < 0.05
+	# tabList = mclapply(geneList_present, function(g) {
+        # tt = table(Set = factor(names(layer) %in% g, c(FALSE, TRUE)),
+            # Layer = factor(layer, c(FALSE, TRUE)))
+    # }, mc.cores = 8)
+	# enrichList = lapply(tabList,fisher.test)
+	
+    # o = data.frame(
+        # OR = sapply(enrichList, "[[", "estimate"),
+        # Pval = sapply(enrichList, "[[", "p.value"),
+		# NumSig = sapply(tabList, function(x) x[2,2])
+    # )
+    # rownames(o) = gsub(".odds ratio", "", rownames(o))
+    # enrich_stat_list_05[[i]] = o
+# }
+# enrichTab_05 = do.call("cbind", enrich_stat_list_05)
+
+ # name
+# enrichTab_05$Type = ss(rownames(enrichTab_05), "_", 1)
+# enrichTab_05$Type[enrichTab_05$Group == "Birnbaum"] = "Birnbaum"
+# enrichTab_05$Type[enrichTab_05$Type == "Gene"] = "ASD"
+# enrichTab_05$Group = ss(rownames(enrichTab_05), "_", 2)
+# enrichTab_05$Set = ss(rownames(enrichTab_05), "_", 3)
+# enrichTab_05$ID = rownames(enrichTab_05)
+# enrichTab_05$SetSize = sapply(geneList_present, length)
+
 
 ######################
 ## pull out results ##
