@@ -8,3 +8,9 @@ CellSegmentations
 */*web_summary.html
 */Layers
 subset-bam-1.0*
+*raw_feature_bc_matrix*.tsv.gz
+*raw_feature_bc_matrix*.mtx.gz
+*filtered_feature_bc_matrix*.mtx.gz
+*filtered_feature_bc_matrix*.tsv.gz
+*.fastq.gz
+Lieber_websummary_and_loupe.tar
