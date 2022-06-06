@@ -359,6 +359,6 @@ prefrontal cortex”. In: *bioRxiv* (2020). DOI:
 # Internal
 
   - JHPCE location:
-    `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot`
+    `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot`
   - Main `sce` R object file:
-    `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.
+    `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.

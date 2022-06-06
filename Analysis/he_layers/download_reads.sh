@@ -7,9 +7,9 @@
 #$ -t 2-103
 
 # https://www.ncbi.nlm.nih.gov/sra?term=SRP199498
-FILELIST=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/he_layers/he_SraRunTable.txt
+FILELIST=/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/he_layers/he_SraRunTable.txt
 ID=$(awk "NR==$SGE_TASK_ID" $FILELIST | cut -d, -f1)
 
 /users/ajaffe/software/sratoolkit.2.8.1-3-centos_linux64/bin/fastq-dump \
-	-O /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/he_layers/FASTQ/ \
+	-O /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/he_layers/FASTQ/ \
 	--gzip --split-files $ID

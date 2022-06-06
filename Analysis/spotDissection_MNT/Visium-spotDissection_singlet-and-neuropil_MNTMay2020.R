@@ -1,9 +1,9 @@
 ### MNT application of snRNA-seq pilot workflow to Visium DLPFC data
 ### Initiated MNT 29May2020
 ### Original SCE file in:
-###     /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata
+###     /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata
 ### Working in
-###     /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/spotDissection_MNT/
+###     /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/spotDissection_MNT/
 #####################################################################
 
 library(SingleCellExperiment)
@@ -29,7 +29,7 @@ tableau20 = c("#1F77B4", "#AEC7E8", "#FF7F0E", "#FFBB78", "#2CA02C",
 # ===
 
 ## Load SCE
-load("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata",
+load("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata",
      verbose=T)
     # sce, top.hvgs
     length(top.hvgs)  # 1942

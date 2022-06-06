@@ -9,13 +9,13 @@ echo "**** Job starts ****"
 date
 
 model="snp-wise"
-ANNO=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/GRCh37_ensembl_GENES_SpatialExprs.gene.loc
-MAGMA=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/magma
-BFILE=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/g1000_eur
+ANNO=/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Layer_Guesses/MAGMA/GRCh37_ensembl_GENES_SpatialExprs.gene.loc
+MAGMA=/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Layer_Guesses/MAGMA/magma
+BFILE=/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Layer_Guesses/MAGMA/g1000_eur
 PREVPATH=/dcl02/lieber/ajaffe/Nick_Clifton/magma
 setcol=1
 genecol=2
-gs=/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/laminar_sets.txt
+gs=/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Layer_Guesses/MAGMA/laminar_sets.txt
 
 mkdir -p SNP_Data
 mkdir -p Results

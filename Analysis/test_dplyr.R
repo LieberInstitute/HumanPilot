@@ -68,7 +68,7 @@ geom_spatial <-  function(mapping = NULL,
 
 
 ## ----eval=FALSE, include=TRUE--------------------------------------------
-path = "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/"
+path = "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/"
 
 ## output
 image_paths <- paste0(path, sample_names, "/tissue_lowres_image.png")

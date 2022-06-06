@@ -393,5 +393,5 @@ mclapply(seqlevels, function(sl) {
 mclapply(seqlevels, function(sl) {
   x <- read_tsv(file.path("/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/", "Phase1", "baseline",
                           paste0("baseline.", sl, ".annot.gz")))
-  write_tsv(x[, 1:5], paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/base.Phase1.", sl, ".annot.gz"))
+  write_tsv(x[, 1:5], paste0("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/base.Phase1.", sl, ".annot.gz"))
 }, mc.cores = 4)

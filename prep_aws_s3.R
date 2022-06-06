@@ -4,7 +4,7 @@ library(jaffelab)
 dir.create("S3")
 
 ## mv loupe files
-path = "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/"
+path = "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/"
 ## copy barcodes etc
 h5 = list.files(path, pattern = "feature_bc_matrix.h5", recur=TRUE,full=TRUE)
 file.copy(h5, "S3/")

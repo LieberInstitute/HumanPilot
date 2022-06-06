@@ -7,7 +7,7 @@ uniqueIndex = which(sapply(pd, function(x) length(unique(x))) > 1)
 apply(pd[,uniqueIndex], 2, table)
 table(pd$Sample_Name, pd$tissue)
 
-fqPath = "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/he_layers/FASTQ/"
+fqPath = "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/he_layers/FASTQ/"
 
 man = data.frame(leftRead = paste0(fqPath, pd$Run, "_1.fastq.gz"),
 	leftMmd5 = 0, sampleID = pd$Run, stringsAsFactors=FALSE)

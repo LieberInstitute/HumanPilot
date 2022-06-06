@@ -19,7 +19,7 @@ library(parallel)
 load("Human_DLPFC_Visium_processedData_rseList.rda")
 
 ## add kmeans
-kmFiles= list.files("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X",
+kmFiles= list.files("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X",
 	pattern = "clustering", recur=TRUE, full=TRUE)
 kmFiles = kmFiles[grep("kmeans", kmFiles)]
 

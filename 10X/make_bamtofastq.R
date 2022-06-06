@@ -15,7 +15,7 @@ job_loop(
 )
 dir.create('logs_bamtofastq', showWarnings = FALSE)
 
-# /dcl02/lieber/ajaffe/SpatialTranscriptomics/bamtofastq-1.2.0 --nthreads=4 /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/${sample}/${sample}_mRNA.bam /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/${sample}/fastq
+# /dcl02/lieber/ajaffe/SpatialTranscriptomics/bamtofastq-1.2.0 --nthreads=4 /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/${sample}/${sample}_mRNA.bam /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/${sample}/fastq
 
 
 ## Reproducibility information

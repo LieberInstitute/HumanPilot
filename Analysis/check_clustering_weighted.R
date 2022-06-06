@@ -1,5 +1,5 @@
 # qrsh -l mf=10G,h_vmem=11G,bluejay,h_fsize=100G -pe local 12
-# cd /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis
+# cd /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis
 # module load conda_R/3.6.x
 
 ## ----Libraries ------------------

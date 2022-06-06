@@ -24,7 +24,7 @@ Currently Loaded Modules:
  
 
 bamtofastq v1.2.0
-Args { arg_bam: "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/151674/151674_mRNA.bam", arg_output_path: "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/151674/fastq", flag_nthreads: 4, flag_locus: None, flag_bx_list: None, flag_reads_per_fastq: 50000000, flag_gemcode: false, flag_lr20: false, flag_cr11: false }
+Args { arg_bam: "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/151674/151674_mRNA.bam", arg_output_path: "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/151674/fastq", flag_nthreads: 4, flag_locus: None, flag_bx_list: None, flag_reads_per_fastq: 50000000, flag_gemcode: false, flag_lr20: false, flag_cr11: false }
 Writing finished.  Observed 822237691 read pairs. Wrote 822237691 read pairs
 **** Job ends ****
 Tue Dec  3 18:04:27 EST 2019

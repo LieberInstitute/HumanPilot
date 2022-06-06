@@ -73,7 +73,7 @@ pd$layer_guess = gsub("ayer ", "", pd$layer_guess)
 pd$barcode = as.character(pd$barcode)
 
 sample_tab = pd[!duplicated(pd[,-1]),-1]
-sample_tab$BAM = paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+sample_tab$BAM = paste0("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/",
 	sample_tab$sample_name, "/", sample_tab$sample_name, "_mRNA.bam")
 
 write.table(as.data.frame(pd), "10X/barcode_level_layer_map.tsv",

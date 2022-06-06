@@ -1,5 +1,5 @@
 % Read in histology image with imread function %
-imgRGB = imread('/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/20190925_JHU_Lieber_HumanBrain_LP/');
+imgRGB = imread('/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/20190925_JHU_Lieber_HumanBrain_LP/');
 
 % convert image datatype to double %
 imgRGB = im2double(imgRGB);

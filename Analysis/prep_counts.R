@@ -14,7 +14,7 @@ library('plyr')
 library('rtracklayer')
 
 ## read in pheno
-manifest <- read.table('/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/sample_level_layer_map.tsv', 
+manifest <- read.table('/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/sample_level_layer_map.tsv', 
 	sep = '\t',header = FALSE, stringsAsFactors = FALSE)
 
 colnames(manifest) = c("SlideID", "Layer", "bam")
@@ -38,7 +38,7 @@ gencodeEXONS = gencodeEXONS[,-4]
 
 ###############
 ### gene counts
-geneFn <- paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+geneFn <- paste0("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/",
 	manifest$SlideID, "/Layers/", manifest$SampleID, ".genes.counts")
 names(geneFn) = manifest$SampleID
 stopifnot(all(file.exists(geneFn)))
@@ -98,7 +98,7 @@ save(rse_gene, file = 'rse_gene_layerLevel_n76.Rdata')
 
 ###############
 ### exon counts
-exonFn <- paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+exonFn <- paste0("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/",
 	manifest$SlideID, "/Layers/", manifest$SampleID, ".exons.counts")
 names(exonFn) = manifest$SampleID
 stopifnot(all(file.exists(exonFn)))
@@ -216,7 +216,7 @@ junctionCount = function (junctionFiles, sampleNames = names(junctionFiles),
 
 
 ## via primary alignments only
-junctionFiles <- paste0("/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/",
+junctionFiles <- paste0("/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/",
 	manifest$SlideID, "/Layers/", manifest$SampleID, ".junctions.count")
 names(junctionFiles) = manifest$SampleID
 	k= file.exists(junctionFiles)

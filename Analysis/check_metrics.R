@@ -1,7 +1,7 @@
 ###
 library(jaffelab)
 metricFiles = list.files(
-    "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X",
+    "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X",
     pattern = "metrics_summary_csv.csv",
     full = TRUE,
     recur = TRUE

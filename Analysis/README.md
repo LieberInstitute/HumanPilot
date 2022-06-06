@@ -15,8 +15,8 @@ Analysis
 
 Related files:
 
-* `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce.Rdata`
-* `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/geom_spatial.Rdata`
+* `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce.Rdata`
+* `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/geom_spatial.Rdata`
 
 Details:
 
@@ -29,7 +29,7 @@ Related files:
 
 * [pdf_scran](pdf_scran/)
 * [rda_scran](rda_scran/)
-* `/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`
+* `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`
 
 Details:
 

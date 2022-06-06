@@ -37,7 +37,7 @@ echo "Task id: \${SGE_TASK_ID}"
 module list
 
 ## Edit with your job command
-/dcl02/lieber/ajaffe/SpatialTranscriptomics/bamtofastq-1.2.0 --nthreads=4 /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/${sample}/${sample}_mRNA.bam /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/10X/${sample}/fastq
+/dcl02/lieber/ajaffe/SpatialTranscriptomics/bamtofastq-1.2.0 --nthreads=4 /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/${sample}/${sample}_mRNA.bam /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/10X/${sample}/fastq
 
 echo "**** Job ends ****"
 date

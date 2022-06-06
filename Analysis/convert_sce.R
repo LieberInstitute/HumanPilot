@@ -27,7 +27,7 @@ table(colData(sce)$sample_name)
 ## Add design info
 study <-
     read.csv(
-        '/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/image_index_10xID.csv'
+        '/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/image_index_10xID.csv'
     )
 
 ## same order

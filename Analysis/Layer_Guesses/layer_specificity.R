@@ -88,7 +88,7 @@ with(colData(sce), addmargins(table(layer_guess, sample_name, useNA = 'ifany')))
 
 ## Split spots by layer and image
 ## Based on here('Analysis', 'sce_scran.R')
-## /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/sce_scran.R
+## /dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/sce_scran.R
 layerIndexes <-
     splitit(paste0(sce$sample_name, '_', sce$layer_guess))
 

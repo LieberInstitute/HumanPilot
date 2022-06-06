@@ -20,7 +20,7 @@ Copy data (if needed) to be able to work with the here package.
 ```{r}
 if(!dir.exists(here("sample_data"))){
     dir.create(here("sample_data"))
-    processedData_sce_scran <- "/dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata"
+    processedData_sce_scran <- "/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata"
     file.copy(processedData_sce_scran, here("sample_data"))
 }
 ```
