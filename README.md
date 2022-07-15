@@ -165,8 +165,8 @@ spe
 #> imgData names(4): sample_id image_id data scaleFactor
 
 ## Note the memory size
-lobstr::obj_size(spe) / 1024^3 ## Convert to GB
-#> 1.89937 B
+lobstr::obj_size(spe) 
+#> 2.04 GB
 
 ## Remake the logo image with histology information
 vis_clus(
@@ -273,7 +273,7 @@ this repository for re-shaping your data to look like ours. That is.
     The resulting data is then stored as
     `Human_DLPFC_Visium_processedData_sce_scran.Rdata` and is the main
     object used throughout our analysis code
-    (<a href='https://www.nature.com/articles/s41593-020-00787-0'>Maynard,
+    <a id='cite-Maynard_2021'></a>(<a href='https://www.nature.com/articles/s41593-020-00787-0'>Maynard,
     Collado-Torres, Weber, Uytingco, et al., 2021</a>).
 -   `make-data_spatialLIBD.R` available in the source version of
     `spatialLIBD` and [online
@@ -283,7 +283,7 @@ this repository for re-shaping your data to look like ours. That is.
     other outputs from our analysis and combines them into the final
     `sce` and `sce_layer` objects provided by
     *[spatialLIBD](https://bioconductor.org/packages/3.15/spatialLIBD)*
-    (<a href='https://doi.org/10.1186/s12864-022-08601-w'>Pardo,
+    <a id='cite-Pardo_2022'></a>(<a href='https://doi.org/10.1186/s12864-022-08601-w'>Pardo,
     Spangler, Weber, Hicks, et al., 2022</a>). This script simplifies
     some operations in order to simplify the code behind the
     *[shiny](https://CRAN.R-project.org/package=shiny)* application
