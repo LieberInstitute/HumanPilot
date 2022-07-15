@@ -210,26 +210,45 @@ Please run this yourself to check for any updates on how to cite
 **spatialLIBD**.
 
 ``` r
-citation('spatialLIBD')
+print(citation("spatialLIBD"), bibtex = TRUE)
 #> 
-#> Collado-Torres L, Maynard KR, Jaffe AE (2020). _LIBD Visium spatial
-#> transcriptomics human pilot data inspector_. doi:
-#> 10.18129/B9.bioc.spatialLIBD (URL:
-#> https://doi.org/10.18129/B9.bioc.spatialLIBD),
-#> https://github.com/LieberInstitute/spatialLIBD - R package version
-#> 1.0.0, <URL: http://www.bioconductor.org/packages/spatialLIBD>.
+#> Pardo B, Spangler A, Weber LM, Hicks SC, Jaffe AE, Martinowich K,
+#> Maynard KR, Collado-Torres L (2022). "spatialLIBD: an R/Bioconductor
+#> package to visualize spatially-resolved transcriptomics data."
+#> _BMC Genomics_. doi: 10.1186/s12864-022-08601-w (URL:
+#> https://doi.org/10.1186/s12864-022-08601-w), <URL:
+#> https://doi.org/10.1186/s12864-022-08601-w>.
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Article{,
+#>     title = {spatialLIBD: an R/Bioconductor package to visualize spatially-resolved transcriptomics data},
+#>     author = {Brenda Pardo and Abby Spangler and Lukas M. Weber and Stephanie C. Hicks and Andrew E. Jaffe and Keri Martinowich and Kristen R. Maynard and Leonardo Collado-Torres},
+#>     year = {2022},
+#>     journal = {BMC Genomics},
+#>     doi = {10.1186/s12864-022-08601-w},
+#>     url = {https://doi.org/10.1186/s12864-022-08601-w},
+#>   }
 #> 
 #> Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Barry BK, Williams
 #> SR, II JLC, Tran MN, Besich Z, Tippani M, Chew J, Yin Y, Kleinman JE,
-#> Hyde TM, Rao N, Hicks SC, Martinowich K, Jaffe AE (2020).
+#> Hyde TM, Rao N, Hicks SC, Martinowich K, Jaffe AE (2021).
 #> "Transcriptome-scale spatial gene expression in the human dorsolateral
-#> prefrontal cortex." _bioRxiv_. doi: 10.1101/2020.02.28.969931 (URL:
-#> https://doi.org/10.1101/2020.02.28.969931), <URL:
-#> https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1>.
+#> prefrontal cortex." _Nature Neuroscience_. doi:
+#> 10.1038/s41593-020-00787-0 (URL:
+#> https://doi.org/10.1038/s41593-020-00787-0), <URL:
+#> https://www.nature.com/articles/s41593-020-00787-0>.
 #> 
-#> To see these entries in BibTeX format, use 'print(<citation>,
-#> bibtex=TRUE)', 'toBibtex(.)', or set
-#> 'options(citation.bibtex.max=999)'.
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Article{,
+#>     title = {Transcriptome-scale spatial gene expression in the human dorsolateral prefrontal cortex},
+#>     author = {Kristen R. Maynard and Leonardo Collado-Torres and Lukas M. Weber and Cedric Uytingco and Brianna K. Barry and Stephen R. Williams and Joseph L. Catallini II and Matthew N. Tran and Zachary Besich and Madhavi Tippani and Jennifer Chew and Yifeng Yin and Joel E. Kleinman and Thomas M. Hyde and Nikhil Rao and Stephanie C. Hicks and Keri Martinowich and Andrew E. Jaffe},
+#>     year = {2021},
+#>     journal = {Nature Neuroscience},
+#>     doi = {10.1038/s41593-020-00787-0},
+#>     url = {https://www.nature.com/articles/s41593-020-00787-0},
+#>   }
 ```
 
 # `HumanPilot` code
