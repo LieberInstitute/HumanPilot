@@ -8,22 +8,21 @@
 [![DOI](https://zenodo.org/badge/225910046.svg)](https://zenodo.org/badge/latestdoi/225910046)
 <!-- badges: end -->
 
-Welcome to the `spatialLIBD` project\! It is composed of the
-`HumanPilot` described here as well as:
+Welcome to the `spatialLIBD` project! It is composed of the `HumanPilot`
+described here as well as:
 
-  - a [shiny](https://shiny.rstudio.com/) web application that we are
+-   a [shiny](https://shiny.rstudio.com/) web application that we are
     hosting at
     [spatial.libd.org/spatialLIBD/](http://spatial.libd.org/spatialLIBD/)
     that can handle a
     [limited](https://github.com/LieberInstitute/spatialLIBD/issues/2)
     set of concurrent users,
-  - a Bioconductor package at
+-   a Bioconductor package at
     [bioconductor.org/packages/spatialLIBD](http://bioconductor.org/packages/spatialLIBD)
     (or from [here](http://research.libd.org/spatialLIBD/)) that lets
     you analyze the data and run a local version of our web application
     (with our data or yours),
-  - and a [research
-    article](https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1)
+-   and a [research article](https://doi.org/10.1038/s41593-020-00787-0)
     with the scientific knowledge we drew from this dataset. The
     analysis code for our project is available
     [here](https://github.com/LieberInstitute/HumanPilot/) that you are
@@ -42,7 +41,7 @@ If you tweet about this website, the data or the R package please use
 the <code>\#spatialLIBD</code> hashtag. You can find previous tweets
 that way as shown
 <a href="https://twitter.com/search?q=%23spatialLIBD&src=typed_query">here</a>.
-Thank you\!
+Thank you!
 
 ## Study design
 
@@ -85,26 +84,26 @@ spatialLIBD::run_app()
 
 ## Shiny website mirrors
 
-  - [Main shiny application
+-   [Main shiny application
     website](http://spatial.libd.org/spatialLIBD)
-  - [Shinyapps](https://jhubiostatistics.shinyapps.io/spatialLIBD/)
-  - [Shinyapps Mirror
+-   [Shinyapps](https://jhubiostatistics.shinyapps.io/spatialLIBD/)
+-   [Shinyapps Mirror
     1](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror01/)
-  - [Shinyapps Mirror
+-   [Shinyapps Mirror
     2](https://jhubiostatistics.shinyapps.io/spatialLIBD_mirror02/)
 
 ## R/Bioconductor package
 
 The `spatialLIBD` package contains functions for:
 
-  - Accessing the spatial transcriptomics data from the LIBD Human Pilot
+-   Accessing the spatial transcriptomics data from the LIBD Human Pilot
     project ([code on
     GitHub](https://github.com/LieberInstitute/HumanPilot)) generated
     with the Visium platform from 10x Genomics. The data is retrieved
     from [Bioconductor](http://bioconductor.org/)’s `ExperimentHub`.
-  - Visualizing the spot-level spatial gene expression data and
+-   Visualizing the spot-level spatial gene expression data and
     clusters.
-  - Inspecting the data interactively either on your computer or through
+-   Inspecting the data interactively either on your computer or through
     [spatial.libd.org/spatialLIBD/](http://spatial.libd.org/spatialLIBD/).
 
 For more details, please check the [documentation
@@ -140,42 +139,42 @@ details, check the help file for `fetch_data()`.
 
 ``` r
 ## Load the package
-library('spatialLIBD')
+library("spatialLIBD")
 
 ## Download the spot-level data
-sce <- fetch_data(type = 'sce')
-#> Loading objects:
-#>   sce
+spe <- fetch_data(type = "spe")
 
-## This is a SingleCellExperiment object
-sce
-#> class: SingleCellExperiment 
+## This is a SpatialExperiment object
+spe
+#> class: SpatialExperiment 
 #> dim: 33538 47681 
-#> metadata(1): image
+#> metadata(0):
 #> assays(2): counts logcounts
 #> rownames(33538): ENSG00000243485 ENSG00000237613 ... ENSG00000277475
 #>   ENSG00000268674
 #> rowData names(9): source type ... gene_search is_top_hvg
 #> colnames(47681): AAACAACGAATAGTTC-1 AAACAAGTATCTCCCA-1 ...
 #>   TTGTTTCCATACAACT-1 TTGTTTGTGTAAATTC-1
-#> colData names(73): barcode sample_name ... pseudobulk_UMAP_spatial
-#>   markers_UMAP_spatial
+#> colData names(66): sample_id Cluster ... spatialLIBD ManualAnnotation
 #> reducedDimNames(6): PCA TSNE_perplexity50 ... TSNE_perplexity80
 #>   UMAP_neighbors15
-#> spikeNames(0):
+#> mainExpName: NULL
 #> altExpNames(0):
+#> spatialData names(3) : in_tissue array_row array_col
+#> spatialCoords names(2) : pxl_col_in_fullres pxl_row_in_fullres
+#> imgData names(4): sample_id image_id data scaleFactor
 
 ## Note the memory size
-pryr::object_size(sce)
-#> 2.08 GB
+lobstr::obj_size(spe) / 1024^3 ## Convert to GB
+#> 1.89937 B
 
 ## Remake the logo image with histology information
-sce_image_clus(
-    sce = sce,
-    clustervar = 'layer_guess_reordered',
-    sampleid = '151673',
+vis_clus(
+    spe = spe,
+    clustervar = "spatialLIBD",
+    sampleid = "151673",
     colors = libd_layer_colors,
-    ... = ' DLPFC Human Brain Layers\nMade with github.com/LieberInstitute/spatialLIBD'
+    ... = " DLPFC Human Brain Layers\nMade with github.com/LieberInstitute/spatialLIBD"
 )
 ```
 
@@ -188,8 +187,8 @@ You can access all the raw data through
 Furthermore, below you can find the links to the raw data we received
 from 10x Genomics.
 
-| SampleID | h5\_filtered                                                                                    | h5\_raw                                                                                    | image\_full                                                                          | image\_hi                                                                                    | image\_lo                                                                                     | loupe                                                                       | HTML\_report                                                                                           |
-| -------: | :---------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------- |
+| SampleID | h5_filtered                                                                                     | h5_raw                                                                                     | image_full                                                                           | image_hi                                                                                     | image_lo                                                                                      | loupe                                                                       | HTML_report                                                                                            |
+|---------:|:------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
 |   151507 | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151507_filtered_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151507_raw_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151507_full_image.tif) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151507_tissue_hires_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151507_tissue_lowres_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/loupe/151507.cloupe) | [GitHub](https://github.com/LieberInstitute/HumanPilot/blob/master/10X/151507/151507_web_summary.html) |
 |   151508 | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151508_filtered_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151508_raw_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151508_full_image.tif) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151508_tissue_hires_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151508_tissue_lowres_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/loupe/151508.cloupe) | [GitHub](https://github.com/LieberInstitute/HumanPilot/blob/master/10X/151508/151508_web_summary.html) |
 |   151509 | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151509_filtered_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/h5/151509_raw_feature_bc_matrix.h5) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151509_full_image.tif) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151509_tissue_hires_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/images/151509_tissue_lowres_image.png) | [AWS](https://spatial-dlpfc.s3.us-east-2.amazonaws.com/loupe/151509.cloupe) | [GitHub](https://github.com/LieberInstitute/HumanPilot/blob/master/10X/151509/151509_web_summary.html) |
@@ -210,45 +209,29 @@ Please run this yourself to check for any updates on how to cite
 **spatialLIBD**.
 
 ``` r
-print(citation("spatialLIBD"), bibtex = TRUE)
+citation('spatialLIBD')
 #> 
-#> Pardo B, Spangler A, Weber LM, Hicks SC, Jaffe AE, Martinowich K,
-#> Maynard KR, Collado-Torres L (2022). "spatialLIBD: an R/Bioconductor
-#> package to visualize spatially-resolved transcriptomics data."
-#> _BMC Genomics_. doi: 10.1186/s12864-022-08601-w (URL:
-#> https://doi.org/10.1186/s12864-022-08601-w), <URL:
-#> https://doi.org/10.1186/s12864-022-08601-w>.
+#> To cite package 'spatialLIBD' in publications use:
 #> 
-#> A BibTeX entry for LaTeX users is
+#>   Pardo B, Spangler A, Weber LM, Hicks SC, Jaffe AE, Martinowich K,
+#>   Maynard KR, Collado-Torres L (2022). "spatialLIBD: an R/Bioconductor
+#>   package to visualize spatially-resolved transcriptomics data." _BMC
+#>   Genomics_. doi:10.1186/s12864-022-08601-w
+#>   <https://doi.org/10.1186/s12864-022-08601-w>,
+#>   <https://doi.org/10.1186/s12864-022-08601-w>.
 #> 
-#>   @Article{,
-#>     title = {spatialLIBD: an R/Bioconductor package to visualize spatially-resolved transcriptomics data},
-#>     author = {Brenda Pardo and Abby Spangler and Lukas M. Weber and Stephanie C. Hicks and Andrew E. Jaffe and Keri Martinowich and Kristen R. Maynard and Leonardo Collado-Torres},
-#>     year = {2022},
-#>     journal = {BMC Genomics},
-#>     doi = {10.1186/s12864-022-08601-w},
-#>     url = {https://doi.org/10.1186/s12864-022-08601-w},
-#>   }
+#>   Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Barry BK,
+#>   Williams SR, II JLC, Tran MN, Besich Z, Tippani M, Chew J, Yin Y,
+#>   Kleinman JE, Hyde TM, Rao N, Hicks SC, Martinowich K, Jaffe AE
+#>   (2021). "Transcriptome-scale spatial gene expression in the human
+#>   dorsolateral prefrontal cortex." _Nature Neuroscience_.
+#>   doi:10.1038/s41593-020-00787-0
+#>   <https://doi.org/10.1038/s41593-020-00787-0>,
+#>   <https://www.nature.com/articles/s41593-020-00787-0>.
 #> 
-#> Maynard KR, Collado-Torres L, Weber LM, Uytingco C, Barry BK, Williams
-#> SR, II JLC, Tran MN, Besich Z, Tippani M, Chew J, Yin Y, Kleinman JE,
-#> Hyde TM, Rao N, Hicks SC, Martinowich K, Jaffe AE (2021).
-#> "Transcriptome-scale spatial gene expression in the human dorsolateral
-#> prefrontal cortex." _Nature Neuroscience_. doi:
-#> 10.1038/s41593-020-00787-0 (URL:
-#> https://doi.org/10.1038/s41593-020-00787-0), <URL:
-#> https://www.nature.com/articles/s41593-020-00787-0>.
-#> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Article{,
-#>     title = {Transcriptome-scale spatial gene expression in the human dorsolateral prefrontal cortex},
-#>     author = {Kristen R. Maynard and Leonardo Collado-Torres and Lukas M. Weber and Cedric Uytingco and Brianna K. Barry and Stephen R. Williams and Joseph L. Catallini II and Matthew N. Tran and Zachary Besich and Madhavi Tippani and Jennifer Chew and Yifeng Yin and Joel E. Kleinman and Thomas M. Hyde and Nikhil Rao and Stephanie C. Hicks and Keri Martinowich and Andrew E. Jaffe},
-#>     year = {2021},
-#>     journal = {Nature Neuroscience},
-#>     doi = {10.1038/s41593-020-00787-0},
-#>     url = {https://www.nature.com/articles/s41593-020-00787-0},
-#>   }
+#> To see these entries in BibTeX format, use 'print(<citation>,
+#> bibtex=TRUE)', 'toBibtex(.)', or set
+#> 'options(citation.bibtex.max=999)'.
 ```
 
 # `HumanPilot` code
@@ -258,17 +241,17 @@ print(citation("spatialLIBD"), bibtex = TRUE)
 As described in the `spatialLIBD` vignette, you can see the scripts in
 this repository for re-shaping your data to look like ours. That is.
 
-  - `reorganize_folder.R` available
+-   `reorganize_folder.R` available
     [here](https://github.com/LieberInstitute/HumanPilot/blob/master/reorganize_folder.R)
     re-organizes the raw data we were sent by 10x Genomics.
-  - `Layer_Notebook.R` available
+-   `Layer_Notebook.R` available
     [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/Layer_Notebook.R)
     reads in the Visium data and builds a list of
     `RangeSummarizedExperiment()` objects from
-    *[SummarizedExperiment](https://bioconductor.org/packages/3.11/SummarizedExperiment)*,
+    *[SummarizedExperiment](https://bioconductor.org/packages/3.15/SummarizedExperiment)*,
     one per sample (image) that is eventually saved as
     `Human_DLPFC_Visium_processedData_rseList.rda`.
-  - `convert_sce.R` available
+-   `convert_sce.R` available
     [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/convert_sce.R)
     reads in `Human_DLPFC_Visium_processedData_rseList.rda` and builds
     an initial `sce` object with image data under `metadata(sce)$image`
@@ -280,9 +263,9 @@ this repository for re-shaping your data to look like ours. That is.
     similar analyses to the ones you would do with sc/snRNA-seq data.
     The script creates the `Human_DLPFC_Visium_processedData_sce.Rdata`
     file.
-  - `sce_scran.R` available
+-   `sce_scran.R` available
     [here](https://github.com/LieberInstitute/HumanPilot/blob/master/Analysis/sce_scran.R)
-    then uses *[scran](https://bioconductor.org/packages/3.11/scran)* to
+    then uses *[scran](https://bioconductor.org/packages/3.15/scran)* to
     read in `Human_DLPFC_Visium_processedData_sce.Rdata`, compute the
     highly variable genes (stored in our final `sce` object at
     `rowData(sce)$is_top_hvg`), perform dimensionality reduction (PCA,
@@ -290,33 +273,33 @@ this repository for re-shaping your data to look like ours. That is.
     The resulting data is then stored as
     `Human_DLPFC_Visium_processedData_sce_scran.Rdata` and is the main
     object used throughout our analysis code
-    <a id='cite-Maynard_2020'></a>(<a href='https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1'>Maynard,
-    Collado-Torres, Weber, Uytingco, et al., 2020</a>).
-  - `make-data_spatialLIBD.R` available in the source version of
+    (<a href='https://www.nature.com/articles/s41593-020-00787-0'>Maynard,
+    Collado-Torres, Weber, Uytingco, et al., 2021</a>).
+-   `make-data_spatialLIBD.R` available in the source version of
     `spatialLIBD` and [online
     here](https://github.com/LieberInstitute/spatialLIBD/blob/master/inst/scripts/make-data_spatialLIBD.R)
     is the script that reads in
     `Human_DLPFC_Visium_processedData_sce_scran.Rdata` as well as some
     other outputs from our analysis and combines them into the final
     `sce` and `sce_layer` objects provided by
-    *[spatialLIBD](https://bioconductor.org/packages/3.11/spatialLIBD)*
-    <a id='cite-Collado-Torres_2020'></a>(<a href='http://www.bioconductor.org/packages/spatialLIBD'>Collado-Torres,
-    Maynard, and Jaffe, 2020</a>). This script simplifies some
-    operations in order to simplify the code behind the
+    *[spatialLIBD](https://bioconductor.org/packages/3.15/spatialLIBD)*
+    (<a href='https://doi.org/10.1186/s12864-022-08601-w'>Pardo,
+    Spangler, Weber, Hicks, et al., 2022</a>). This script simplifies
+    some operations in order to simplify the code behind the
     *[shiny](https://CRAN.R-project.org/package=shiny)* application
     provided by
-    *[spatialLIBD](https://bioconductor.org/packages/3.11/spatialLIBD)*.
+    *[spatialLIBD](https://bioconductor.org/packages/3.15/spatialLIBD)*.
 
 ## [10X](10X/) directory
 
 Contains some of the raw files provided by 10X. Given their size, we
-only included the small ones here. \#\# [Analysis](Analysis/) directory
+only included the small ones here. \## [Analysis](Analysis/) directory
 
 The `README.md` was the one we initially prepared for our collaborators
 at an early stage of the project. That README file described some of our
 initial explorations using packages such as
-*[scran](https://bioconductor.org/packages/3.11/scran)*,
-*[zinbwave](https://bioconductor.org/packages/3.11/zinbwave)* and other
+*[scran](https://bioconductor.org/packages/3.15/scran)*,
+*[zinbwave](https://bioconductor.org/packages/3.15/zinbwave)* and other
 approaches such as using k-means with X/Y spatial information. These
 analyses were not used for our manuscript beyond creating the `sce`
 object we previously described.
@@ -330,22 +313,22 @@ and the [counting code](Analysis/Histology/code) that requires our file
 structure (`sgeID` input).
 
 The main layer-level analysis code is located at
-[Layer\_Guesses](Analysis/Layer_Guesses), for example
-[layer\_specificity.R](Analysis/Layer_Guesses/layer_specificity.R) is
-the R script for pseudo-bulking the spot-level data to create the
+[Layer_Guesses](Analysis/Layer_Guesses), for example
+[layer_specificity.R](Analysis/Layer_Guesses/layer_specificity.R) is the
+R script for pseudo-bulking the spot-level data to create the
 layer-level data. The `spatialLIBD` layer annotation files are saved in
-the [First\_Round](Analysis/Layer_Guesses/First_Round/) and
-[Second\_Round](Analysis/Layer_Guesses/Second_Round) directories which
+the [First_Round](Analysis/Layer_Guesses/First_Round/) and
+[Second_Round](Analysis/Layer_Guesses/Second_Round) directories which
 you can upload to the shiny web application.
 
 We also include directories with code for processing external datasets
-such as [he\_layers](Analysis/he_layers),
-[allen\_data](Analysis/allen_data/),
-[hafner\_vglut](Analysis/hafner_vglut/).
+such as [he_layers](Analysis/he_layers),
+[allen_data](Analysis/allen_data/),
+[hafner_vglut](Analysis/hafner_vglut/).
 
 We would like to highlight that a lot of the plotting code and
 functionality from these scripts has been implemented in
-*[spatialLIBD](https://bioconductor.org/packages/3.11/spatialLIBD)*
+*[spatialLIBD](https://bioconductor.org/packages/3.15/spatialLIBD)*
 which would make a lot of our analysis simpler. Finally, for
 reproducibility purposes we included the R session information in many
 of our R scripts. Although in general we used R 3.6.1 and 3.6.2 with
@@ -357,27 +340,27 @@ Contains outputs from the different unsupervised, semi-supervised, known
 gene marker based and other clustering results. The analysis code that
 generates these CSV files is located inside R Markdown files at the
 [Analysis](Analysis/) directory such as
-[SpatialDE\_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
+[SpatialDE_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
 
 <a href="https://www.libd.org/"><img src="http://lcolladotor.github.io/img/LIBD_logo.jpg" width="250px"></a>
 
 # Bibliography
 
-\[1\] L. Collado-Torres, K. R. Maynard, and A. E. Jaffe. *LIBD Visium
-spatial transcriptomics human pilot data inspector*.
-<https://github.com/LieberInstitute/spatialLIBD> - R package version
-1.0.0. 2020. DOI: 10.18129/B9.bioc.spatialLIBD. \<URL:
-<http://www.bioconductor.org/packages/spatialLIBD>\>.
-
-\[2\] K. R. Maynard, L. Collado-Torres, L. M. Weber, C. Uytingco, et al.
+\[1\] K. R. Maynard, L. Collado-Torres, L. M. Weber, C. Uytingco, et al.
 “Transcriptome-scale spatial gene expression in the human dorsolateral
-prefrontal cortex”. In: *bioRxiv* (2020). DOI:
-10.1101/2020.02.28.969931. \<URL:
-<https://www.biorxiv.org/content/10.1101/2020.02.28.969931v1>\>.
+prefrontal cortex”. In: *Nature Neuroscience* (2021). DOI:
+10.1038/s41593-020-00787-0.
+<https://www.nature.com/articles/s41593-020-00787-0>.
+
+\[2\] B. Pardo, A. Spangler, L. M. Weber, S. C. Hicks, et al.
+“spatialLIBD: an R/Bioconductor package to visualize spatially-resolved
+transcriptomics data”. In: *BMC Genomics* (2022). DOI:
+10.1186/s12864-022-08601-w.
+<https://doi.org/10.1186/s12864-022-08601-w>.
 
 # Internal
 
-  - JHPCE location:
+-   JHPCE location:
     `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot`
-  - Main `sce` R object file:
+-   Main `sce` R object file:
     `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.
