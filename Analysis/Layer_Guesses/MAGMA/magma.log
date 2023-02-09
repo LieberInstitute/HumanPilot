@@ -1,0 +1,10 @@
+Welcome to MAGMA v1.07b (linux/s)
+Using flags:
+	--h
+
+Start time is 13:26:51, Thursday 27 Feb 2020
+
+
+ERROR - parsing arguments: unknown flag --h
+
+Terminating program.

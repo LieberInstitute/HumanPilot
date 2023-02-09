@@ -1,0 +1,20 @@
+# MEAN_SAMPLE_SIZE = 35802
+# TOTAL_GENES = 23669
+# TEST_DIRECTION = one-sided, positive (set), two-sided (covar)
+# CONDITIONED_INTERNAL = gene size, gene density, inverse mac, log(gene size), log(gene density), log(inverse mac)
+VARIABLE             TYPE  NGENES         BETA     BETA_STD           SE            P
+All_Neuropil          SET     516   0.00057719    8.429e-05     0.054021      0.49574
+Layer1                SET    1780    -0.063602    -0.016774     0.029411      0.98471
+Layer1_Neuropil       SET      13      -0.3003   -0.0070361      0.30917       0.8343
+Layer2                SET    1444      0.12701     0.030401     0.032461   4.5772e-05
+Layer2_Neuropil       SET      13     -0.19595   -0.0045912      0.35023      0.71209
+Layer3                SET     258     0.061782    0.0064153     0.074804      0.20443
+Layer3_Neuropil       SET     304    -0.049618   -0.0055871     0.070032      0.76068
+Layer4                SET     582     0.084772     0.013129     0.048705     0.040892
+Layer4_Neuropil       SET     258     -0.13653    -0.014176     0.074808      0.96599
+Layer5                SET     757      0.13607     0.023943      0.04434     0.001076
+Layer5_Neuropil       SET     212    -0.094102   -0.0088661      0.08289      0.87186
+Layer6                SET     420      0.11822     0.015608     0.060755     0.025842
+Layer6_Neuropil       SET     216     -0.11669    -0.011097     0.079927      0.92784
+WM                    SET    4808     0.036919     0.014854     0.019369     0.028325
+WM_Neuropil           SET     185     0.015004    0.0013213     0.083618       0.4288

@@ -1,0 +1,38 @@
+Welcome to MAGMA v1.07b (linux/s)
+Using flags:
+	--gene-results SNP_Data/daner_PGC_BIP32b_mds7a_0416a_ensembl_SpatialGenes_snp-wise.genes.raw
+	--set-annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/laminar_sets.txt gene-col=2 set-col=1
+	--out Results/PGC_BIP_laminar
+
+Start time is 14:25:12, Thursday 27 Feb 2020
+
+Reading file SNP_Data/daner_PGC_BIP32b_mds7a_0416a_ensembl_SpatialGenes_snp-wise.genes.raw... 
+	23357 genes read from file
+Loading gene-set annotation...
+Reading file /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/MAGMA/laminar_sets.txt... 
+	detected 2 variables in file
+	using variable: variable 2 (gene ID)
+	using variable: variable 1 (set ID)
+	WARNING: gene set Set contains no genes defined in genotype data
+	16 gene-set definitions read from file
+	found 15 gene sets containing genes defined in genotype data (containing a total of 9606 unique genes)
+Preparing variables for analysis...
+	truncating Z-scores 3 points below zero or 6 standard deviations above the mean
+	truncating covariate values more than 5 standard deviations from the mean
+	total variables available for analysis: 15 gene sets
+
+Parsing model specifications...
+Inverting gene-gene correlation matrix...
+Performing regression analysis...
+	testing direction: one-sided, positive (sets), two-sided (covar)
+	conditioning on internal variables:
+		gene size, log(gene size)
+		gene density, log(gene density)
+		sample size, log(sample size)
+		inverse mac, log(inverse mac)
+	analysing individual variables
+
+	analysing single-variable models (number of models: 15)
+	writing results to file Results/PGC_BIP_laminar.gsa.out
+
+End time is 14:26:27, Thursday 27 Feb 2020 (elapsed: 00:01:15)
