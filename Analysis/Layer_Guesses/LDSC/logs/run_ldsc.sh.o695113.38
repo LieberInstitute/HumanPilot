@@ -1,0 +1,462 @@
+Adding LIBD modules
+Loading git
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Autism_spectrum_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:10 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder_latest.sumstats.gz ...
+Read summary statistics for 1050225 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:23 2020
+Total time elapsed: 12.81s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Bipolar_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:24 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder_latest.sumstats.gz ...
+Read summary statistics for 1110247 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:29 2020
+Total time elapsed: 4.72s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Major_depressive_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:34 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder_latest.sumstats.gz ...
+Read summary statistics for 1110699 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:38 2020
+Total time elapsed: 4.79s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.ADHD.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/ADHD.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:41 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/ADHD.sumstats.gz ...
+Read summary statistics for 1069649 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:45 2020
+Total time elapsed: 4.52s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Agreeableness.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Agreeableness.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:47 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Agreeableness.sumstats.gz ...
+Read summary statistics for 887777 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:51 2020
+Total time elapsed: 4.42s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Alzheimers_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Alzheimers_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:53 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Alzheimers_disease.sumstats.gz ...
+Read summary statistics for 1150200 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:38:57 2020
+Total time elapsed: 4.86s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Anorexia_nervosa.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anorexia_nervosa.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:38:59 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anorexia_nervosa.sumstats.gz ...
+Read summary statistics for 1120601 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:04 2020
+Total time elapsed: 4.42s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Anxiety_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anxiety_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:05 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anxiety_disorder.sumstats.gz ...
+Read summary statistics for 1102788 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:10 2020
+Total time elapsed: 4.72s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Autism_spectrum_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:12 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder.sumstats.gz ...
+Read summary statistics for 1050229 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:16 2020
+Total time elapsed: 4.7s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Bipolar_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:19 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder.sumstats.gz ...
+Read summary statistics for 804437 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:23 2020
+Total time elapsed: 4.24s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.BMI.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/BMI.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:25 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/BMI.sumstats.gz ...
+Read summary statistics for 1062325 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:30 2020
+Total time elapsed: 4.86s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Cardioembolic_stroke.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cardioembolic_stroke.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:33 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cardioembolic_stroke.sumstats.gz ...
+Read summary statistics for 1197242 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:38 2020
+Total time elapsed: 4.62s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Childhood_cognitive_performance.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Childhood_cognitive_performance.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:40 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Childhood_cognitive_performance.sumstats.gz ...
+Read summary statistics for 800000 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:44 2020
+Total time elapsed: 4.36s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Cigarettes_per_day.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cigarettes_per_day.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:47 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cigarettes_per_day.sumstats.gz ...
+Read summary statistics for 1074862 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:51 2020
+Total time elapsed: 4.57s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.College_attainment.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/College_attainment.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:53 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/College_attainment.sumstats.gz ...
+Read summary statistics for 1021452 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:39:58 2020
+Total time elapsed: 4.8s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Conscientiousness.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Conscientiousness.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:39:59 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Conscientiousness.sumstats.gz ...
+Read summary statistics for 887765 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:40:04 2020
+Total time elapsed: 4.5s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Coronary_artery_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Coronary_artery_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:40:05 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Coronary_artery_disease.sumstats.gz ...
+Read summary statistics for 936902 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:40:10 2020
+Total time elapsed: 4.87s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Crohns_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Crohns_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:40:12 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Crohns_disease.sumstats.gz ...
+Read summary statistics for 1074822 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:40:17 2020
+Total time elapsed: 4.5s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Depressive_symptoms.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Depressive_symptoms.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:40:19 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Depressive_symptoms.sumstats.gz ...
+Read summary statistics for 1127507 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:40:23 2020
+Total time elapsed: 4.52s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/null_2000_rep1.Epilepsy.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Epilepsy.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 00:40:25 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Epilepsy.sumstats.gz ...
+Read summary statistics for 842125 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/null_2000_rep1.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Analysis finished at Thu Feb 27 00:40:30 2020
+Total time elapsed: 4.65s

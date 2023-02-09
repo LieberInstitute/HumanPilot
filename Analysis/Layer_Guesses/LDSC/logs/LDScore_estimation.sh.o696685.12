@@ -1,0 +1,1322 @@
+Adding LIBD modules
+Loading git
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.1 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.1 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.1.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.1.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:38:06 2020
+Read list of 711593 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.1.bim
+Read 1 annotations for 711593 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.1.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.1.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.1.bed
+After filtering, 711593 SNPs remain
+Estimating LD Score.
+Reading list of 116564 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.1.snp
+After merging with --print-snps, LD Scores for 98159 SNPs will be printed.
+Writing LD Scores for 98159 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.1.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.1.l2.ldscore.gz
+         MAF       L2
+mean  0.2348   0.1256
+std   0.1431   1.1716
+min   0.0066  -0.1552
+25%   0.1082   0.0000
+50%   0.2243   0.0000
+75%   0.3562   0.0000
+max   0.5000  37.1780
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0068
+L2   0.0068  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    897
+
+Summary of Annotation Matrix Row Sums
+count    711593.0000
+mean          0.0013
+std           0.0355
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:41:02 2020
+Total time elapsed: 2.0m:56.03s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.2 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.2 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.2.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.2.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:41:05 2020
+Read list of 774998 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.2.bim
+Read 1 annotations for 774998 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.2.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.2.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.2.bed
+After filtering, 774998 SNPs remain
+Estimating LD Score.
+Reading list of 116575 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.2.snp
+After merging with --print-snps, LD Scores for 99872 SNPs will be printed.
+Writing LD Scores for 99872 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.2.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.2.l2.ldscore.gz
+         MAF       L2
+mean  0.2384   0.1368
+std   0.1433   0.9636
+min   0.0066  -0.1418
+25%   0.1121   0.0000
+50%   0.2296   0.0000
+75%   0.3615   0.0000
+max   0.5000  28.8406
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0061
+L2   0.0061  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    794
+
+Summary of Annotation Matrix Row Sums
+count    774998.000
+mean          0.001
+std           0.032
+min           0.000
+25%           0.000
+50%           0.000
+75%           0.000
+max           1.000
+Analysis finished at Thu Feb 27 11:44:14 2020
+Total time elapsed: 3.0m:9.330000000000013s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.3 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.3 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.3.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.3.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:44:16 2020
+Read list of 655726 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.3.bim
+Read 1 annotations for 655726 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.3.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.3.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.3.bed
+After filtering, 655726 SNPs remain
+Estimating LD Score.
+Reading list of 96664 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.3.snp
+After merging with --print-snps, LD Scores for 83188 SNPs will be printed.
+Writing LD Scores for 83188 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.3.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.3.l2.ldscore.gz
+         MAF       L2
+mean  0.2410   0.1507
+std   0.1429   1.1357
+min   0.0066  -0.3059
+25%   0.1161   0.0000
+50%   0.2335   0.0000
+75%   0.3641   0.0000
+max   0.5000  48.9969
+
+MAF/LD Score Correlation Matrix
+       MAF     L2
+MAF  1.000  0.021
+L2   0.021  1.000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    1005
+
+Summary of Annotation Matrix Row Sums
+count    655726.0000
+mean          0.0015
+std           0.0391
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:47:12 2020
+Total time elapsed: 2.0m:56.19s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.4 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.4 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.4.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.4.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:47:15 2020
+Read list of 674179 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.4.bim
+Read 1 annotations for 674179 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.4.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.4.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.4.bed
+After filtering, 674179 SNPs remain
+Estimating LD Score.
+Reading list of 85881 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.4.snp
+After merging with --print-snps, LD Scores for 73981 SNPs will be printed.
+Writing LD Scores for 73981 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.4.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.4.l2.ldscore.gz
+         MAF       L2
+mean  0.2375   0.1041
+std   0.1425   1.2309
+min   0.0066  -0.2281
+25%   0.1121   0.0000
+50%   0.2309   0.0000
+75%   0.3588   0.0000
+max   0.5000  39.0798
+
+MAF/LD Score Correlation Matrix
+       MAF     L2
+MAF  1.000  0.028
+L2   0.028  1.000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    508
+
+Summary of Annotation Matrix Row Sums
+count    674179.0000
+mean          0.0008
+std           0.0274
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:50:00 2020
+Total time elapsed: 2.0m:45.389999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.5 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.5 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.5.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.5.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:50:03 2020
+Read list of 594601 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.5.bim
+Read 1 annotations for 594601 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.5.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.5.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.5.bed
+After filtering, 594601 SNPs remain
+Estimating LD Score.
+Reading list of 88059 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.5.snp
+After merging with --print-snps, LD Scores for 76487 SNPs will be printed.
+Writing LD Scores for 76487 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.5.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.5.l2.ldscore.gz
+         MAF       L2
+mean  0.2376   0.1224
+std   0.1420   1.4178
+min   0.0066  -0.2696
+25%   0.1135   0.0000
+50%   0.2296   0.0000
+75%   0.3575   0.0000
+max   0.5000  64.4413
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0178
+L2   0.0178  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    781
+
+Summary of Annotation Matrix Row Sums
+count    594601.0000
+mean          0.0013
+std           0.0362
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:52:45 2020
+Total time elapsed: 2.0m:42.00999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.6 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.6 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.6.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.6.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:52:46 2020
+Read list of 620905 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.6.bim
+Read 1 annotations for 620905 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.6.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.6.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.6.bed
+After filtering, 620905 SNPs remain
+Estimating LD Score.
+Reading list of 91491 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.6.snp
+After merging with --print-snps, LD Scores for 74900 SNPs will be printed.
+Writing LD Scores for 74900 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.6.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.6.l2.ldscore.gz
+         MAF       L2
+mean  0.2358   0.1929
+std   0.1430   1.6260
+min   0.0066  -0.2544
+25%   0.1108   0.0000
+50%   0.2256   0.0000
+75%   0.3575   0.0000
+max   0.5000  46.1582
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0243
+L2   0.0243  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    624
+
+Summary of Annotation Matrix Row Sums
+count    620905.0000
+mean          0.0010
+std           0.0317
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:56:11 2020
+Total time elapsed: 3.0m:25.129999999999995s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.7 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.7 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.7.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.7.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:56:13 2020
+Read list of 542543 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.7.bim
+Read 1 annotations for 542543 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.7.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.7.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.7.bed
+After filtering, 542543 SNPs remain
+Estimating LD Score.
+Reading list of 75316 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.7.snp
+After merging with --print-snps, LD Scores for 65665 SNPs will be printed.
+Writing LD Scores for 65665 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.7.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.7.l2.ldscore.gz
+         MAF       L2
+mean  0.2391   0.1762
+std   0.1429   1.4125
+min   0.0066  -0.3155
+25%   0.1135   0.0000
+50%   0.2309   0.0000
+75%   0.3628   0.0000
+max   0.5000  82.5729
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0152
+L2   0.0152  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    818
+
+Summary of Annotation Matrix Row Sums
+count    542543.0000
+mean          0.0015
+std           0.0388
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 11:58:34 2020
+Total time elapsed: 2.0m:20.639999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.8 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.8 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.8.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.8.annot.gz 
+
+Beginning analysis at Thu Feb 27 11:58:35 2020
+Read list of 511244 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.8.bim
+Read 1 annotations for 511244 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.8.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.8.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.8.bed
+After filtering, 511244 SNPs remain
+Estimating LD Score.
+Reading list of 75345 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.8.snp
+After merging with --print-snps, LD Scores for 65224 SNPs will be printed.
+Writing LD Scores for 65224 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.8.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.8.l2.ldscore.gz
+         MAF       L2
+mean  0.2383   0.1633
+std   0.1431   1.2087
+min   0.0066  -0.1489
+25%   0.1121   0.0000
+50%   0.2296   0.0000
+75%   0.3602   0.0000
+max   0.5000  26.2779
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0339
+L2   0.0339  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    601
+
+Summary of Annotation Matrix Row Sums
+count    511244.0000
+mean          0.0012
+std           0.0343
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:00:54 2020
+Total time elapsed: 2.0m:18.110000000000014s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.9 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.9 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.9.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.9.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:00:55 2020
+Read list of 403804 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.9.bim
+Read 1 annotations for 403804 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.9.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.9.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.9.bed
+After filtering, 403804 SNPs remain
+Estimating LD Score.
+Reading list of 63706 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.9.snp
+After merging with --print-snps, LD Scores for 55713 SNPs will be printed.
+Writing LD Scores for 55713 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.9.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.9.l2.ldscore.gz
+         MAF       L2
+mean  0.2358   0.0788
+std   0.1426   0.8385
+min   0.0066  -0.1293
+25%   0.1121   0.0000
+50%   0.2243   0.0000
+75%   0.3575   0.0000
+max   0.5000  30.7717
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0105
+L2   0.0105  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    434
+
+Summary of Annotation Matrix Row Sums
+count    403804.0000
+mean          0.0011
+std           0.0328
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:02:34 2020
+Total time elapsed: 1.0m:38.45s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.10 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.10 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.10.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.10.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:02:35 2020
+Read list of 469320 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.10.bim
+Read 1 annotations for 469320 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.10.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.10.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.10.bed
+After filtering, 469320 SNPs remain
+Estimating LD Score.
+Reading list of 73929 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.10.snp
+After merging with --print-snps, LD Scores for 64032 SNPs will be printed.
+Writing LD Scores for 64032 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.10.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.10.l2.ldscore.gz
+         MAF       L2
+mean  0.2331   0.0912
+std   0.1429   0.8201
+min   0.0066  -0.1788
+25%   0.1082   0.0000
+50%   0.2203   0.0000
+75%   0.3549   0.0000
+max   0.5000  23.4756
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0057
+L2   0.0057  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    538
+
+Summary of Annotation Matrix Row Sums
+count    469320.0000
+mean          0.0011
+std           0.0338
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:06:20 2020
+Total time elapsed: 3.0m:45.47s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.11 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.11 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.11.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.11.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:06:28 2020
+Read list of 457965 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.11.bim
+Read 1 annotations for 457965 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.11.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.11.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.11.bed
+After filtering, 457965 SNPs remain
+Estimating LD Score.
+Reading list of 71092 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.11.snp
+After merging with --print-snps, LD Scores for 60875 SNPs will be printed.
+Writing LD Scores for 60875 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.11.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.11.l2.ldscore.gz
+         MAF       L2
+mean  0.2402   0.2117
+std   0.1421   1.4205
+min   0.0066  -0.1818
+25%   0.1161   0.0000
+50%   0.2322   0.0000
+75%   0.3628   0.0000
+max   0.5000  35.9884
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0099
+L2   0.0099  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    704
+
+Summary of Annotation Matrix Row Sums
+count    457965.0000
+mean          0.0015
+std           0.0392
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:09:23 2020
+Total time elapsed: 2.0m:54.33000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.12 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.12 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.12.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.12.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:09:25 2020
+Read list of 443708 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.12.bim
+Read 1 annotations for 443708 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.12.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.12.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.12.bed
+After filtering, 443708 SNPs remain
+Estimating LD Score.
+Reading list of 68635 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.12.snp
+After merging with --print-snps, LD Scores for 59108 SNPs will be printed.
+Writing LD Scores for 59108 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.12.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.12.l2.ldscore.gz
+         MAF       L2
+mean  0.2331   0.1868
+std   0.1431   1.6370
+min   0.0066  -0.2637
+25%   0.1069   0.0000
+50%   0.2203   0.0000
+75%   0.3562   0.0000
+max   0.5000  79.5152
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000 -0.0251
+L2  -0.0251  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    927
+
+Summary of Annotation Matrix Row Sums
+count    443708.0000
+mean          0.0021
+std           0.0457
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:11:36 2020
+Total time elapsed: 2.0m:11.449999999999989s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.13 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.13 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.13.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.13.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:11:40 2020
+Read list of 341318 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.13.bim
+Read 1 annotations for 341318 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.13.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.13.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.13.bed
+After filtering, 341318 SNPs remain
+Estimating LD Score.
+Reading list of 52010 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.13.snp
+After merging with --print-snps, LD Scores for 44997 SNPs will be printed.
+Writing LD Scores for 44997 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.13.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.13.l2.ldscore.gz
+         MAF       L2
+mean  0.2344   0.0952
+std   0.1429   0.9778
+min   0.0066  -0.1654
+25%   0.1082   0.0000
+50%   0.2230   0.0000
+75%   0.3562   0.0000
+max   0.5000  29.2659
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0136
+L2   0.0136  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    323
+
+Summary of Annotation Matrix Row Sums
+count    341318.0000
+mean          0.0009
+std           0.0307
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:13:41 2020
+Total time elapsed: 2.0m:1.6500000000000057s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.14 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.14 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.14.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.14.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:13:45 2020
+Read list of 305249 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.14.bim
+Read 1 annotations for 305249 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.14.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.14.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.14.bed
+After filtering, 305249 SNPs remain
+Estimating LD Score.
+Reading list of 45556 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.14.snp
+After merging with --print-snps, LD Scores for 39433 SNPs will be printed.
+Writing LD Scores for 39433 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.14.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.14.l2.ldscore.gz
+         MAF       L2
+mean  0.2318   0.1555
+std   0.1426   1.2531
+min   0.0066  -0.2149
+25%   0.1069   0.0000
+50%   0.2203   0.0000
+75%   0.3496   0.0000
+max   0.5000  41.4102
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0049
+L2   0.0049  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    562
+
+Summary of Annotation Matrix Row Sums
+count    305249.0000
+mean          0.0018
+std           0.0429
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:15:03 2020
+Total time elapsed: 1.0m:17.89s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.15 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.15 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.15.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.15.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:15:05 2020
+Read list of 266005 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.15.bim
+Read 1 annotations for 266005 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.15.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.15.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.15.bed
+After filtering, 266005 SNPs remain
+Estimating LD Score.
+Reading list of 42410 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.15.snp
+After merging with --print-snps, LD Scores for 36130 SNPs will be printed.
+Writing LD Scores for 36130 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.15.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.15.l2.ldscore.gz
+         MAF       L2
+mean  0.2381   0.1756
+std   0.1446   1.4022
+min   0.0066  -0.2571
+25%   0.1108   0.0000
+50%   0.2282   0.0000
+75%   0.3628   0.0000
+max   0.5000  37.7459
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0113
+L2   0.0113  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    329
+
+Summary of Annotation Matrix Row Sums
+count    266005.0000
+mean          0.0012
+std           0.0351
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:16:07 2020
+Total time elapsed: 1.0m:2.549999999999997s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.16 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.16 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.16.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.16.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:16:09 2020
+Read list of 290244 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.16.bim
+Read 1 annotations for 290244 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.16.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.16.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.16.bed
+After filtering, 290244 SNPs remain
+Estimating LD Score.
+Reading list of 44710 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.16.snp
+After merging with --print-snps, LD Scores for 37598 SNPs will be printed.
+Writing LD Scores for 37598 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.16.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.16.l2.ldscore.gz
+         MAF       L2
+mean  0.2382   0.0980
+std   0.1428   0.8894
+min   0.0066  -0.1612
+25%   0.1135   0.0000
+50%   0.2296   0.0000
+75%   0.3602   0.0000
+max   0.5000  26.2675
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000 -0.0038
+L2  -0.0038  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    377
+
+Summary of Annotation Matrix Row Sums
+count    290244.0000
+mean          0.0013
+std           0.0360
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:17:26 2020
+Total time elapsed: 1.0m:17.700000000000003s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.17 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.17 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.17.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.17.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:17:28 2020
+Read list of 246812 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.17.bim
+Read 1 annotations for 246812 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.17.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.17.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.17.bed
+After filtering, 246812 SNPs remain
+Estimating LD Score.
+Reading list of 38396 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.17.snp
+After merging with --print-snps, LD Scores for 31874 SNPs will be printed.
+Writing LD Scores for 31874 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.17.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.17.l2.ldscore.gz
+         MAF       L2
+mean  0.2433   0.2298
+std   0.1443   1.5703
+min   0.0066  -0.2426
+25%   0.1161   0.0000
+50%   0.2361   0.0000
+75%   0.3681   0.0000
+max   0.5000  54.6215
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000 -0.0134
+L2  -0.0134  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    836
+
+Summary of Annotation Matrix Row Sums
+count    246812.0000
+mean          0.0034
+std           0.0581
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:18:45 2020
+Total time elapsed: 1.0m:16.519999999999996s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.18 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.18 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.18.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.18.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:18:47 2020
+Read list of 265020 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.18.bim
+Read 1 annotations for 265020 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.18.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.18.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.18.bed
+After filtering, 265020 SNPs remain
+Estimating LD Score.
+Reading list of 40891 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.18.snp
+After merging with --print-snps, LD Scores for 35251 SNPs will be printed.
+Writing LD Scores for 35251 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.18.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.18.l2.ldscore.gz
+         MAF       L2
+mean  0.2369   0.1443
+std   0.1427   1.3456
+min   0.0066  -0.1811
+25%   0.1121   0.0000
+50%   0.2269   0.0000
+75%   0.3588   0.0000
+max   0.5000  40.8535
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0089
+L2   0.0089  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    537
+
+Summary of Annotation Matrix Row Sums
+count    265020.000
+mean          0.002
+std           0.045
+min           0.000
+25%           0.000
+50%           0.000
+75%           0.000
+max           1.000
+Analysis finished at Thu Feb 27 12:19:56 2020
+Total time elapsed: 1.0m:8.950000000000003s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.19 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.19 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.19.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.19.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:19:58 2020
+Read list of 214051 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.19.bim
+Read 1 annotations for 214051 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.19.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.19.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.19.bed
+After filtering, 214051 SNPs remain
+Estimating LD Score.
+Reading list of 26259 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.19.snp
+After merging with --print-snps, LD Scores for 22017 SNPs will be printed.
+Writing LD Scores for 22017 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.19.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.19.l2.ldscore.gz
+         MAF       L2
+mean  0.2384   0.2083
+std   0.1423   1.6866
+min   0.0066  -0.1954
+25%   0.1148   0.0000
+50%   0.2335   0.0000
+75%   0.3575   0.0000
+max   0.5000  30.4589
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0057
+L2   0.0057  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    527
+
+Summary of Annotation Matrix Row Sums
+count    214051.0000
+mean          0.0025
+std           0.0496
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:20:52 2020
+Total time elapsed: 54.66s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.20 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.20 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.20.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.20.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:20:55 2020
+Read list of 206731 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.20.bim
+Read 1 annotations for 206731 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.20.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.20.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.20.bed
+After filtering, 206731 SNPs remain
+Estimating LD Score.
+Reading list of 36301 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.20.snp
+After merging with --print-snps, LD Scores for 31281 SNPs will be printed.
+Writing LD Scores for 31281 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.20.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.20.l2.ldscore.gz
+         MAF       L2
+mean  0.2349   0.2337
+std   0.1428   1.4645
+min   0.0066  -0.2089
+25%   0.1082   0.0000
+50%   0.2243   0.0000
+75%   0.3575   0.0000
+max   0.5000  45.1646
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0234
+L2   0.0234  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    663
+
+Summary of Annotation Matrix Row Sums
+count    206731.0000
+mean          0.0032
+std           0.0565
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:21:46 2020
+Total time elapsed: 50.46s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.21 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.21 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.21.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.21.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:21:48 2020
+Read list of 129155 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.21.bim
+Read 1 annotations for 129155 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.21.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.21.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.21.bed
+After filtering, 129155 SNPs remain
+Estimating LD Score.
+Reading list of 19331 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.21.snp
+After merging with --print-snps, LD Scores for 16930 SNPs will be printed.
+Writing LD Scores for 16930 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.21.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.21.l2.ldscore.gz
+         MAF       L2
+mean  0.2418   0.0314
+std   0.1418   0.5327
+min   0.0066  -0.1120
+25%   0.1174   0.0000
+50%   0.2322   0.0000
+75%   0.3641   0.0000
+max   0.5000  23.9543
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0049
+L2   0.0049  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    100
+
+Summary of Annotation Matrix Row Sums
+count    129155.0000
+mean          0.0008
+std           0.0278
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:22:17 2020
+Total time elapsed: 29.62s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.22 \
+--bfile /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.22 \
+--l2  \
+--ld-wind-cm 1.0 \
+--print-snps /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.22.snp \
+--annot /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.22.annot.gz 
+
+Beginning analysis at Thu Feb 27 12:22:19 2020
+Read list of 129364 SNPs from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.22.bim
+Read 1 annotations for 129364 SNPs from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.22.annot.gz
+Read list of 379 individuals from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.22.fam
+Reading genotypes from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_plinkfiles/1000G.mac5eur.22.bed
+After filtering, 129364 SNPs remain
+Estimating LD Score.
+Reading list of 20106 SNPs for which to print LD Scores from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/hapmap3_snps/hm.22.snp
+After merging with --print-snps, LD Scores for 17192 SNPs will be printed.
+Writing LD Scores for 17192 SNPs to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.22.l2.ldscore.gz
+
+Summary of LD Scores in /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer3.Phase1.22.l2.ldscore.gz
+         MAF       L2
+mean  0.2377   0.1038
+std   0.1433   0.8993
+min   0.0066  -0.1697
+25%   0.1121   0.0000
+50%   0.2296   0.0000
+75%   0.3588   0.0000
+max   0.5000  21.7719
+
+MAF/LD Score Correlation Matrix
+        MAF      L2
+MAF  1.0000  0.0082
+L2   0.0082  1.0000
+
+Annotation Correlation Matrix
+        Layer3
+Layer3     1.0
+
+Annotation Matrix Column Sums
+Layer3    147
+
+Summary of Annotation Matrix Row Sums
+count    129364.0000
+mean          0.0011
+std           0.0337
+min           0.0000
+25%           0.0000
+50%           0.0000
+75%           0.0000
+max           1.0000
+Analysis finished at Thu Feb 27 12:22:52 2020
+Total time elapsed: 33.56s

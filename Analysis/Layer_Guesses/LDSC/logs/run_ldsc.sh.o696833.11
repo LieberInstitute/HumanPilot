@@ -1,0 +1,1408 @@
+Adding LIBD modules
+Loading git
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Autism_spectrum_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:40:46 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder_latest.sumstats.gz ...
+Read summary statistics for 1050225 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 956405 SNPs remain.
+After merging with regression SNP LD, 953872 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (953872 SNPs remain)
+Total Observed scale h2: 0.1721 (0.0184)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1715
+Mean Chi^2: 1.2003
+Intercept: 1.017 (0.0114)
+Ratio: 0.085 (0.0567)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Autism_spectrum_disorder_latest.Phase1.results
+Analysis finished at Thu Feb 27 12:44:52 2020
+Total time elapsed: 4.0m:5.280000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Bipolar_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:44:53 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder_latest.sumstats.gz ...
+Read summary statistics for 1110247 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1006008 SNPs remain.
+After merging with regression SNP LD, 1003343 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1003343 SNPs remain)
+Total Observed scale h2: 0.2919 (0.0167)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.3238
+Mean Chi^2: 1.3855
+Intercept: 1.05 (0.0098)
+Ratio: 0.1297 (0.0254)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Bipolar_disorder_latest.Phase1.results
+Analysis finished at Thu Feb 27 12:48:08 2020
+Total time elapsed: 3.0m:14.360000000000014s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Major_depressive_disorder_latest.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder_latest.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:48:09 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder_latest.sumstats.gz ...
+Read summary statistics for 1110699 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1004655 SNPs remain.
+After merging with regression SNP LD, 1001971 SNPs remain.
+Removed 0 SNPs with chi^2 > 480.35900000000004 (1001971 SNPs remain)
+Total Observed scale h2: 0.0227 (0.0016)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.2332
+Mean Chi^2: 1.2628
+Intercept: 1.0151 (0.0099)
+Ratio: 0.0573 (0.0378)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Major_depressive_disorder_latest.Phase1.results
+Analysis finished at Thu Feb 27 12:51:28 2020
+Total time elapsed: 3.0m:18.689999999999998s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.ADHD.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/ADHD.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:51:33 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/ADHD.sumstats.gz ...
+Read summary statistics for 1069649 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 974182 SNPs remain.
+After merging with regression SNP LD, 971646 SNPs remain.
+Removed 0 SNPs with chi^2 > 97.08 (971646 SNPs remain)
+Total Observed scale h2: 0.1117 (0.0081)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.2498
+Mean Chi^2: 1.296
+Intercept: 1.05 (0.0103)
+Ratio: 0.1691 (0.0349)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.ADHD.Phase1.results
+Analysis finished at Thu Feb 27 12:55:19 2020
+Total time elapsed: 3.0m:46.21000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Agreeableness.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Agreeableness.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:55:21 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Agreeableness.sumstats.gz ...
+Read summary statistics for 887777 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 813154 SNPs remain.
+After merging with regression SNP LD, 811084 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (811084 SNPs remain)
+Total Observed scale h2: 0.0392 (0.0307)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0016
+Mean Chi^2: 1.0088
+Intercept: 0.9974 (0.0091)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Agreeableness.Phase1.results
+Analysis finished at Thu Feb 27 12:58:32 2020
+Total time elapsed: 3.0m:11.289999999999992s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Alzheimers_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Alzheimers_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 12:58:34 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Alzheimers_disease.sumstats.gz ...
+Read summary statistics for 1150200 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1047497 SNPs remain.
+After merging with regression SNP LD, 1045366 SNPs remain.
+Removed 27 SNPs with chi^2 > 80 (1045339 SNPs remain)
+Total Observed scale h2: 0.0618 (0.0124)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0926
+Mean Chi^2: 1.1094
+Intercept: 1.0436 (0.0121)
+Ratio: 0.3986 (0.1104)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Alzheimers_disease.Phase1.results
+Analysis finished at Thu Feb 27 13:01:56 2020
+Total time elapsed: 3.0m:22.360000000000014s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Anorexia_nervosa.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anorexia_nervosa.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:01:58 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anorexia_nervosa.sumstats.gz ...
+Read summary statistics for 1120601 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1019232 SNPs remain.
+After merging with regression SNP LD, 1016621 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1016621 SNPs remain)
+Total Observed scale h2: 0.1858 (0.0374)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0772
+Mean Chi^2: 1.08
+Intercept: 1.0179 (0.0087)
+Ratio: 0.2241 (0.1089)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Anorexia_nervosa.Phase1.results
+Analysis finished at Thu Feb 27 13:05:28 2020
+Total time elapsed: 3.0m:29.25999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Anxiety_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anxiety_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:05:30 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Anxiety_disorder.sumstats.gz ...
+Read summary statistics for 1102788 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1004178 SNPs remain.
+After merging with regression SNP LD, 1001710 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1001710 SNPs remain)
+Total Observed scale h2: 0.0601 (0.0299)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0345
+Mean Chi^2: 1.0279
+Intercept: 1.0031 (0.007)
+Ratio: 0.1119 (0.2508)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Anxiety_disorder.Phase1.results
+Analysis finished at Thu Feb 27 13:08:53 2020
+Total time elapsed: 3.0m:23.389999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Autism_spectrum_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:08:56 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Autism_spectrum_disorder.sumstats.gz ...
+Read summary statistics for 1050229 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 959946 SNPs remain.
+After merging with regression SNP LD, 957568 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (957568 SNPs remain)
+Total Observed scale h2: 0.3602 (0.0497)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.071
+Mean Chi^2: 1.0812
+Intercept: 0.9816 (0.0097)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Autism_spectrum_disorder.Phase1.results
+Analysis finished at Thu Feb 27 13:12:17 2020
+Total time elapsed: 3.0m:20.53s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Bipolar_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:12:18 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Bipolar_disorder.sumstats.gz ...
+Read summary statistics for 804437 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 736581 SNPs remain.
+After merging with regression SNP LD, 734665 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (734665 SNPs remain)
+Total Observed scale h2: 0.3663 (0.0436)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1587
+Mean Chi^2: 1.183
+Intercept: 1.0345 (0.0112)
+Ratio: 0.1884 (0.061)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Bipolar_disorder.Phase1.results
+Analysis finished at Thu Feb 27 13:15:35 2020
+Total time elapsed: 3.0m:16.72999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.BMI.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/BMI.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:15:37 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/BMI.sumstats.gz ...
+Read summary statistics for 1062325 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 968712 SNPs remain.
+After merging with regression SNP LD, 966422 SNPs remain.
+Removed 18 SNPs with chi^2 > 339.223 (966404 SNPs remain)
+Total Observed scale h2: 0.1359 (0.0078)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1301
+Mean Chi^2: 1.3142
+Intercept: 0.6764 (0.0154)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.BMI.Phase1.results
+Analysis finished at Thu Feb 27 13:19:06 2020
+Total time elapsed: 3.0m:29.370000000000005s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Cardioembolic_stroke.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cardioembolic_stroke.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:19:08 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cardioembolic_stroke.sumstats.gz ...
+Read summary statistics for 1197242 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1084916 SNPs remain.
+After merging with regression SNP LD, 1082186 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1082186 SNPs remain)
+Total Observed scale h2: 0.0453 (0.0246)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0375
+Mean Chi^2: 1.0533
+Intercept: 1.0367 (0.007)
+Ratio: 0.6884 (0.1321)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Cardioembolic_stroke.Phase1.results
+Analysis finished at Thu Feb 27 13:22:27 2020
+Total time elapsed: 3.0m:19.150000000000006s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Childhood_cognitive_performance.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Childhood_cognitive_performance.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:22:29 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Childhood_cognitive_performance.sumstats.gz ...
+Read summary statistics for 800000 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 734695 SNPs remain.
+After merging with regression SNP LD, 732921 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (732921 SNPs remain)
+Total Observed scale h2: 0.167 (0.0327)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0679
+Mean Chi^2: 1.0765
+Intercept: 1.0074 (0.01)
+Ratio: 0.0961 (0.1304)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Childhood_cognitive_performance.Phase1.results
+Analysis finished at Thu Feb 27 13:25:49 2020
+Total time elapsed: 3.0m:19.889999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Cigarettes_per_day.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cigarettes_per_day.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:25:51 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Cigarettes_per_day.sumstats.gz ...
+Read summary statistics for 1074862 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 978566 SNPs remain.
+After merging with regression SNP LD, 976274 SNPs remain.
+Removed 33 SNPs with chi^2 > 80 (976241 SNPs remain)
+Total Observed scale h2: 0.0581 (0.0144)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0527
+Mean Chi^2: 1.0453
+Intercept: 1.003 (0.0067)
+Ratio: 0.0665 (0.1484)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Cigarettes_per_day.Phase1.results
+Analysis finished at Thu Feb 27 13:29:20 2020
+Total time elapsed: 3.0m:28.319999999999993s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.College_attainment.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/College_attainment.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:29:21 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/College_attainment.sumstats.gz ...
+Read summary statistics for 1021452 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 933789 SNPs remain.
+After merging with regression SNP LD, 931595 SNPs remain.
+Removed 0 SNPs with chi^2 > 120.917 (931595 SNPs remain)
+Total Observed scale h2: 0.0695 (0.0062)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.194
+Mean Chi^2: 1.2237
+Intercept: 1.0382 (0.0098)
+Ratio: 0.1709 (0.0436)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.College_attainment.Phase1.results
+Analysis finished at Thu Feb 27 13:32:50 2020
+Total time elapsed: 3.0m:28.389999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Conscientiousness.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Conscientiousness.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:32:51 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Conscientiousness.sumstats.gz ...
+Read summary statistics for 887765 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 813171 SNPs remain.
+After merging with regression SNP LD, 811101 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (811101 SNPs remain)
+Total Observed scale h2: 0.074 (0.0341)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0195
+Mean Chi^2: 1.0274
+Intercept: 0.9978 (0.0086)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Conscientiousness.Phase1.results
+Analysis finished at Thu Feb 27 13:36:21 2020
+Total time elapsed: 3.0m:29.930000000000007s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Coronary_artery_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Coronary_artery_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:36:23 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Coronary_artery_disease.sumstats.gz ...
+Read summary statistics for 936902 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 856273 SNPs remain.
+After merging with regression SNP LD, 854155 SNPs remain.
+Removed 16 SNPs with chi^2 > 84.26783400000001 (854139 SNPs remain)
+Total Observed scale h2: 0.0823 (0.0093)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.105
+Mean Chi^2: 1.1437
+Intercept: 1.0175 (0.0098)
+Ratio: 0.1221 (0.0679)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Coronary_artery_disease.Phase1.results
+Analysis finished at Thu Feb 27 13:39:53 2020
+Total time elapsed: 3.0m:29.52000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Crohns_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Crohns_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:39:55 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Crohns_disease.sumstats.gz ...
+Read summary statistics for 1074822 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 976630 SNPs remain.
+After merging with regression SNP LD, 974065 SNPs remain.
+Removed 129 SNPs with chi^2 > 80 (973936 SNPs remain)
+Total Observed scale h2: 0.5518 (0.0544)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1459
+Mean Chi^2: 1.2253
+Intercept: 1.0007 (0.0136)
+Ratio: 0.0029 (0.0602)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Crohns_disease.Phase1.results
+Analysis finished at Thu Feb 27 13:43:35 2020
+Total time elapsed: 3.0m:40.120000000000005s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Depressive_symptoms.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Depressive_symptoms.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:43:37 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Depressive_symptoms.sumstats.gz ...
+Read summary statistics for 1127507 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1026465 SNPs remain.
+After merging with regression SNP LD, 1023953 SNPs remain.
+Removed 0 SNPs with chi^2 > 161.46 (1023953 SNPs remain)
+Total Observed scale h2: 0.0401 (0.0037)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1333
+Mean Chi^2: 1.156
+Intercept: 1.012 (0.0076)
+Ratio: 0.0772 (0.0485)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Depressive_symptoms.Phase1.results
+Analysis finished at Thu Feb 27 13:47:00 2020
+Total time elapsed: 3.0m:22.77000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Epilepsy.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Epilepsy.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:47:02 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Epilepsy.sumstats.gz ...
+Read summary statistics for 842125 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 765704 SNPs remain.
+After merging with regression SNP LD, 763514 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (763514 SNPs remain)
+Total Observed scale h2: 0.08 (0.0172)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0436
+Mean Chi^2: 1.0518
+Intercept: 0.9944 (0.0086)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Epilepsy.Phase1.results
+Analysis finished at Thu Feb 27 13:50:27 2020
+Total time elapsed: 3.0m:25.389999999999986s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Ever_smoked.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Ever_smoked.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:50:45 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Ever_smoked.sumstats.gz ...
+Read summary statistics for 1075198 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 978767 SNPs remain.
+After merging with regression SNP LD, 976475 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (976475 SNPs remain)
+Total Observed scale h2: 0.0579 (0.0069)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0895
+Mean Chi^2: 1.1035
+Intercept: 1.01 (0.0062)
+Ratio: 0.0968 (0.0599)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Ever_smoked.Phase1.results
+Analysis finished at Thu Feb 27 13:54:06 2020
+Total time elapsed: 3.0m:20.349999999999994s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Extraversion.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Extraversion.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:54:08 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Extraversion.sumstats.gz ...
+Read summary statistics for 887679 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 813084 SNPs remain.
+After merging with regression SNP LD, 811013 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (811013 SNPs remain)
+Total Observed scale h2: 0.0123 (0.0082)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0165
+Mean Chi^2: 1.0159
+Intercept: 0.9976 (0.009)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Extraversion.Phase1.results
+Analysis finished at Thu Feb 27 13:57:28 2020
+Total time elapsed: 3.0m:20.22s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Focal_epilepsy.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Focal_epilepsy.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 13:57:30 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Focal_epilepsy.sumstats.gz ...
+Read summary statistics for 847752 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 770851 SNPs remain.
+After merging with regression SNP LD, 768622 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (768622 SNPs remain)
+Total Observed scale h2: 0.0358 (0.019)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0165
+Mean Chi^2: 1.0124
+Intercept: 0.9909 (0.0082)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Focal_epilepsy.Phase1.results
+Analysis finished at Thu Feb 27 14:00:45 2020
+Total time elapsed: 3.0m:15.310000000000002s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Generalized_epilepsy.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Generalized_epilepsy.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:00:51 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Generalized_epilepsy.sumstats.gz ...
+Read summary statistics for 805739 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 731455 SNPs remain.
+After merging with regression SNP LD, 729376 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (729376 SNPs remain)
+Total Observed scale h2: 0.2512 (0.0302)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0679
+Mean Chi^2: 1.0818
+Intercept: 0.9659 (0.0095)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Generalized_epilepsy.Phase1.results
+Analysis finished at Thu Feb 27 14:04:13 2020
+Total time elapsed: 3.0m:22.129999999999995s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Height.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Height.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:04:14 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Height.sumstats.gz ...
+Read summary statistics for 1060430 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 967087 SNPs remain.
+After merging with regression SNP LD, 964810 SNPs remain.
+Removed 123 SNPs with chi^2 > 253.279 (964687 SNPs remain)
+Total Observed scale h2: 0.343 (0.0143)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 2.0007
+Mean Chi^2: 2.9124
+Intercept: 1.2012 (0.0287)
+Ratio: 0.1052 (0.015)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Height.Phase1.results
+Analysis finished at Thu Feb 27 14:07:49 2020
+Total time elapsed: 3.0m:34.28999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Intracarebral_hemorrhage.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Intracarebral_hemorrhage.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:07:50 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Intracarebral_hemorrhage.sumstats.gz ...
+Read summary statistics for 997442 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 905754 SNPs remain.
+After merging with regression SNP LD, 903450 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (903450 SNPs remain)
+Total Observed scale h2: 0.3117 (0.1727)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0405
+Mean Chi^2: 1.0373
+Intercept: 1.0149 (0.0079)
+Ratio: 0.3986 (0.2125)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Intracarebral_hemorrhage.Phase1.results
+Analysis finished at Thu Feb 27 14:11:22 2020
+Total time elapsed: 3.0m:31.419999999999987s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.IQ.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/IQ.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:11:23 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/IQ.sumstats.gz ...
+Read summary statistics for 1174249 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1067562 SNPs remain.
+After merging with regression SNP LD, 1064934 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1064934 SNPs remain)
+Total Observed scale h2: 0.166 (0.0095)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.2614
+Mean Chi^2: 1.3025
+Intercept: 1.0217 (0.0089)
+Ratio: 0.0717 (0.0294)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.IQ.Phase1.results
+Analysis finished at Thu Feb 27 14:14:45 2020
+Total time elapsed: 3.0m:21.460000000000008s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Ischemic_stroke.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Ischemic_stroke.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:14:46 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Ischemic_stroke.sumstats.gz ...
+Read summary statistics for 1197177 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1084897 SNPs remain.
+After merging with regression SNP LD, 1082166 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1082166 SNPs remain)
+Total Observed scale h2: 0.0757 (0.0159)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0405
+Mean Chi^2: 1.041
+Intercept: 1.0005 (0.0065)
+Ratio: 0.011 (0.1595)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Ischemic_stroke.Phase1.results
+Analysis finished at Thu Feb 27 14:18:12 2020
+Total time elapsed: 3.0m:25.72999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Large-vessel_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Large-vessel_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:18:19 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Large-vessel_disease.sumstats.gz ...
+Read summary statistics for 1197327 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1084957 SNPs remain.
+After merging with regression SNP LD, 1082226 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1082226 SNPs remain)
+Total Observed scale h2: 0.0637 (0.0231)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0315
+Mean Chi^2: 1.0382
+Intercept: 1.017 (0.0058)
+Ratio: 0.4448 (0.153)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Large-vessel_disease.Phase1.results
+Analysis finished at Thu Feb 27 14:21:47 2020
+Total time elapsed: 3.0m:27.919999999999987s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Major_depressive_disorder.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:21:49 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Major_depressive_disorder.sumstats.gz ...
+Read summary statistics for 893935 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 892777 SNPs remain.
+After merging with regression SNP LD, 890212 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (890212 SNPs remain)
+Total Observed scale h2: 0.1286 (0.0315)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0741
+Mean Chi^2: 1.0766
+Intercept: 1.0197 (0.0088)
+Ratio: 0.2576 (0.1152)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Major_depressive_disorder.Phase1.results
+Analysis finished at Thu Feb 27 14:25:10 2020
+Total time elapsed: 3.0m:21.47999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Neuroticism.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Neuroticism.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:25:12 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Neuroticism.sumstats.gz ...
+Read summary statistics for 1127508 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1026456 SNPs remain.
+After merging with regression SNP LD, 1023944 SNPs remain.
+Removed 0 SNPs with chi^2 > 170.911 (1023944 SNPs remain)
+Total Observed scale h2: 0.0794 (0.0075)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.2365
+Mean Chi^2: 1.3076
+Intercept: 1.0057 (0.0131)
+Ratio: 0.0184 (0.0427)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Neuroticism.Phase1.results
+Analysis finished at Thu Feb 27 14:29:12 2020
+Total time elapsed: 4.0m:0.4900000000000091s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Openness.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Openness.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:29:14 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Openness.sumstats.gz ...
+Read summary statistics for 887765 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 813203 SNPs remain.
+After merging with regression SNP LD, 811133 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (811133 SNPs remain)
+Total Observed scale h2: 0.0939 (0.0283)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0345
+Mean Chi^2: 1.0333
+Intercept: 0.9936 (0.0085)
+Ratio < 0 (usually indicates GC correction).
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Openness.Phase1.results
+Analysis finished at Thu Feb 27 14:32:43 2020
+Total time elapsed: 3.0m:28.44999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.PTSD.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/PTSD.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:32:46 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/PTSD.sumstats.gz ...
+Read summary statistics for 1217178 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1088552 SNPs remain.
+After merging with regression SNP LD, 1085804 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1085804 SNPs remain)
+Total Observed scale h2: 0.0278 (0.0404)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0285
+Mean Chi^2: 1.0222
+Intercept: 1.0133 (0.0061)
+Ratio: 0.5985 (0.2746)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.PTSD.Phase1.results
+Analysis finished at Thu Feb 27 14:36:11 2020
+Total time elapsed: 3.0m:25.0s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Schizophrenia.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Schizophrenia.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:36:13 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Schizophrenia.sumstats.gz ...
+Read summary statistics for 1125108 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1024066 SNPs remain.
+After merging with regression SNP LD, 1021479 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1021479 SNPs remain)
+Total Observed scale h2: 0.4045 (0.0179)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.592
+Mean Chi^2: 1.7838
+Intercept: 1.0882 (0.0131)
+Ratio: 0.1126 (0.0168)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Schizophrenia.Phase1.results
+Analysis finished at Thu Feb 27 14:39:51 2020
+Total time elapsed: 3.0m:38.75999999999999s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Small-vessel_disease.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Small-vessel_disease.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:39:53 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Small-vessel_disease.sumstats.gz ...
+Read summary statistics for 1197099 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 1084855 SNPs remain.
+After merging with regression SNP LD, 1082124 SNPs remain.
+Removed 0 SNPs with chi^2 > 80 (1082124 SNPs remain)
+Total Observed scale h2: 0.0245 (0.0204)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.0285
+Mean Chi^2: 1.031
+Intercept: 1.0249 (0.006)
+Ratio: 0.8031 (0.1926)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Small-vessel_disease.Phase1.results
+Analysis finished at Thu Feb 27 14:43:26 2020
+Total time elapsed: 3.0m:33.370000000000005s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Subjective_well-being.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Subjective_well-being.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:43:29 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Subjective_well-being.sumstats.gz ...
+Read summary statistics for 1020564 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 933054 SNPs remain.
+After merging with regression SNP LD, 930881 SNPs remain.
+Removed 0 SNPs with chi^2 > 298.42 (930881 SNPs remain)
+Total Observed scale h2: 0.0229 (0.0021)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1301
+Mean Chi^2: 1.1533
+Intercept: 1.0054 (0.0075)
+Ratio: 0.0352 (0.0492)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Subjective_well-being.Phase1.results
+Analysis finished at Thu Feb 27 14:47:03 2020
+Total time elapsed: 3.0m:33.68000000000001s
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--out /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Years_of_education.Phase1 \
+--h2 /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Years_of_education.sumstats.gz \
+--ref-ld-chr /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline. \
+--w-ld-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights. \
+--overlap-annot  \
+--print-coefficients  \
+--frqfile-chr /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/1000G_frq/1000G.mac5eur. 
+
+Beginning analysis at Thu Feb 27 14:47:04 2020
+Reading summary statistics from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/munge_sumstats/Years_of_education.sumstats.gz ...
+Read summary statistics for 1018151 SNPs.
+Reading reference panel LD Score from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Read reference panel LD Scores for 1189907 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/weights_hm3_no_hla/weights.[1-22] ...
+Read regression weight LD Scores for 1242190 SNPs.
+After merging with reference panel LD, 930798 SNPs remain.
+After merging with regression SNP LD, 928608 SNPs remain.
+Removed 0 SNPs with chi^2 > 293.723 (928608 SNPs remain)
+Total Observed scale h2: 0.0321 (0.0028)
+Categories: L2_0 base_1 Coding_UCSC_1 Coding_UCSC.extend.500_1 Conserved_LindbladToh_1 Conserved_LindbladToh.extend.500_1 CTCF_Hoffman_1 CTCF_Hoffman.extend.500_1 DGF_ENCODE_1 DGF_ENCODE.extend.500_1 DHS_peaks_Trynka_1 DHS_Trynka_1 DHS_Trynka.extend.500_1 Enhancer_Andersson_1 Enhancer_Andersson.extend.500_1 Enhancer_Hoffman_1 Enhancer_Hoffman.extend.500_1 FetalDHS_Trynka_1 FetalDHS_Trynka.extend.500_1 H3K27ac_Hnisz_1 H3K27ac_Hnisz.extend.500_1 H3K27ac_PGC2_1 H3K27ac_PGC2.extend.500_1 H3K4me1_peaks_Trynka_1 H3K4me1_Trynka_1 H3K4me1_Trynka.extend.500_1 H3K4me3_peaks_Trynka_1 H3K4me3_Trynka_1 H3K4me3_Trynka.extend.500_1 H3K9ac_peaks_Trynka_1 H3K9ac_Trynka_1 H3K9ac_Trynka.extend.500_1 Intron_UCSC_1 Intron_UCSC.extend.500_1 PromoterFlanking_Hoffman_1 PromoterFlanking_Hoffman.extend.500_1 Promoter_UCSC_1 Promoter_UCSC.extend.500_1 Repressed_Hoffman_1 Repressed_Hoffman.extend.500_1 SuperEnhancer_Hnisz_1 SuperEnhancer_Hnisz.extend.500_1 TFBS_ENCODE_1 TFBS_ENCODE.extend.500_1 Transcribed_Hoffman_1 Transcribed_Hoffman.extend.500_1 TSS_Hoffman_1 TSS_Hoffman.extend.500_1 UTR_3_UCSC_1 UTR_3_UCSC.extend.500_1 UTR_5_UCSC_1 UTR_5_UCSC.extend.500_1 WeakEnhancer_Hoffman_1 WeakEnhancer_Hoffman.extend.500_1
+Lambda GC: 1.1973
+Mean Chi^2: 1.2329
+Intercept: 1.0306 (0.0107)
+Ratio: 0.1316 (0.0458)
+Reading annot matrix from /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/LDScore/Layer2.Phase1.,/dcl01/lieber/ajaffe/lab/brain-epigenomics/rdas/ldsc/Phase1/baseline/baseline.[1-22] ...
+Results printed to /dcl02/lieber/ajaffe/SpatialTranscriptomics/HumanPilot/Analysis/Layer_Guesses/LDSC/output/Layer2.Years_of_education.Phase1.results
+Analysis finished at Thu Feb 27 14:50:30 2020
+Total time elapsed: 3.0m:25.840000000000003s
