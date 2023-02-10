@@ -113,7 +113,8 @@ dat[dat$Coefficient_p < 0.01,]
 # 82   Layer2                 IQ 0.006832419 0.03659739   5.356432 8.706680e-03    6.094676e-02 1.148389e-07            2.478732  6.592522e-03     4.614765e-02
 # 88   Layer2      Schizophrenia 0.006832419 0.03178507   4.652097 6.418024e-05    4.492617e-04 2.172155e-07            3.605726  1.556408e-04     1.089485e-03
 
-dat[which(dat$Trait == "Schizophrenia"),]
+sczd <- dat[which(dat$Trait == "Schizophrenia"),]
+sczd
 #     Category         Trait  Prop._SNPs     Prop._h2 Enrichment Enrichment_p Enrichment_holm   Coefficient Coefficient_z.score Coefficient_p Coefficient_holm
 # 28        WM Schizophrenia 0.023137726  0.035500713  1.5343216 2.809097e-01    0.5618193293 -3.987475e-09          -0.1065047  0.5424090553      1.000000000
 # 58    Layer1 Schizophrenia 0.009772554 -0.002301291 -0.2354851 4.182254e-02    0.2091127237 -1.231121e-07          -2.7544016  0.9970600218      1.000000000
@@ -126,6 +127,25 @@ dat[which(dat$Trait == "Schizophrenia"),]
 dat[which(dat$Trait == "Schizophrenia" & dat$Category == "Layer2"),]
 #    Category         Trait  Prop._SNPs   Prop._h2 Enrichment Enrichment_p Enrichment_holm  Coefficient Coefficient_z.score Coefficient_p Coefficient_holm
 # 88   Layer2 Schizophrenia 0.006832419 0.03178507   4.652097 6.418024e-05    0.0004492617 2.172155e-07            3.605726  0.0001556408      0.001089485
+
+cbind(Category = sczd$Category, sczd[, paste0(rep(c("Enrichment", "Coefficient"), each = 2), c("_p", "_holm"))])
+#     Category Enrichment_p Enrichment_holm Coefficient_p Coefficient_holm
+# 28        WM 2.809097e-01    0.5618193293  0.5424090553      1.000000000
+# 58    Layer1 4.182254e-02    0.2091127237  0.9970600218      1.000000000
+# 88    Layer2 6.418024e-05    0.0004492617  0.0001556408      0.001089485
+# 118   Layer3 5.126573e-01    0.5618193293  0.3641630397      1.000000000
+# 148   Layer4 1.129455e-01    0.3388364215  0.1109665067      0.443866027
+# 178   Layer5 1.349028e-02    0.0809416942  0.0150556616      0.090333970
+# 208   Layer6 8.047206e-02    0.3218882452  0.0670868440      0.335434220
+cbind(Category = sczd$Category, as.data.frame(sczd[, paste0(rep(c("Enrichment", "Coefficient"), each = 2), c("_p", "_holm"))] < 0.05))
+#     Category Enrichment_p Enrichment_holm Coefficient_p Coefficient_holm
+# 28        WM        FALSE           FALSE         FALSE            FALSE
+# 58    Layer1         TRUE           FALSE         FALSE            FALSE
+# 88    Layer2         TRUE            TRUE          TRUE             TRUE
+# 118   Layer3        FALSE           FALSE         FALSE            FALSE
+# 148   Layer4        FALSE           FALSE         FALSE            FALSE
+# 178   Layer5         TRUE           FALSE          TRUE            FALSE
+# 208   Layer6        FALSE           FALSE         FALSE            FALSE
 
 library(tidyr)
 wide_enr_enrichment = spread(
