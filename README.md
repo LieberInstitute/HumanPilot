@@ -390,6 +390,14 @@ generates these CSV files is located inside R Markdown files at the
 [Analysis](Analysis/) directory such as
 [SpatialDE_clustering.Rmd](Analysis/SpatialDE_clustering.Rmd).
 
+## Contact
+
+We welcome public questions, bug reports, and suggestions through
+[LieberInstitute/HumanPilot/issues](https://github.com/LieberInstitute/HumanPilot/issues).
+Public discussions help other researchers find the answer later, so
+please use GitHub issues whenever possible and avoid posting sensitive
+or private data.
+
 <a href="https://www.libd.org/"><img src="http://lcolladotor.github.io/img/LIBD_logo.jpg" width="250px"></a>
 
 # Bibliography
@@ -405,9 +413,3 @@ prefrontal cortex”. In: *Nature Neuroscience* (2021). DOI:
 transcriptomics data”. In: *BMC Genomics* (2022). DOI:
 10.1186/s12864-022-08601-w.
 <https://doi.org/10.1186/s12864-022-08601-w>.
-
-# Internal
-
-- JHPCE location: `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot`
-- Main `sce` R object file:
-  `/dcs04/lieber/lcolladotor/with10x_LIBD001/HumanPilot/Analysis/Human_DLPFC_Visium_processedData_sce_scran.Rdata`.
